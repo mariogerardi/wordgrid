@@ -1,0 +1,28 @@
+{
+  "meta": {
+    "id": "103",
+    "name": "Feels Like We Only Go Backward",
+    "par": 3
+  },
+  "board": {
+    "size": 3,
+    "goal": [0, 0],
+    "seeds": [
+      { "text": "COM", "r": 1, "c": 1, "dir": "H" }
+    ],
+    "specials": []
+  },
+  "deck": ["MON", "UN", "SOON", "EY", "ABO", "DE", "SP"],
+  "startingHand": ["MON", "UN", "SOON", "EY"],
+  "allowedWords": [
+    "uncommon",
+    "common",
+    "money",
+    "demon",
+    "abode",
+    "delay",
+    "spun",
+    "monsoon"
+  ],
+  "notes": ""
+}

@@ -1,0 +1,29 @@
+{
+  "meta": {
+    "id": "108",
+    "name": "All Grown Up",
+    "par": 5
+  },
+  "board": {
+    "size": 5,
+    "goal": [2, 4],
+    "seeds": [
+      { "text": "DOM", "r": 2, "c": 0, "dir": "H" }
+    ],
+    "specials": []
+  },
+  "deck": ["FR", "IGHT", "EN", "EE", "GA", "GE", "ME", "NT", "CK", "THUN", "RA", "O", "BA", "QUI", "EST"],
+  "startingHand": ["FR", "IGHT", "EN", "EE"],
+  "allowedWords": [
+    "freedom",   
+    "fright",    
+    "frighten",  
+    "engage",    
+    "engagement",
+    "thunder",
+    "gecko",
+    "frock",
+    "front"   
+  ],
+  "notes": ""
+}

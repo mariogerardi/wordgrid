@@ -1,0 +1,35 @@
+{
+  "meta": {
+    "id": "110",
+    "name": "Final Exam",
+    "par": 6
+  },
+  "board": {
+    "size": 5,
+    "goal": [4, 4],
+    "seeds": [
+      { "text": "CON", "r": 0, "c": 0, "dir": "H" }
+    ],
+    "specials": [
+      { "r": 1, "c": 1, "type": "blocked" },
+      { "r": 3, "c": 1, "type": "blocked" },
+      { "r": 1, "c": 3, "type": "blocked" },
+      { "r": 3, "c": 3, "type": "blocked" }
+    ]
+  },
+  "deck": ["N", "TEM", "TIO", "PLA", "NEC", "T", "TY", "IVI", "ST", "RU", "RY", "AR", "THY", "WOR", "M", "QUE", "PHE", "E"],
+  "startingHand": ["N", "TEM", "TIO", "PLA"],
+  "allowedWords": [
+    "con",
+
+    "contemplation",
+    "connectivity", 
+    "trust",        
+    "trustworthy",  
+    "starry",       
+    "thyme",        
+    "worm",         
+    "nectar"        
+  ],
+  "notes": ""
+}

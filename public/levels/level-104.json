@@ -1,0 +1,28 @@
+{
+  "meta": {
+    "id": "104",
+    "name": "U",
+    "par": 3
+  },
+  "board": {
+    "size": 3,
+    "goal": [0, 2],
+    "seeds": [
+      { "text": "B", "r": 0, "c": 0, "dir": "H" }
+    ],
+    "specials": [
+      { "r": 0, "c": 1, "type": "blocked" },
+      { "r": 1, "c": 1, "type": "blocked" }
+    ]
+  },
+  "deck": ["U", "G", "S", "U", "M", "U", "T", "Q", "N", "U"],
+  "startingHand": ["U", "G", "S", "U"],
+  "allowedWords": [
+    "b",
+    "u", "um", "un", "us",
+
+    "bug", "bus", "bun", "bum", "but",
+    "gun", "gut", "gnu", "tug", "nub", "sub", "sum", "sun", "gum"
+  ],
+  "notes": ""
+}

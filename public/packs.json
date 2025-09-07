@@ -3,18 +3,28 @@
     {
       "id": "tutorial",
       "name": "Tutorial",
-      "description": "Learn the basics with guided puzzles.",
+      "description": "Ten guided stages that teach the mechanics.",
       "puzzles": [
-        { "id": "001", "name": "Waste Not",     "unlocked": true  },
-        { "id": "002", "name": "Rookie Roots",  "unlocked": true  },
-        { "id": "003", "name": "Tiny Trial",    "unlocked": true  },
-        { "id": "004", "name": "Coming soon",   "unlocked": false },
-        { "id": "005", "name": "Coming soon",   "unlocked": false },
-        { "id": "006", "name": "Coming soon",   "unlocked": false },
-        { "id": "007", "name": "Coming soon",   "unlocked": false },
-        { "id": "008", "name": "Coming soon",   "unlocked": false },
-        { "id": "009", "name": "Coming soon",   "unlocked": false },
-        { "id": "010", "name": "Coming soon",   "unlocked": false }
+        { "id": "101", "name": "Tutorial 1",  "unlocked": true },
+        { "id": "102", "name": "Tutorial 2",  "unlocked": true },
+        { "id": "103", "name": "Tutorial 3",  "unlocked": true },
+        { "id": "104", "name": "Tutorial 4",  "unlocked": true },
+        { "id": "105", "name": "Tutorial 5",  "unlocked": true },
+        { "id": "106", "name": "Tutorial 6",  "unlocked": true },
+        { "id": "107", "name": "Tutorial 7",  "unlocked": true },
+        { "id": "108", "name": "Tutorial 8",  "unlocked": true },
+        { "id": "109", "name": "Tutorial 9",  "unlocked": true },
+        { "id": "110", "name": "Tutorial 10", "unlocked": true }
+      ]
+    },
+    {
+      "id": "foundations",
+      "name": "Foundations",
+      "description": "Early prototypes and scaling demos.",
+      "puzzles": [
+        { "id": "001", "name": "Waste Not",    "unlocked": true },
+        { "id": "002", "name": "Rookie Roots", "unlocked": true },
+        { "id": "003", "name": "Tiny Trial",   "unlocked": true }
       ]
     }
   ]

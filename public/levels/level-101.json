@@ -1,0 +1,26 @@
+{
+  "meta": {
+    "id": "101",
+    "name": "Baby's First Word",
+    "par": 1
+  },
+  "board": {
+    "size": 3,
+    "goal": [1, 2],
+    "seeds": [
+      { "text": "BEG", "r": 1, "c": 0, "dir": "H" }
+    ],
+    "specials": []
+  },
+  "deck": ["INN", "ER", "UI", "LED"],
+  "startingHand": ["INN", "ER", "UI", "LED"],
+  "allowedWords": [
+    "beg",
+    "inn",
+    "inner",
+    "led",
+    "beguiled",
+    "beginner"
+  ],
+  "notes": "Par-1: place two tiles in a single turn to complete either BEGUILED (UI+LED) or BEGINNER (INN+ER)."
+}

@@ -69,13 +69,14 @@ function normalizeLevel(raw, fallbackId = 'unknown') {
     c: toInt(goalArr?.[1], 0, 'board.goal[1]', errors),
   };
 
-  // seeds
+  // seeds (single-cell tiles now)
   const seedsRaw = Array.isArray(board.seeds) ? board.seeds : [];
   const seeds = seedsRaw.map((s, i) => {
     const text = mustString(s?.text, `board.seeds[${i}].text`, errors);
     const r = toInt(s?.r, 0, `board.seeds[${i}].r`, errors);
     const c = toInt(s?.c, 0, `board.seeds[${i}].c`, errors);
-    const dir = normalizeDir(s?.dir, `board.seeds[${i}].dir`, errors);
+    // dir is now irrelevant for placement; keep it for backward compatibility
+    const dir = (s?.dir === 'V' || s?.dir === 'H') ? s.dir : 'H';
     return { text, r, c, dir };
   });
 
@@ -93,13 +94,14 @@ function normalizeLevel(raw, fallbackId = 'unknown') {
   if (goal.r < 0 || goal.c < 0 || goal.r >= size || goal.c >= size) {
     errors.push(`board.goal out of bounds for size ${size}.`);
   }
+
+  // Single-cell bounds check for seeds only (no multi-letter fit check)
   seeds.forEach((s, i) => {
     if (!s.text || !/^[A-Za-z]+$/.test(s.text)) {
       errors.push(`board.seeds[${i}].text must be letters A–Z.`);
     }
-    const len = s.text.length;
-    if (!fits(size, s.r, s.c, s.dir, len)) {
-      errors.push(`board.seeds[${i}] "${s.text}" does not fit on the ${size}×${size} board.`);
+    if (s.r < 0 || s.c < 0 || s.r >= size || s.c >= size) {
+      errors.push(`board.seeds[${i}] is out of bounds for the ${size}×${size} board.`);
     }
   });
 
@@ -208,10 +210,7 @@ function validateSpecials(board, size) {
   }
   // No overlap with seeds
   for (const sd of (board.seeds || [])) {
-    const span = sd.dir === 'V'
-      ? new Array(sd.text.length).fill(0).map((_, i) => [sd.r + i, sd.c])
-      : new Array(sd.text.length).fill(0).map((_, i) => [sd.r, sd.c + i]);
-    if (span.some(([r, c]) => specials.some(s => s.r === r && s.c === c))) {
+    if (specials.some(s => s.r === sd.r && s.c === sd.c)) {
       throw new Error('board.specials cannot overlap seeds.');
     }
   }

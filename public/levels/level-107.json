@@ -1,0 +1,28 @@
+{
+  "meta": {
+    "id": "107",
+    "name": "Stockpile",
+    "par": 5
+  },
+  "board": {
+    "size": 3,
+    "goal": [2, 1],
+    "seeds": [
+      { "text": "NUT", "r": 1, "c": 1, "dir": "H" }
+    ],
+    "specials": []
+  },
+  "deck": ["PEA", "WAL", "COCO", "WING", "HAZEL", "CHEST", "TY"],
+  "startingHand": ["PEA", "WAL", "COCO", "WING"],
+  "allowedWords": [
+    "nut",
+    "peanut",
+    "walnut",
+    "coconut",
+    "wingnut",
+    "hazelnut",
+    "chestnut",
+    "nutty"
+  ],
+  "notes": ""
+}

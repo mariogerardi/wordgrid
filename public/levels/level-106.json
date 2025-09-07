@@ -1,0 +1,26 @@
+{
+  "meta": {
+    "id": "106",
+    "name": "Recall",
+    "par": 5
+  },
+  "board": {
+    "size": 3,
+    "goal": [2, 0],
+    "seeds": [
+      { "text": "LOW", "r": 1, "c": 1, "dir": "H" }
+    ],
+    "specials": []
+  },
+  "deck": ["ER", "CH", "RY", "BUE", "CHRY", "MU", "F"],
+  "startingHand": ["ER", "CH", "RY", "BUE"],
+  "allowedWords": [
+    "low",
+    "lower",
+    "flower",
+    "cherry",
+    "fry",
+    "ferry"
+  ],
+  "notes": ""
+}

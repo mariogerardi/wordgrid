@@ -1,0 +1,29 @@
+{
+  "meta": {
+    "id": "105",
+    "name": "Doughnut",
+    "par": 4
+  },
+  "board": {
+    "size": 3,
+    "goal": [1, 0],
+    "seeds": [
+      { "text": "UBT", "r": 1, "c": 2, "dir": "H" }
+    ],
+    "specials": [
+      { "r": 1, "c": 1, "type": "blocked" }
+    ]
+  },
+  "deck": ["DO", "TO", "RNA", "FUL", "CH", "EER", "PZA", "ESO", "PHR", "U"],
+  "startingHand": ["DO", "TO", "RNA", "FUL"],
+  "allowedWords": [
+    "do",
+    "to",
+    "cheer",
+    "cheerful",
+    "touch",
+    "tornado",
+    "doubtful"
+  ],
+  "notes": ""
+}

@@ -63,10 +63,11 @@ function normalizePacks(raw) {
 const routes = [
   { match: /^#\/?$/, view: HomeView },
   { match: /^#\/play\/?$/, view: PacksView },
-  { match: /^#\/play\/tutorial\/?$/, view: TutorialPackView },
+  { match: /^#\/play\/([a-z0-9-]+)\/?$/, view: PackView },        // <— dynamic pack route
   { match: /^#\/play\/level\/(\d{3})\/?$/, view: GameView },
-  { match: /^#\/how\/?$/, view: HowToPlayView },
+  { match: /^#\/how\/?$/, view: HowToPlayView }
 ];
+
 function route() {
   const hash = location.hash || '#/';
   // Clean up any game-only listeners as we change screens
@@ -151,13 +152,12 @@ async function PacksView() {
   showHUD(false);
   const packs = await loadPacks();
 
-  const tutorial = packs.byId['tutorial'];
   const htmlCard = (p) => `
-    <a class="pack-card${p.id==='tutorial' ? '' : ' pack-card--locked'}" href="${p.id==='tutorial' ? '#/play/tutorial' : 'javascript:void(0)'}">
+    <a class="pack-card" href="#/play/${p.id}">
       <div class="pack-card__title">${p.name}</div>
-      <div class="pack-card__desc">${p.description || 'Coming soon'}</div>
-      <div class="pack-card__tag ${p.id==='tutorial' ? 'pack-card__tag--unlocked' : ''}">
-        ${p.id==='tutorial' ? 'Unlocked' : 'Locked'}
+      <div class="pack-card__desc">${p.description || ''}</div>
+      <div class="pack-card__tag ${p.id==='tutorial' ? '' : 'pack-card__tag--unlocked'}">
+        ${p.id==='tutorial' ? 'Guide' : 'Unlocked'}
       </div>
     </a>
   `;
@@ -166,8 +166,7 @@ async function PacksView() {
     <section class="section">
       <h2 style="margin:0 0 8px;">Choose a pack</h2>
       <div class="pack-grid">
-        ${tutorial ? htmlCard(tutorial) : ''}
-        ${packs.list.filter(p => p.id!=='tutorial').map(htmlCard).join('')}
+        ${packs.list.map(htmlCard).join('')}
       </div>
       <div style="margin-top:12px;">
         <a class="link" href="#/">← Back</a>
@@ -177,10 +176,22 @@ async function PacksView() {
   injectMenuCSSOnce();
 }
 
-async function TutorialPackView() {
+async function PackView(match) {
   showHUD(false);
+  const packId = match[1];
   const packs = await loadPacks();
-  const pack = packs.byId['tutorial'] || { name:'Tutorial', puzzles:[] };
+  const pack = packs.byId[packId];
+
+  if (!pack) {
+    app().innerHTML = `
+      <section class="section">
+        <h2>Pack not found</h2>
+        <p>Looks like “${packId}” doesn’t exist.</p>
+        <p><a class="link" href="#/play">← Back to Packs</a></p>
+      </section>
+    `;
+    return;
+  }
 
   const tiles = (pack.puzzles || []).map((pz, i) => {
     const locked = !pz.unlocked;
@@ -198,7 +209,7 @@ async function TutorialPackView() {
   app().innerHTML = `
     <section class="section">
       <h2 style="margin:0 0 8px;">${pack.name}</h2>
-      <p style="margin:0 0 16px; color:#66707a;">Learn the rules by playing short, curated puzzles.</p>
+      <p style="margin:0 0 16px; color:#66707a;">${pack.description || ''}</p>
       <div class="puzzles-grid">${tiles}</div>
       <div style="margin-top:12px;">
         <a class="link" href="#/play">← Back to Packs</a>

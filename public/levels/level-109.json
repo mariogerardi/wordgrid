@@ -1,0 +1,59 @@
+{
+  "meta": {
+    "id": "109",
+    "name": "Obstacle Course",
+    "par": 5
+  },
+  "board": {
+    "size": 5,
+    "goal": [4, 2],
+    "seeds": [
+      { "text": "INK", "r": 0, "c": 2, "dir": "H" }
+    ],
+    "specials": [
+      { "r": 0, "c": 0, "type": "blocked" },
+      { "r": 0, "c": 3, "type": "blocked" },
+      { "r": 0, "c": 4, "type": "blocked" },
+
+      { "r": 1, "c": 0, "type": "blocked" },
+      { "r": 1, "c": 2, "type": "blocked" },
+      { "r": 1, "c": 3, "type": "blocked" },
+      { "r": 1, "c": 4, "type": "blocked" },
+
+      { "r": 2, "c": 0, "type": "blocked" },
+      { "r": 2, "c": 4, "type": "blocked" },
+
+      { "r": 3, "c": 0, "type": "blocked" },
+      { "r": 3, "c": 1, "type": "blocked" },
+      { "r": 3, "c": 2, "type": "blocked" },
+      { "r": 3, "c": 4, "type": "blocked" },
+
+      { "r": 4, "c": 0, "type": "blocked" },
+      { "r": 4, "c": 1, "type": "blocked" },
+      { "r": 4, "c": 4, "type": "blocked" }
+    ]
+  },
+  "deck": ["TE", "TH", "D", "IR", "ILA", "P", "A", "CH", "SUB", "LET", "IN"],
+  "startingHand": ["TE", "TH", "D", "IR"],
+  "allowedWords": [
+    "ink",
+
+    "pad",
+    "pink",
+    "path",   
+    "think",  
+    "third",  
+    "teach",
+    "dilate",
+    "sublet", 
+    "inlet",
+    "date",   
+    "tech",   
+    "inch",
+    "pinch",
+
+    "irate",  
+    "truest"  
+  ],
+  "notes": ""
+}

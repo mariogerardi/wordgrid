@@ -1,0 +1,25 @@
+{
+  "meta": {
+    "id": "102",
+    "name": "Branching Off",
+    "par": 2
+  },
+  "board": {
+    "size": 3,
+    "goal": [2, 2],
+    "seeds": [
+      { "text": "BI", "r": 0, "c": 0, "dir": "H" }
+    ],
+    "specials": []
+  },
+  "deck": ["LE", "CYC", "MON", "PRO", "ADE", "LAY"],
+  "startingHand": ["LE", "CYC", "MON", "PRO"],
+  "allowedWords": [
+    "bi",
+    "bile",
+    "bicycle",
+    "lemon",
+    "lemonade"
+  ],
+  "notes": "Place CYC at [1,0] and LE at [2,0] in one turn to form BICYCLE down the left column and reach the goal."
+}
