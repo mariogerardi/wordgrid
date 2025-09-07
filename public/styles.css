@@ -118,7 +118,7 @@ h2{margin:8px 0 8px; font-size:15px; color:var(--muted); font-weight:700}
 .tile{
   display:inline-flex; align-items:center; justify-content:center;
   width:max(88px, fit-content);
-  padding:10px 12px;
+  padding:14px 12px;
   background:#f4f7ff;
   border:1px solid #d6deff;
   border-radius:12px;
@@ -254,7 +254,6 @@ button:disabled{
 }
 .section{
   border-color: var(--line);
-  box-shadow: var(--shadow);
 }
 
 /* Board */
@@ -324,3 +323,140 @@ button:hover{ background:#f0f4ff }
 /* HUD & messages */
 .hud{ color: var(--muted); }
 #messages{ color:#1f2937; }
+
+/* =========================================
+   Menus (Home / Packs / Tutorial)
+   ========================================= */
+
+/* Hero-ish section on home */
+.section--centered {
+  text-align: center;
+  padding: 28px 20px;
+}
+
+/* Generic buttons/links for menu screens */
+.btn{
+  display:inline-block;
+  padding:10px 14px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:var(--panel);
+  color:var(--ink);
+  text-decoration:none;
+  font-weight:700;
+  transition: background .15s ease, border-color .15s ease, transform .06s ease;
+}
+.btn:hover{ background:#f0f4ff; transform: translateY(-1px); }
+.btn--primary{
+  background: var(--accent);
+  border-color: var(--accent);
+  color:#fff;
+  box-shadow: 0 2px 6px rgba(31,77,255,.28);
+}
+.btn--primary:hover{ filter: brightness(.96); }
+
+.link{ color:#1f4dff; text-decoration:none; }
+.link:hover{ text-decoration:underline; }
+
+/* Packs grid (Play → packs) */
+.pack-grid{
+  display:grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap:12px;
+}
+.pack-card{
+  display:block;
+  padding:14px 14px 12px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background: var(--panel);
+  color: var(--ink);
+  text-decoration:none;
+  box-shadow: var(--shadow);
+  transition: transform .06s ease, background .15s ease, border-color .15s ease;
+}
+.pack-card:hover{ transform: translateY(-1px); background:#f7f9ff; border-color:#cbd5e1; }
+.pack-card--locked{ opacity: .6; pointer-events:none; }
+.pack-card__title{ font-weight:800; margin-bottom:4px; }
+.pack-card__desc{ color: var(--muted); font-size: 14px; }
+.pack-card__tag{
+  display:inline-block;
+  margin-top:8px;
+  font-size:12px;
+  padding:2px 8px;
+  border-radius:999px;
+  background:#eef3ff;
+  color:#1f4dff;
+  border:1px solid #b7c6ff;
+}
+.pack-card--locked .pack-card__tag{
+  background:#f2f4f7; color:#66707a; border-color:#e3e8ee;
+}
+
+/* Tutorial pack → list of 10 puzzle tiles */
+.puzzles-grid{
+  display:grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap:10px;
+}
+.puzzle-tile{
+  display:block;
+  padding:12px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:var(--panel);
+  color:var(--ink);
+  text-decoration:none;
+  box-shadow: var(--shadow);
+  transition: transform .06s ease, border-color .15s ease, background .15s ease;
+}
+.puzzle-tile:hover{ transform: translateY(-1px); background:#f7f9ff; border-color:#cbd5e1; }
+.puzzle-tile--locked{ pointer-events:none; opacity:.55; }
+.puzzle-tile__num{ font-weight:800; margin-bottom:4px; }
+.puzzle-tile__name{ color: var(--muted); font-size: 14px; }
+.puzzle-tile__status{ margin-top:8px; font-size: 12px; color: #1f4dff; }
+.puzzle-tile--locked .puzzle-tile__status{ color:#66707a; }
+
+/* Minor polish for hr between board and trays on game screen */
+main hr{
+  border: 0;
+  border-top: 1px solid var(--line);
+  margin: 12px 0;
+}
+
+/* Responsive tweaks */
+@media (max-width: 560px){
+  .btn{ width:100%; text-align:center; }
+}
+
+/* Blocked cells (like crossword black squares) */
+.cell--blocked{
+  background: #111;
+  border-color: #111;
+  position: relative;
+}
+.cell--blocked::before{
+  /* subtle hatch to differentiate from "just empty" */
+  content:"";
+  position:absolute; inset:0;
+  background:
+    linear-gradient(45deg, rgba(255,255,255,.06) 25%, transparent 25%) 0 0 / 8px 8px,
+    linear-gradient(-45deg, rgba(255,255,255,.06) 25%, transparent 25%) 0 0 / 8px 8px;
+  border-radius: inherit;
+}
+.cell--blocked:hover{ transform:none; } /* no hover lift */
+
+/* How to Play page */
+.lead {
+  font-size: 16px;
+  margin-bottom: 16px;
+  color: var(--muted);
+}
+.howto-list {
+  padding-left: 20px;
+  margin: 0;
+}
+.howto-list li {
+  margin-bottom: 10px;
+  line-height: 1.45;
+}

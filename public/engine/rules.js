@@ -18,6 +18,7 @@ export function tryStagePlacement(state, tileId, r, c) {
   const found = findTileInPools(state, tileId);
   if (!found) return fail('Tile not in hand/reserve.');
   if (!fits(state, r, c)) return fail('Out of bounds.');
+  if (isBlocked(state, r, c)) return fail('Blocked cell.');
   if (state.grid[r][c].text) return fail('Cell is occupied.');
 
   const { pool, index } = found;
@@ -33,6 +34,7 @@ export function moveStagedPlacement(state, tileId, toR, toC) {
   const act = state.turnPlacements.find(a => a.type === 'place' && a.tile.id === tileId);
   if (!act) return fail('Tile is not staged.');
   if (!fits(state, toR, toC)) return fail('Out of bounds.');
+  if (isBlocked(state, toR, toC)) return fail('Blocked cell.');
   if (state.grid[toR][toC].text) return fail('Cell is occupied.');
 
   const from = state.grid[act.r][act.c];
@@ -175,6 +177,11 @@ export function rollbackTurn(state) {
 }
 
 /* -------------------- helpers -------------------- */
+
+function isBlocked(state, r, c) {
+  const cell = state.grid?.[r]?.[c];
+  return !!cell && cell.special === 'blocked';
+}
 
 function findTileInPools(state, tileId) {
   let ix = state.hand.findIndex(t => t.id === tileId);

@@ -5,6 +5,10 @@
     "goal": [3, 1],
     "seeds": [
       { "text": "ANT", "r": 3, "c": 3, "dir": "H" }
+    ],
+    "specials": [
+      { "r": 1, "c": 1, "type": "blocked" },
+      { "r": 0, "c": 2, "type": "blocked" }
     ]
   },
   "deck": ["HRO", "POL", "OGY", "BI", "OL", "ISA", "TOT", "LUT", "SEC", "UMN", "ARGON", "T", "AST", "RON"],

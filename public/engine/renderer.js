@@ -254,6 +254,8 @@ function renderBoard() {
         cellEl.classList.add('cell--selected');
       }
 
+      if (cur.special === 'blocked') cellEl.classList.add('cell--blocked');
+
       cellEl.textContent = cur.text ? String(cur.text).toUpperCase() : '';
       root.appendChild(cellEl);
     }

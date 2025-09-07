@@ -54,6 +54,15 @@ export function startLevel(state, level) {
       if (ix >= 0) state.hand.push(state.deck.splice(ix, 1)[0]);
     }
   }
+
+  // apply specials (blocked cells)
+  if (Array.isArray(level.board?.specials)) {
+    for (const s of level.board.specials) {
+      const cell = state.grid[s.r][s.c];
+      cell.special = s.type; // 'blocked'
+    }
+  }
+
   dealToHand(state, 4);
 }
 

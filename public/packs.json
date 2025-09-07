@@ -1,0 +1,21 @@
+{
+  "packs": [
+    {
+      "id": "tutorial",
+      "name": "Tutorial",
+      "description": "Learn the basics with guided puzzles.",
+      "puzzles": [
+        { "id": "001", "name": "Waste Not",     "unlocked": true  },
+        { "id": "002", "name": "Rookie Roots",  "unlocked": true  },
+        { "id": "003", "name": "Tiny Trial",    "unlocked": true  },
+        { "id": "004", "name": "Coming soon",   "unlocked": false },
+        { "id": "005", "name": "Coming soon",   "unlocked": false },
+        { "id": "006", "name": "Coming soon",   "unlocked": false },
+        { "id": "007", "name": "Coming soon",   "unlocked": false },
+        { "id": "008", "name": "Coming soon",   "unlocked": false },
+        { "id": "009", "name": "Coming soon",   "unlocked": false },
+        { "id": "010", "name": "Coming soon",   "unlocked": false }
+      ]
+    }
+  ]
+}

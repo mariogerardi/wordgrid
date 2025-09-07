@@ -52,16 +52,17 @@ export function levelIdFromURL() {
 
 function normalizeLevel(raw, fallbackId = 'unknown') {
   const errors = [];
-  const w = (x) => (x || x === 0); // defined check
 
-  // meta
+  // ---- meta ----
   const id = (raw?.meta?.id ?? fallbackId) + '';
   const name = (raw?.meta?.name ?? `Level ${id}`) + '';
   const par = toInt(raw?.meta?.par, 7, 'meta.par', errors);
 
-  // board
-  const size = toInt(raw?.board?.size, 7, 'board.size', errors);
-  const goalArr = Array.isArray(raw?.board?.goal) ? raw.board.goal : null;
+  // ---- board ----
+  const board = raw?.board ?? {};
+  const size = toInt(board.size, 7, 'board.size', errors);
+
+  const goalArr = Array.isArray(board.goal) ? board.goal : null;
   if (!goalArr || goalArr.length !== 2) errors.push('board.goal must be [row, col].');
   const goal = {
     r: toInt(goalArr?.[0], 0, 'board.goal[0]', errors),
@@ -69,7 +70,7 @@ function normalizeLevel(raw, fallbackId = 'unknown') {
   };
 
   // seeds
-  const seedsRaw = Array.isArray(raw?.board?.seeds) ? raw.board.seeds : [];
+  const seedsRaw = Array.isArray(board.seeds) ? board.seeds : [];
   const seeds = seedsRaw.map((s, i) => {
     const text = mustString(s?.text, `board.seeds[${i}].text`, errors);
     const r = toInt(s?.r, 0, `board.seeds[${i}].r`, errors);
@@ -78,19 +79,16 @@ function normalizeLevel(raw, fallbackId = 'unknown') {
     return { text, r, c, dir };
   });
 
-  // deck & startingHand
+  // specials (blocked cells, etc.)
+  const specials = validateSpecials(board, size);
+
+  // ---- deck / words ----
   const deck = toStringArray(raw?.deck, 'deck', errors);
-  const startingHand = raw?.startingHand == null
-    ? null
-    : toStringArray(raw.startingHand, 'startingHand', errors);
-
-  // allowedWords
+  const startingHand = raw?.startingHand == null ? null : toStringArray(raw.startingHand, 'startingHand', errors);
   const allowedWords = toStringArray(raw?.allowedWords, 'allowedWords', errors);
-
-  // notes
   const notes = (raw?.notes ?? '') + '';
 
-  // bounds sanity
+  // ---- bounds sanity ----
   if (size <= 0) errors.push('board.size must be > 0.');
   if (goal.r < 0 || goal.c < 0 || goal.r >= size || goal.c >= size) {
     errors.push(`board.goal out of bounds for size ${size}.`);
@@ -109,12 +107,11 @@ function normalizeLevel(raw, fallbackId = 'unknown') {
     errors.push('allowedWords must contain at least one entry.');
   }
 
-  // optional: warn if startingHand items aren’t present in deck (authoring mistake)
+  // Warn if startingHand items aren’t present in deck (non-fatal)
   if (startingHand) {
     const deckCounts = countBy(deck);
     for (const frag of startingHand) {
       if (!deckCounts[frag]) {
-        // not fatal, but likely a mistake
         console.warn(`[level ${id}] startingHand contains "${frag}" which is not found in deck.`);
       } else {
         deckCounts[frag]--;
@@ -127,8 +124,10 @@ function normalizeLevel(raw, fallbackId = 'unknown') {
     throw new Error(`Level "${id}" failed validation:\n${msg}`);
   }
 
+  // Return flat shape (what the engine expects) + nested board for specials
   return {
-    id, name, size, par, goal, seeds, deck, startingHand, allowedWords, notes
+    id, name, size, par, goal, seeds, deck, startingHand, allowedWords, notes,
+    board: { specials }  // <-- used by state.startLevel(...) to mark blocked cells
   };
 }
 
@@ -186,3 +185,35 @@ function countBy(arr) {
 }
 
 function w(x) { return x || x === 0; }
+
+function validateSpecials(board, size) {
+  const specials = Array.isArray(board.specials) ? board.specials : [];
+  for (const s of specials) {
+    if (typeof s.r !== 'number' || typeof s.c !== 'number' || typeof s.type !== 'string') {
+      throw new Error('board.specials entries must be { r, c, type }.');
+    }
+    if (s.r < 0 || s.c < 0 || s.r >= size || s.c >= size) {
+      throw new Error(`board.specials out of bounds at [${s.r},${s.c}].`);
+    }
+    if (s.type !== 'blocked') {
+      throw new Error(`board.specials unsupported type "${s.type}".`);
+    }
+  }
+  // No overlap with goal
+  if (Array.isArray(board.goal)) {
+    const [gr, gc] = board.goal;
+    if (specials.some(s => s.r === gr && s.c === gc)) {
+      throw new Error('board.specials cannot overlap the goal.');
+    }
+  }
+  // No overlap with seeds
+  for (const sd of (board.seeds || [])) {
+    const span = sd.dir === 'V'
+      ? new Array(sd.text.length).fill(0).map((_, i) => [sd.r + i, sd.c])
+      : new Array(sd.text.length).fill(0).map((_, i) => [sd.r, sd.c + i]);
+    if (span.some(([r, c]) => specials.some(s => s.r === r && s.c === c))) {
+      throw new Error('board.specials cannot overlap seeds.');
+    }
+  }
+  return specials;
+}
