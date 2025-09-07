@@ -1,0 +1,25 @@
+{
+  "meta": { "id": "001", "name": "Waste Not (dev)", "par": 7 },
+  "board": {
+    "size": 7,
+    "goal": [3, 1],
+    "seeds": [
+      { "text": "ANT", "r": 3, "c": 3, "dir": "H" }
+    ]
+  },
+  "deck": ["HRO", "POL", "OGY", "BI", "OL", "ISA", "TOT", "LUT", "SEC", "UMN", "ARGON", "T", "AST", "RON"],
+  "startingHand": ["HRO", "POL", "OGY", "BI"],
+  "allowedWords": [
+    "ant",
+    "anthropology",
+    "biology",
+    "pollutant",
+    "to",
+    "go",
+    "goal",
+    "aut",
+    "autumn",
+    "taut"
+  ],
+  "notes": "Dev test level mirroring the earlier example. Tight allowlist; adjust as puzzles evolve."
+}

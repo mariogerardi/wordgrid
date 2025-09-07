@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, viewport-fit=cover"
+  />
+  <title>wordgrid (local)</title>
+  <link rel="preload" href="./styles.css" as="style">
+  <link rel="stylesheet" href="./styles.css">
+  <style>
+    /* tiny inline safety so the page isn’t blank before styles.css exists */
+    body { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 0; }
+    header, footer { padding: 12px 16px; border-bottom: 1px solid #eee; }
+    footer { border-top: 1px solid #eee; border-bottom: 0; color: #666; }
+    .container { padding: 16px; }
+    .placeholder { color: #666; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>wordgrid</h1>
+    <div class="hud">
+      <span>Turn: <strong id="hudTurn">1</strong></span>
+      <span style="margin-left:12px;">Par: <strong id="hudPar">—</strong></span>
+      <span style="margin-left:12px;">Goal: <strong id="hudGoal">(—, —)</strong></span>
+    </div>
+  </header>
+
+  <main class="container" id="app">
+    <div id="boardMount" class="placeholder">board will render here…</div>
+    <hr />
+    <section class="trays">
+      <div class="tray tray--hand">
+        <h2>Hand</h2>
+        <div id="handMount" class="placeholder">hand will render here…</div>
+      </div>
+
+      <div class="tray tray--reserve">
+        <h2>Reserve (max 2)</h2>
+        <div id="reserveMount" class="placeholder">reserve will render here…</div>
+      </div>
+
+      <div class="tray tray--controls">
+        <div class="controls">
+          <button id="btnPlay" disabled>Submit</button>
+          <button id="btnReset" disabled>Reset placement</button>
+          <!-- Hidden by JS, kept for fallback -->
+          <button id="btnRecall" disabled style="display:none">Recall</button>
+          <button id="btnToggleDir" disabled style="display:none">Direction: H</button>
+        </div>
+        <p id="messages" style="min-height:1.5em; color:#444; margin-top:8px;"></p>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <small>local dev build • static only</small>
+  </footer>
+
+  <noscript>
+    <div class="container" style="color:#b00;">
+      This game requires JavaScript to run.
+    </div>
+  </noscript>
+
+  <!-- main entry (will 404 until we create it; that’s okay for now) -->
+  <script type="module" src="./main.js"></script>
+</body>
+</html>

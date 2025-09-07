@@ -1,0 +1,326 @@
+/* ===========================
+   wordgrid • refreshed light theme (centered)
+   =========================== */
+
+:root{
+  --cell:56px;          /* grid cell size */
+  --gap:8px;            /* grid gap */
+  --radius:12px;
+  --ink:#1e2430;
+  --muted:#66707a;
+  --line:#e3e8ee;
+  --bg:#f7f8fb;
+  --panel:#ffffff;
+  --accent:#2563ff;
+  --accent-2:#ffb347;   /* goal star */
+  --shadow:0 1px 2px rgba(16,24,40,.06),0 1px 3px rgba(16,24,40,.1);
+  --shadow-inset:0 0 0 2px rgba(37,99,255,.12) inset;
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--ink);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  line-height:1.4;
+}
+
+/* ---------------- Header / HUD ---------------- */
+
+header{
+  background:var(--panel);
+  border-bottom:1px solid var(--line);
+}
+h1{margin:0 0 4px;font-size:22px;letter-spacing:.2px}
+.hud{display:flex;flex-wrap:wrap;gap:12px;color:var(--muted);font-size:14px}
+
+/* ---------------- Layout (centered) ---------------- */
+
+main.container{
+  max-width:1024px;
+  margin:20px auto;
+  padding:0 16px 24px;
+  display:grid;
+  grid-template-columns:minmax(0,1fr); /* single column; board centered */
+  gap:20px;
+}
+@media (max-width:600px){
+  :root{ --cell:48px; --gap:6px }
+  h1{font-size:20px}
+}
+
+/* Center the board panel */
+#boardMount{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  padding:12px;
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:16px;
+  box-shadow:var(--shadow);
+}
+
+/* ---------------- Board & Cells ---------------- */
+
+.board{
+  --cols:7; --rows:7;
+  display:grid;
+  grid-template-columns:repeat(var(--cols), var(--cell));
+  grid-template-rows:repeat(var(--rows), var(--cell));
+  gap:var(--gap);
+  padding:var(--gap);
+  background:linear-gradient(180deg,#fafbff, #f7f9ff);
+  border:1px solid var(--line);
+  border-radius:14px;
+  position:relative;
+}
+
+.cell{
+  width:var(--cell); height:var(--cell);
+  display:grid; place-items:center;
+  background:#ffffff;
+  border:1px solid var(--line);
+  border-radius:10px;
+  font-weight:800;
+  /* multi-letter fragments stay readable */
+  font-size:clamp(12px, calc(var(--cell)*0.34), 18px);
+  letter-spacing:.4px;
+  padding:2px 4px;
+  text-align:center; line-height:1.05;
+  user-select:none;
+  transition:border-color .12s ease, background .12s ease, transform .03s ease;
+  position: relative;            /* <-- needed so ★ anchors to the cell */
+}
+.cell:hover{transform:translateY(-1px)}
+.cell--goal::after{
+  content:"★"; position:absolute; top:3px; right:6px;
+  font-size:16px; color:var(--accent-2)
+}
+.cell--seed{ outline:2px dashed #bcd0ff; outline-offset:-3px; background:#f5f9ff }
+.cell--preview{ border-style:dashed; opacity:.9 }
+.cell--conflict{ border-color:#e44; background:#fff2f2 }
+
+/* Selected board tile highlight */
+.cell--selected{
+  outline:3px solid var(--accent);
+  outline-offset:-3px;
+  box-shadow:var(--shadow-inset);
+}
+
+/* ---------------- Tiles (hand & reserve) ---------------- */
+
+h2{margin:8px 0 8px; font-size:15px; color:var(--muted); font-weight:700}
+
+.tiles{ display:flex; flex-wrap:wrap; gap:10px; min-height:48px }
+.tile{
+  display:inline-flex; align-items:center; justify-content:center;
+  width:max(88px, fit-content);
+  padding:10px 12px;
+  background:#f4f7ff;
+  border:1px solid #d6deff;
+  border-radius:12px;
+  font-weight:800; letter-spacing:.5px;
+  cursor:grab; user-select:none;
+  transition:transform .05s ease, background .15s ease, box-shadow .15s ease;
+}
+.tile:active{ cursor:grabbing; transform:translateY(1px) }
+.tile--selected{ outline:2px solid var(--accent); outline-offset:2px; background:#eaf0ff }
+.tile--ghost{ opacity:.6; border-style:dashed; cursor:pointer }
+.tile--ghost:hover{ opacity:.85 }
+.tile--locked{ opacity:.55; cursor:not-allowed }
+
+/* ---------------- Slots (hand:4, reserve:2) ---------------- */
+
+#handMount .tiles--with-slots{
+  display:grid; grid-template-columns:repeat(4, minmax(110px,1fr)); gap:12px
+}
+#reserveMount .tiles--with-slots{
+  display:grid; grid-template-columns:repeat(2, minmax(140px,1fr)); gap:12px
+}
+
+.slot{
+  display:flex; align-items:center; justify-content:center;
+  min-height:48px;
+  border:1px dashed var(--line);
+  border-radius:12px;
+  background:var(--panel);
+  color:var(--muted);
+  box-shadow:var(--shadow);
+  transition:background .15s ease, border-color .15s ease, color .15s ease;
+}
+.slot--empty{ font-weight:700; letter-spacing:.5px }
+.slot--empty:hover{
+  border-color:var(--accent); color:var(--accent);
+  background:#f5f7ff; cursor:pointer
+}
+.tiles--with-slots .tile{ width:100%; justify-content:center; position:relative }
+.tile--ghost::after{
+  content:"↩"; position:absolute; top:-6px; right:-6px;
+  font-size:11px; line-height:1; padding:2px 4px;
+  border-radius:8px; background:var(--panel);
+  border:1px solid var(--line); color:var(--muted)
+}
+
+/* ---------------- Controls / Buttons ---------------- */
+
+.controls{ display:flex; gap:10px; flex-wrap:wrap }
+button{
+  padding:10px 14px;
+  border:1px solid var(--line);
+  background:var(--panel);
+  border-radius:12px;
+  font-weight:700; letter-spacing:.2px;
+  cursor:pointer; color:var(--ink)
+}
+button:hover{ background:#f6f8ff }
+button:active{ transform:translateY(1px) }
+button:disabled{
+  color:#a0a8b4; border-color:#e7eaf0; background:#fbfcfe; cursor:not-allowed
+}
+
+/* Primary CTA */
+#btnPlay{
+  background:var(--accent);
+  border-color:var(--accent);
+  color:#fff;
+  box-shadow:0 1px 2px rgba(37,99,255,.25);
+}
+#btnPlay:hover{ filter:brightness(.97) }
+#btnPlay:disabled{ background:#a9b8ff; border-color:#a9b8ff; color:#eef1ff }
+
+/* Messages / status */
+#messages{ font-size:14px; color:#344055; margin-top:4px }
+
+/* Focus ring */
+:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; border-radius:6px }
+
+/* --- Side-by-side trays (Hand + Reserve) --- */
+.trays{
+  display:grid;
+  grid-template-columns: 2fr 1fr;   /* Hand gets 2 parts, Reserve 1 part */
+  gap:20px;
+  align-items:start;
+}
+.tray--controls{ grid-column: 1 / -1; } /* controls span both columns */
+
+@media (max-width: 900px){
+  .trays{ grid-template-columns: 1fr; }
+}
+
+/* --- Uniform slot/tile width across both trays --- */
+:root{ --slotW: 136px; }  /* tweak this number to taste */
+
+#handMount .tiles--with-slots,
+#reserveMount .tiles--with-slots{
+  /* override earlier grid with a simple non-stretch layout */
+  display:flex !important;
+  gap:12px;
+  flex-wrap:nowrap;       /* keep in one row inside each tray */
+}
+
+.slot{
+  width: var(--slotW);    /* same width in Hand + Reserve */
+  flex: 0 0 var(--slotW);
+}
+
+/* tiles inside slots fill the slot width */
+.tiles--with-slots .tile{ width:100%; }
+
+/* ================================
+   Contrast boost (light theme only)
+   Append to the end of styles.css
+   ================================ */
+
+:root{
+  /* Stronger text & lines */
+  --ink: #0f1729;        /* darker body text */
+  --muted: #475366;      /* deeper muted text */
+  --line: #cbd5e1;       /* darker borders */
+  --bg: #f3f6fb;         /* slightly cooler background */
+  --panel: #ffffff;
+  --accent: #1f4dff;     /* punchier primary */
+  --accent-2: #f59e0b;   /* richer star color */
+  --shadow: 0 1px 2px rgba(16,24,40,.14), 0 2px 6px rgba(16,24,40,.08);
+  --shadow-inset: 0 0 0 2px rgba(31,77,255,.16) inset;
+}
+
+/* Panels */
+#boardMount{
+  border-color: var(--line);
+  box-shadow: var(--shadow);
+}
+.section{
+  border-color: var(--line);
+  box-shadow: var(--shadow);
+}
+
+/* Board */
+.board{
+  background: linear-gradient(180deg,#fcfdff,#f5f7ff);
+  border-color: var(--line);
+}
+
+/* Cells */
+.cell{
+  background: #fff;
+  border-color: var(--line);
+  box-shadow: 0 0 0 1px rgba(203,213,225,.12) inset;
+}
+.cell:hover{ transform: translateY(-1px) }
+.cell--seed{ outline-color: #8db4ff; background:#f0f5ff }
+.cell--selected{
+  outline: 3px solid var(--accent);
+  box-shadow: var(--shadow-inset);
+}
+.cell--goal::after{ color: var(--accent-2) }
+
+/* Tiles */
+.tile{
+  background: #eef3ff;
+  border-color: #b7c6ff;
+  box-shadow: 0 1px 1px rgba(16,24,40,.06);
+}
+.tile--selected{ background:#dfe8ff; }
+.tile--ghost{
+  opacity: .7;
+  border-color: #9fb2ff;
+}
+.tile--ghost:hover{ opacity: .9; }
+
+/* Slots */
+.slot{
+  background: #fff;
+  border-color: var(--line);
+  color: var(--muted);
+  box-shadow: var(--shadow);
+}
+.slot--empty:hover{
+  background: #eef3ff;
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* Buttons */
+button{
+  border-color: var(--line);
+  background: var(--panel);
+  color: var(--ink);
+}
+button:hover{ background:#f0f4ff }
+#btnPlay{
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  box-shadow: 0 2px 6px rgba(31,77,255,.28);
+}
+#btnPlay:hover{ filter: brightness(.96) }
+#btnPlay:disabled{
+  background:#9aaafc; border-color:#9aaafc; color:#eef2ff;
+}
+
+/* HUD & messages */
+.hud{ color: var(--muted); }
+#messages{ color:#1f2937; }
