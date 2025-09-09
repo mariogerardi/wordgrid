@@ -1,8 +1,9 @@
 {
   "meta": {
     "id": "105",
-    "name": "Doughnut",
-    "par": 4
+    "name": "O",
+    "par": 4,
+    "intro": "The center is blocked—route around the hole to score."
   },
   "board": {
     "size": 3,

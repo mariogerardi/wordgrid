@@ -1,8 +1,9 @@
 {
   "meta": {
     "id": "103",
-    "name": "Feels Like We Only Go Backward",
-    "par": 3
+    "name": "Going Backward",
+    "par": 3,
+    "intro": "Advance first, then branch back when new tiles arrive."
   },
   "board": {
     "size": 3,
@@ -12,7 +13,7 @@
     ],
     "specials": []
   },
-  "deck": ["MON", "UN", "SOON", "EY", "ABO", "DE", "SP"],
+  "deck": ["MON", "UN", "SOON", "EY", "ABO", "DE", "F"],
   "startingHand": ["MON", "UN", "SOON", "EY"],
   "allowedWords": [
     "uncommon",
@@ -21,7 +22,7 @@
     "demon",
     "abode",
     "delay",
-    "spun",
+    "fun",
     "monsoon"
   ],
   "notes": ""

@@ -1,4 +1,4 @@
-/* wordgrid • main.js (mini SPA + engine + packs.json)
+/* griddl • main.js (mini SPA + engine + packs.json)
    Routes:
      #/                     → Home menu
      #/play                 → Pack select
@@ -11,6 +11,12 @@
 */
 
 import { loadLevel } from './engine/levelLoader.js';
+
+// DEV FORCE-UNLOCK (toggle for local testing)
+// Location: public/main.js (top of file, near imports)
+// Set to true to unlock ALL packs and ALL levels regardless of saved progress.
+// Remember to set back to false before sharing builds.
+const DEV_FORCE_UNLOCK_ALL = true;
 import { initState, startLevel } from './engine/state.js';
 import { makeValidatorFromLevel, applyValidatorToState } from './engine/validator.js';
 import { __patchRendererForShim as initUI } from './engine/renderer.js';
@@ -18,6 +24,109 @@ import { __patchRendererForShim as initUI } from './engine/renderer.js';
 /* ---------------- Packs data (fetched with fallback) ---------------- */
 
 let PACKS_DB = null;
+let PROGRESS = null; // { completed: Set<string>, unlockedPacks: Set<string>, unlockedLevels: Set<string> }
+
+/* ---------------- Progress (localStorage) ---------------- */
+
+const LS_KEY = 'griddl_progress_v1';
+
+function loadProgress() {
+  if (PROGRESS) return PROGRESS;
+  try {
+    const raw = JSON.parse(localStorage.getItem(LS_KEY) || 'null');
+    if (raw && raw.completed && raw.unlockedPacks && raw.unlockedLevels) {
+      PROGRESS = {
+        completed: new Set(raw.completed),
+        unlockedPacks: new Set(raw.unlockedPacks),
+        unlockedLevels: new Set(raw.unlockedLevels),
+      };
+      return PROGRESS;
+    }
+  } catch {}
+  // Default: tutorial pack unlocked, first three tutorial levels unlocked, foundations unlocked
+  PROGRESS = {
+    completed: new Set(),
+    unlockedPacks: new Set(['tutorial']),
+    unlockedLevels: new Set(['101', '102', '103']),
+  };
+  saveProgress();
+  return PROGRESS;
+}
+
+function saveProgress() {
+  try {
+    const data = {
+      completed: [...PROGRESS.completed],
+      unlockedPacks: [...PROGRESS.unlockedPacks],
+      unlockedLevels: [...PROGRESS.unlockedLevels],
+    };
+    localStorage.setItem(LS_KEY, JSON.stringify(data));
+  } catch {}
+}
+
+function syncPacksUnlockedFromProgress() {
+  if (!PACKS_DB || !PROGRESS) return;
+  try {
+    for (const p of PACKS_DB.list) {
+      p.unlocked = PROGRESS.unlockedPacks.has(p.id) || !!p.unlocked;
+    }
+  } catch {}
+}
+
+/* ---------------- Small UI toasts for unlocks ---------------- */
+function ensureToastRoot() {
+  let root = document.getElementById('toastRoot');
+  if (!root) {
+    root = document.createElement('div');
+    root.id = 'toastRoot';
+    document.body.appendChild(root);
+  }
+  return root;
+}
+function showUnlockToast(message) {
+  const root = ensureToastRoot();
+  const n = document.createElement('div');
+  n.className = 'toast';
+  n.textContent = message;
+  root.appendChild(n);
+  // animate in
+  requestAnimationFrame(() => n.classList.add('toast--in'));
+  // auto-dismiss
+  setTimeout(() => {
+    n.classList.remove('toast--in');
+    n.classList.add('toast--out');
+    setTimeout(() => n.remove(), 350);
+  }, 2600);
+}
+
+function unlockLevel(id) {
+  PROGRESS.unlockedLevels.add(String(id));
+}
+function unlockPack(id) {
+  PROGRESS.unlockedPacks.add(String(id));
+}
+function markCompleted(id) {
+  PROGRESS.completed.add(String(id));
+}
+
+// Apply tutorial gating: start with 101-103; then completing 101-103 → unlock 104-105; completing 104-105 → unlock 106-107; completing 106-107 → unlock 108-110.
+function applyTutorialUnlocks() {
+  const c = PROGRESS.completed;
+  // Ensure initial levels stay unlocked
+  ['101','102','103'].forEach(unlockLevel);
+  if (['101','102','103'].every(id => c.has(id))) {
+    ['104','105'].forEach(unlockLevel);
+    if (['104','105'].every(id => c.has(id))) {
+      ['106','107'].forEach(unlockLevel);
+      if (['106','107'].every(id => c.has(id))) {
+        ['108','109','110'].forEach(unlockLevel);
+      }
+    }
+  }
+  // Pack unlocks from tutorial milestones
+  if (c.has('105')) unlockPack('singles');
+  if (c.has('110')) unlockPack('basics');
+}
 
 async function loadPacks() {
   if (PACKS_DB) return PACKS_DB;
@@ -52,10 +161,31 @@ async function loadPacks() {
 }
 
 function normalizePacks(raw) {
-  const byId = {};
-  const list = Array.isArray(raw?.packs) ? raw.packs : [];
-  for (const p of list) byId[p.id] = p;
-  return { list, byId };
+  const packs = Array.isArray(raw?.packs) ? raw.packs : [];
+  const sections = Array.isArray(raw?.sections) ? raw.sections : [];
+  const byId = Object.create(null);
+  for (const p of packs) byId[p.id] = p;
+  const sectionsById = Object.create(null);
+  for (const s of sections) sectionsById[s.id] = s;
+  // Merge in dynamic unlocks from progress
+  loadProgress();
+  applyTutorialUnlocks();
+  // Pack unlocked flag defaults to PROGRESS; fallback to existing p.unlocked
+  for (const p of packs) {
+    p.unlocked = PROGRESS.unlockedPacks.has(p.id) || !!p.unlocked;
+  }
+  // DEV: force unlock everything for local testing
+  if (DEV_FORCE_UNLOCK_ALL) {
+    for (const p of packs) {
+      p.unlocked = true;
+      PROGRESS.unlockedPacks.add(p.id);
+      for (const lvl of (p.puzzles || [])) {
+        PROGRESS.unlockedLevels.add(String(lvl.id));
+      }
+    }
+  }
+  saveProgress();
+  return { list: packs, byId, sections: { list: sections, byId: sectionsById } };
 }
 
 /* ---------------- Tiny router ---------------- */
@@ -73,9 +203,16 @@ function route() {
   // Clean up any game-only listeners as we change screens
   disableResponsiveGrid();
 
+  // Ensure base theme is active (no-op; dark theme removed)
+
   for (const r of routes) {
     const m = hash.match(r.match);
-    if (m) { r.view(m); return; }
+    if (m) {
+      r.view(m);
+      // Mark app as ready to reveal content (prevents initial flash)
+      document.documentElement.classList.add('app-ready');
+      return;
+    }
   }
   location.hash = '#/';
 }
@@ -121,133 +258,192 @@ function disableResponsiveGrid() {
 }
 
 const app = () => document.getElementById('app');
-const hudRow = () => document.querySelector('header .hud');
-
-function showHUD(on) {
-  const row = hudRow();
-  if (row) row.style.display = on ? '' : 'none';
-}
+// HUD removed; no-op helpers deleted
 
 /* ---------------- Views ---------------- */
 
 function HomeView() {
-  showHUD(false);
   app().innerHTML = `
-    <section class="section" style="text-align:center; padding:28px 20px;">
-      <h1 style="margin:0 0 8px;">wordgrid</h1>
-      <p style="color:#475366; margin:0 0 18px;">Build words. Reach the goal.</p>
-      <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
-        <a class="btn btn--primary" href="#/play">Play</a>
-        <a class="btn" href="#/how">How to Play</a>
-        <a class="btn" href="#/achievements">Achievements</a>
-        <a class="btn" href="#/themes">Themes</a>
-        <a class="btn" href="#/settings">Settings</a>
+    <section class="section section--centered view">
+      <h1 class="home-title">griddl</h1>
+      <p class="home-tagline">Build words. Reach the goal.</p>
+      <div class="menu-grid">
+        <a class="menu-tile menu-tile--primary" href="#/play"><span class="menu-tile__label">Play</span></a>
+        <a class="menu-tile" href="#/how"><span class="menu-tile__label">How to Play</span></a>
+        <a class="menu-tile" href="#/achievements"><span class="menu-tile__label">Achievements</span></a>
+        <a class="menu-tile" href="#/themes"><span class="menu-tile__label">Themes</span></a>
+        <a class="menu-tile" href="#/settings"><span class="menu-tile__label">Settings</span></a>
       </div>
     </section>
   `;
-  injectButtonStylesOnce();
 }
 
 async function PacksView() {
-  showHUD(false);
   const packs = await loadPacks();
+  const htmlCard = (p) => {
+    const unlocked = DEV_FORCE_UNLOCK_ALL || !!p.unlocked;
+    const href = unlocked ? `#/play/${p.id}` : 'javascript:void(0)';
+    const cardCls = `pack-card${unlocked ? '' : ' pack-card--locked'}`;
+    const tagText = unlocked ? 'Unlocked' : 'Locked';
+    return `
+      <a class="${cardCls}" href="${href}" ${unlocked ? '' : 'aria-disabled="true"'}>
+        <div class="pack-card__title">${p.name}</div>
+        <div class="pack-card__desc">${p.description || ''}</div>
+        <div class="pack-card__tag ${unlocked ? 'pack-card__tag--unlocked' : ''}">${tagText}</div>
+      </a>
+    `;
+  };
 
-  const htmlCard = (p) => `
-    <a class="pack-card" href="#/play/${p.id}">
-      <div class="pack-card__title">${p.name}</div>
-      <div class="pack-card__desc">${p.description || ''}</div>
-      <div class="pack-card__tag ${p.id==='tutorial' ? '' : 'pack-card__tag--unlocked'}">
-        ${p.id==='tutorial' ? 'Guide' : 'Unlocked'}
-      </div>
-    </a>
-  `;
+  const bySection = new Map();
+  for (const s of packs.sections.list) bySection.set(s.id, []);
+  for (const p of packs.list) {
+    const sid = p.section || 'variety';
+    if (!bySection.has(sid)) bySection.set(sid, []);
+    bySection.get(sid).push(p);
+  }
+
+  const sectionHTML = packs.sections.list.map((s) => {
+    const items = bySection.get(s.id) || [];
+    const grid = items.length
+      ? `<div class="pack-grid">${items.map(htmlCard).join('')}</div>`
+      : `<div class="pack-grid" style="opacity:.75"><div class="pack-card pack-card--locked" aria-disabled="true">
+           <div class="pack-card__title">Coming soon</div>
+           <div class="pack-card__desc">${s.description || ''}</div>
+         </div></div>`;
+    return `
+      <section class="section packs-section">
+        <h3 class="packs-section__title">${s.name}</h3>
+        <p class="packs-section__desc">${s.description || ''}</p>
+        ${grid}
+      </section>
+    `;
+  }).join('');
 
   app().innerHTML = `
-    <section class="section">
+    <section class="section view">
       <h2 style="margin:0 0 8px;">Choose a pack</h2>
-      <div class="pack-grid">
-        ${packs.list.map(htmlCard).join('')}
-      </div>
-      <div style="margin-top:12px;">
-        <a class="link" href="#/">← Back</a>
+      ${sectionHTML}
+      <div class="game-toolbar" style="margin: 12px 0 0;">
+        <a class="btn" href="#/">← Back</a>
       </div>
     </section>
   `;
-  injectMenuCSSOnce();
+  // styles are in styles.css
 }
 
 async function PackView(match) {
-  showHUD(false);
   const packId = match[1];
   const packs = await loadPacks();
   const pack = packs.byId[packId];
 
   if (!pack) {
     app().innerHTML = `
-      <section class="section">
+      <section class="section view">
         <h2>Pack not found</h2>
         <p>Looks like “${packId}” doesn’t exist.</p>
-        <p><a class="link" href="#/play">← Back to Packs</a></p>
+        <div class="game-toolbar" style="margin: 12px 0 0;">
+          <a class="btn" href="#/play">← Back</a>
+        </div>
       </section>
     `;
     return;
   }
 
-  const tiles = (pack.puzzles || []).map((pz, i) => {
+  // Enrich puzzle tiles with level meta (title + par) for all packs.
+  let puzzles = pack.puzzles || [];
+  try {
+    puzzles = await Promise.all(puzzles.map(async (pz) => {
+      try {
+        const lvl = await loadLevel(pz.id);
+        // unlocked based on progress + tutorial gating (or DEV override)
+        const unlocked = DEV_FORCE_UNLOCK_ALL || PROGRESS.unlockedLevels.has(String(pz.id)) || pack.id !== 'tutorial';
+        return { ...pz, name: (lvl.name || pz.name), par: (lvl.par ?? pz.par), unlocked };
+      } catch {
+        return { ...pz, unlocked: (DEV_FORCE_UNLOCK_ALL || PROGRESS.unlockedLevels.has(String(pz.id)) || pack.id !== 'tutorial') };
+      }
+    }));
+  } catch {
+    // ignore enrichment errors and use existing data
+  }
+
+  const tiles = puzzles.map((pz, i) => {
     const locked = !pz.unlocked;
     const label = String(i + 1).padStart(2, '0');
     const href = locked ? 'javascript:void(0)' : `#/play/level/${pz.id}`;
     return `
       <a class="puzzle-tile ${locked ? 'puzzle-tile--locked' : ''}" href="${href}" ${locked ? 'aria-disabled="true"' : ''}>
         <div class="puzzle-tile__num">${label}</div>
-        <div class="puzzle-tile__name">${pz.name || 'Puzzle'}</div>
+        <div class="puzzle-tile__row">
+          <div class="puzzle-tile__name">${pz.name || 'Puzzle'}</div>
+          <div class="puzzle-tile__par">Par ${pz.par != null ? pz.par : '—'}</div>
+        </div>
         <div class="puzzle-tile__status">${locked ? 'Locked' : 'Play'}</div>
       </a>
     `;
   }).join('');
 
   app().innerHTML = `
-    <section class="section">
+    <section class="section view">
       <h2 style="margin:0 0 8px;">${pack.name}</h2>
       <p style="margin:0 0 16px; color:#66707a;">${pack.description || ''}</p>
-      <div class="puzzles-grid">${tiles}</div>
-      <div style="margin-top:12px;">
-        <a class="link" href="#/play">← Back to Packs</a>
+      <div class="puzzles-grid" data-pack="${pack.id}">${tiles}</div>
+      <div class="game-toolbar" style="margin: 12px 0 0;">
+        <a class="btn" href="#/play">← Back</a>
       </div>
     </section>
   `;
-  injectMenuCSSOnce();
+  // styles are in styles.css
 }
 
 async function GameView(match) {
-  showHUD(true);
 
-  // Build engine shell
+  const levelId = match[1]; // e.g. "001"
+
+  // Find the pack that contains this level for a back link and potential next link
+  let backHref = '#/play';
+  let nextHref = '';
+  try {
+    const packs = await loadPacks();
+    const found = packs.list.find(pk => (pk.puzzles || []).some(pz => String(pz.id) === String(levelId)));
+    if (found) {
+      backHref = `#/play/${found.id}`;
+      const ix = (found.puzzles || []).findIndex(pz => String(pz.id) === String(levelId));
+      const next = ix >= 0 ? (found.puzzles || [])[ix + 1] : null;
+      if (next && next.id) nextHref = `#/play/level/${next.id}`;
+    }
+  } catch {}
+
+  // Build engine shell (board + trays inside one panel)
   app().innerHTML = `
-    <div id="boardMount" class="placeholder">board will render here…</div>
-    <hr />
-    <section class="trays">
-      <div class="tray tray--hand">
-        <h2>Hand</h2>
-        <div id="handMount" class="placeholder">hand will render here…</div>
+    <section class="section view">
+      <div class="game-toolbar" style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
+        <div><a class="btn" href="${backHref}">← Back</a></div>
+        <div>${nextHref ? `<a id=\"btnNext\" class=\"btn btn--primary\" href=\"${nextHref}\" style=\"display:none\">Next →</a>` : ''}</div>
       </div>
-      <div class="tray tray--reserve">
-        <h2>Reserve (max 2)</h2>
-        <div id="reserveMount" class="placeholder">reserve will render here…</div>
-      </div>
-      <div class="tray tray--controls">
-        <div class="controls">
-          <button id="btnPlay" disabled>Submit</button>
-          <button id="btnReset" disabled>Reset placement</button>
-          <button id="btnRecall" disabled style="display:none">Recall</button>
-          <button id="btnToggleDir" disabled style="display:none">Direction: H</button>
+      <div id="boardMount">
+        <div id="boardRoot" class="placeholder">board will render here…</div>
+        <p id="messages" class="game-messages" style="min-height:1.5em; margin-top:10px;"></p>
+        <div class="trays trays--in-panel" style="margin-top:14px;">
+          <div class="tray tray--hand">
+            <h2>Hand</h2>
+            <div id="handMount" class="placeholder">hand will render here…</div>
+          </div>
+          <div class="tray tray--reserve">
+            <h2>Reserve</h2>
+            <div id="reserveMount" class="placeholder">reserve will render here…</div>
+          </div>
+          <div class="tray tray--controls">
+            <div class="controls">
+              <button id="btnPlay" disabled>Submit</button>
+              <button id="btnReset" disabled>Reset placement</button>
+              <button id="btnRecall" disabled style="display:none">Recall</button>
+              <button id="btnToggleDir" disabled style="display:none">Direction: H</button>
+            </div>
+          </div>
         </div>
-        <p id="messages" style="min-height:1.5em; color:#444; margin-top:8px;"></p>
       </div>
     </section>
   `;
-
-  const levelId = match[1]; // e.g. "001"
   const level = await loadLevel(levelId); // expects ./levels/level-<id>.json
 
   // 👉 Set cell size & responsive behavior based on level.size
@@ -261,22 +457,47 @@ async function GameView(match) {
   startLevel(state, level);
 
   initUI(state, level, {
-    onWin: ({ state, level }) => {
-      // TODO unlock next puzzle / record progress
+    onWin: () => {
+      // Reveal Next button (if present) when the puzzle is completed
+      const nextBtn = document.getElementById('btnNext');
+      if (nextBtn) nextBtn.style.display = '';
+      // Update progress & unlocks
+      loadProgress();
+      // snapshot before applying new unlocks
+      const prevLevels = new Set(PROGRESS.unlockedLevels);
+      const prevPacks = new Set(PROGRESS.unlockedPacks);
+      const id = String(level.id || match[1]);
+      markCompleted(id);
+      if (level.meta?.id) markCompleted(String(level.meta.id));
+      applyTutorialUnlocks();
+      saveProgress();
+      // Update cached packs so navigating back reflects unlocks immediately
+      syncPacksUnlockedFromProgress();
+
+      // Compute diffs and announce
+      const newlyUnlockedLevels = [...PROGRESS.unlockedLevels].filter(v => !prevLevels.has(v));
+      const newlyUnlockedPacks = [...PROGRESS.unlockedPacks].filter(v => !prevPacks.has(v));
+      // Announce tutorial level unlocks only
+      const tutLevelGain = newlyUnlockedLevels.filter(id => /^10\d$/.test(id));
+      if (tutLevelGain.length > 0) {
+        const word = tutLevelGain.length === 2 ? 'two' : (tutLevelGain.length === 3 ? 'three' : String(tutLevelGain.length));
+        showUnlockToast(`You just unlocked the next ${word} levels in this pack!`);
+      }
+      for (const pid of newlyUnlockedPacks) {
+        // Nice name from DB if we have it
+        const pk = PACKS_DB?.byId?.[pid];
+        const label = pk?.name ? pk.name : pid;
+        showUnlockToast(`You unlocked the ${label} pack!`);
+      }
     }
   });
 
-  // Update header HUD
-  const hudPar = document.getElementById('hudPar');
-  const hudGoal = document.getElementById('hudGoal');
-  if (hudPar) hudPar.textContent = String(level.meta?.par ?? state.par ?? '—');
-  if (hudGoal) hudGoal.textContent = `(${state.goal.r}, ${state.goal.c})`;
+  // HUD removed
 }
 
 function HowToPlayView() {
-  showHUD(false);
   app().innerHTML = `
-    <section class="section" style="max-width:720px; margin:auto; padding:20px;">
+    <section class="section view" style="max-width:720px; margin:auto; padding:20px;">
       <h2>How to Play</h2>
       <p class="lead">Place letter tiles on the grid to form words and reach the ★ goal cell.</p>
 
@@ -296,89 +517,7 @@ function HowToPlayView() {
       </p>
     </section>
   `;
-  injectHowToCSSOnce();
+  // styles are in styles.css
 }
 
-/* ---------------- One-time menu CSS injectors ---------------- */
-
-let _menuCSSInjected = false;
-let _buttonCSSInjected = false;
-
-function injectMenuCSSOnce() {
-  if (_menuCSSInjected) return;
-  _menuCSSInjected = true;
-  const style = document.createElement('style');
-  style.textContent = `
-    .pack-grid{
-      display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap:12px;
-    }
-    .pack-card{
-      display:block; padding:14px 14px 12px; border:1px solid var(--line);
-      border-radius:12px; background: var(--panel); text-decoration:none; color: var(--ink);
-      box-shadow: var(--shadow);
-      transition: transform .06s ease, background .15s ease, border-color .15s ease;
-    }
-    .pack-card:hover{ transform: translateY(-1px); background:#f7f9ff; border-color:#cbd5e1; }
-    .pack-card--locked{ opacity: .6; pointer-events:none; }
-    .pack-card__title{ font-weight:800; margin-bottom:4px; }
-    .pack-card__desc{ color: var(--muted); font-size: 14px; }
-    .pack-card__tag{
-      display:inline-block; margin-top:8px; font-size:12px; padding:2px 8px;
-      border-radius:999px; background:#eef3ff; color:#1f4dff; border:1px solid #b7c6ff;
-    }
-    .pack-card--locked .pack-card__tag{ background:#f2f4f7; color:#66707a; border-color:#e3e8ee; }
-
-    .puzzles-grid{
-      display:grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-      gap:10px;
-    }
-    .puzzle-tile{
-      display:block; padding:12px; border:1px solid var(--line); border-radius:12px;
-      background:var(--panel); text-decoration:none; color:var(--ink); box-shadow: var(--shadow);
-      transition: transform .06s ease, border-color .15s ease, background .15s ease;
-    }
-    .puzzle-tile:hover{ transform: translateY(-1px); background:#f7f9ff; border-color:#cbd5e1; }
-    .puzzle-tile--locked{ pointer-events:none; opacity:.55; }
-    .puzzle-tile__num{ font-weight:800; margin-bottom:4px; }
-    .puzzle-tile__name{ color: var(--muted); font-size: 14px; }
-    .puzzle-tile__status{ margin-top:8px; font-size: 12px; color: #1f4dff; }
-    .puzzle-tile--locked .puzzle-tile__status{ color:#66707a; }
-  `;
-  document.head.appendChild(style);
-  injectButtonStylesOnce();
-}
-
-function injectButtonStylesOnce() {
-  if (_buttonCSSInjected) return;
-  _buttonCSSInjected = true;
-  const style = document.createElement('style');
-  style.textContent = `
-    .btn{
-      display:inline-block; padding:10px 14px; border:1px solid var(--line);
-      border-radius:12px; background:var(--panel); color:var(--ink); text-decoration:none; font-weight:700;
-      transition: background .15s ease, border-color .15s ease, transform .06s ease;
-    }
-    .btn:hover{ background:#f0f4ff; transform: translateY(-1px); }
-    .btn--primary{
-      background: var(--accent); border-color: var(--accent); color:#fff; box-shadow: 0 2px 6px rgba(31,77,255,.28);
-    }
-    .btn--primary:hover{ filter: brightness(.96); }
-    .link{ color:#1f4dff; text-decoration:none; }
-    .link:hover{ text-decoration:underline; }
-  `;
-  document.head.appendChild(style);
-}
-
-let _howtoCSSInjected = false;
-function injectHowToCSSOnce() {
-  if (_howtoCSSInjected) return;
-  _howtoCSSInjected = true;
-  const style = document.createElement('style');
-  style.textContent = `
-    .lead { font-size:16px; margin-bottom:16px; color:var(--muted); }
-    .howto-list { padding-left:20px; margin:0; }
-    .howto-list li { margin-bottom:10px; line-height:1.45; }
-  `;
-  document.head.appendChild(style);
-}
+// Removed on-the-fly CSS injectors; all styles live in styles.css

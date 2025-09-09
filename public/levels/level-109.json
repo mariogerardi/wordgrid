@@ -2,7 +2,8 @@
   "meta": {
     "id": "109",
     "name": "Obstacle Course",
-    "par": 5
+    "par": 7,
+    "intro": "Navigate the blocked cells—thread a path to the ★."
   },
   "board": {
     "size": 5,
@@ -33,7 +34,7 @@
       { "r": 4, "c": 4, "type": "blocked" }
     ]
   },
-  "deck": ["TE", "TH", "D", "IR", "ILA", "P", "A", "CH", "SUB", "LET", "IN"],
+  "deck": ["TE", "TH", "D", "IR", "ELE", "P", "A", "CH", "SUB", "LET", "IN"],
   "startingHand": ["TE", "TH", "D", "IR"],
   "allowedWords": [
     "ink",
@@ -44,7 +45,7 @@
     "think",  
     "third",  
     "teach",
-    "dilate",
+    "delete",
     "sublet", 
     "inlet",
     "date",   

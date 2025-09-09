@@ -1,0 +1,22 @@
+{
+  "meta": { "id": "202", "name": "Greek Key", "par": 5, "intro": "Seed O starts at top-left on a 5×5. Navigate around blockers and reach the ★ at the top-right." },
+  "board": {
+    "size": 5,
+    "goal": [2, 2],
+    "seeds": [ { "text": "O", "r": 0, "c": 0, "dir": "H" } ],
+    "specials": [
+      { "r": 0, "c": 1, "type": "blocked" },
+      { "r": 0, "c": 2, "type": "blocked" },
+      { "r": 0, "c": 3, "type": "blocked" },
+      { "r": 1, "c": 1, "type": "blocked" },
+      { "r": 2, "c": 1, "type": "blocked" },
+      { "r": 2, "c": 3, "type": "blocked" },
+      { "r": 3, "c": 1, "type": "blocked" },
+      { "r": 3, "c": 2, "type": "blocked" },
+      { "r": 3, "c": 3, "type": "blocked" }
+    ]
+  },
+  "deck": ["M", "E", "G", "A", "A", "H", "P", "L", "M", "I", "S", "G", "H", "P", "I"],
+  "allowedWords": ["ALPHA", "OMEGA", "SIGMA", "AH", "MA", "PHI", "PI", "HI", "HIP"],
+  "notes": "Singles pack: single-letter tiles; central columns in top four rows are blocked."
+}

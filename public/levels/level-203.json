@@ -1,0 +1,14 @@
+{
+  "meta": { "id": "203", "name": "SUN Up", "par": 1, "intro": "Build SUN down the middle column." },
+  "board": {
+    "size": 3,
+    "goal": [2, 1],
+    "seeds": [ { "text": "S", "r": 0, "c": 1, "dir": "V" } ],
+    "specials": []
+  },
+  "deck": ["U", "N"],
+  "startingHand": ["U", "N"],
+  "allowedWords": ["sun", "us"],
+  "notes": ""
+}
+

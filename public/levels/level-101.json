@@ -2,7 +2,8 @@
   "meta": {
     "id": "101",
     "name": "Baby's First Word",
-    "par": 1
+    "par": 1,
+    "intro": "Create a simple word to reach the ★ goal."
   },
   "board": {
     "size": 3,

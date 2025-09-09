@@ -1,0 +1,14 @@
+{
+  "meta": { "id": "206", "name": "BOX Seat", "par": 1, "intro": "Fill BOX along the bottom row." },
+  "board": {
+    "size": 3,
+    "goal": [2, 2],
+    "seeds": [ { "text": "B", "r": 2, "c": 0, "dir": "H" } ],
+    "specials": []
+  },
+  "deck": ["O", "X"],
+  "startingHand": ["O", "X"],
+  "allowedWords": ["box", "ox"],
+  "notes": ""
+}
+

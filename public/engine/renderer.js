@@ -17,6 +17,8 @@ import {
 
 let _el = null;
 let _state = null;
+let _dragPayload = null; // fallback payload for dragover
+let _dragImageEl = null; // temporary ghost element for nicer cursor image
 
 /** Track selected board tile */
 let _selectedBoard = null; // { r, c, tileId, kind: 'staged'|'committed'|'seed' }
@@ -33,9 +35,13 @@ export function initUI(state, level, { onWin } = {}) {
   if (_el.btnRecall) _el.btnRecall.style.display = 'none';
   if (_el.btnPlay) _el.btnPlay.textContent = 'Submit';
 
-  // HUD init
-  _el.hudPar.textContent = String(state.par ?? 7);
-  _el.hudGoal.textContent = `(${state.goal.r}, ${state.goal.c})`;
+  // No HUD (removed)
+  _dragPayload = null;
+  if (_dragImageEl) { try { _dragImageEl.remove(); } catch {} _dragImageEl = null; }
+  window.addEventListener('dragend', () => {
+    _dragPayload = null;
+    if (_dragImageEl) { try { _dragImageEl.remove(); } catch {} _dragImageEl = null; }
+  }, { passive: true });
 
   // --- Hand events (select tile OR click empty slot to return staged)
   _el.hand.addEventListener('click', (e) => {
@@ -66,6 +72,30 @@ export function initUI(state, level, { onWin } = {}) {
       if (_selectedBoard?.kind === 'committed') {
         return say('Committed tiles can only be recalled to reserve.');
       }
+    }
+  });
+
+  // Hand DnD: allow dropping staged board tile back into hand
+  _el.hand.addEventListener('dragover', (e) => {
+    const slotEl = e.target.closest('.slot');
+    const data = getDrag();
+    if (!slotEl || !data) return;
+    if (data.origin === 'board-staged') {
+      e.preventDefault();
+      try { e.dataTransfer.dropEffect = 'move'; } catch {}
+    }
+  });
+  _el.hand.addEventListener('drop', (e) => {
+    const slotEl = e.target.closest('.slot');
+    const data = getDragData(e);
+    if (!slotEl || !data) return;
+    if (data.origin === 'board-staged') {
+      const res = returnStagedToPool(_state, data.r, data.c, 'hand');
+      if (!res.ok) return say(res.reason);
+      _selectedBoard = null; _state.selectedTileId = null;
+      renderAll();
+      say('Returned tile to hand.');
+      e.preventDefault();
     }
   });
 
@@ -112,6 +142,29 @@ export function initUI(state, level, { onWin } = {}) {
         renderAll();
         return say('Staged recall to reserve. Submit to confirm.');
       }
+    }
+  });
+
+  // Reserve DnD: drop committed board tile to stage recall
+  _el.reserve.addEventListener('dragover', (e) => {
+    const slotEl = e.target.closest('.slot');
+    const data = getDrag();
+    if (!slotEl || !data) return;
+    if (data.origin === 'board-committed') { e.preventDefault(); try { e.dataTransfer.dropEffect = 'copy'; } catch {} }
+    if (data.origin === 'board-staged') { e.preventDefault(); try { e.dataTransfer.dropEffect = 'none'; } catch {} }
+  });
+  _el.reserve.addEventListener('drop', (e) => {
+    const slotEl = e.target.closest('.slot');
+    const data = getDragData(e);
+    if (!slotEl || !data) return;
+    if (data.origin === 'board-staged') { return say('Only committed tiles can go to reserve (via recall).'); }
+    if (data.origin === 'board-committed') {
+      const res = tryStageRecall(_state, data.tileId);
+      if (!res.ok) return say(res.reason);
+      _selectedBoard = null; _state.selectedTileId = null;
+      renderAll();
+      say('Staged recall to reserve. Submit to confirm.');
+      e.preventDefault();
     }
   });
 
@@ -167,6 +220,42 @@ export function initUI(state, level, { onWin } = {}) {
     }
   });
 
+  // Board DnD: place from hand/reserve, or move staged
+  _el.board.addEventListener('dragover', (e) => {
+    const cell = e.target.closest('.cell[data-r][data-c]');
+    const data = getDrag();
+    if (!cell || !data) return;
+    if (data.origin === 'hand' || data.origin === 'reserve' || data.origin === 'board-staged') {
+      e.preventDefault();
+      try { e.dataTransfer.dropEffect = (data.origin === 'board-staged') ? 'move' : 'copy'; } catch {}
+    }
+  });
+  _el.board.addEventListener('drop', (e) => {
+    const cell = e.target.closest('.cell[data-r][data-c]');
+    const data = getDragData(e);
+    if (!cell || !data) return;
+    const r = Number(cell.dataset.r), c = Number(cell.dataset.c);
+    if (data.origin === 'hand' || data.origin === 'reserve') {
+      const res = tryStagePlacement(_state, data.tileId, r, c);
+      if (!res.ok) return say(res.reason);
+      _state.selectedTileId = null;
+      _selectedBoard = { r, c, tileId: _state.grid[r][c].tileId, kind: 'staged' };
+      renderAll();
+      say('Tile placed.');
+      e.preventDefault();
+      return;
+    }
+    if (data.origin === 'board-staged') {
+      const res = moveStagedPlacement(_state, data.tileId, r, c);
+      if (!res.ok) return say(res.reason);
+      _selectedBoard = { r, c, tileId: _state.grid[r][c].tileId, kind: 'staged' };
+      renderAll();
+      say('Moved staged tile.');
+      e.preventDefault();
+      return;
+    }
+  });
+
   // --- Submit: commits play OR recall; always clears selections
   _el.btnPlay.addEventListener('click', () => {
     // Clear selections on every submit (requested behavior)
@@ -177,7 +266,18 @@ export function initUI(state, level, { onWin } = {}) {
     renderAll();
     if (!res.ok) return say(res.reason); // staged state remains; selections already cleared
     if (res.win) {
-      say('🎉 Puzzle complete!');
+      // Completion message based on par performance
+      // state.turn is incremented on commit, so subtract 1 to get attempts used
+      const used = Math.max(1, _state.turn - 1);
+      const par = _state.par ?? 0;
+      let perf = '';
+      if (par > 0) {
+        const diff = used - par;
+        if (diff < 0) perf = `Under par by ${Math.abs(diff)}!`;
+        else if (diff === 0) perf = `Right at par (${par}).`;
+        else perf = `Over par by ${diff}.`;
+      }
+      say(`🎉 Puzzle complete! ${perf}`.trim());
       disableControls(true);
       if (typeof onWin === 'function') onWin({ state: _state, level });
     } else {
@@ -194,7 +294,13 @@ export function initUI(state, level, { onWin } = {}) {
   });
 
   renderAll();
-  say('Select from hand/reserve to place; select a board tile to move; use hand slots to return or reserve slots to stage recalls.');
+  // Intro status: prefer level.intro if provided, else show generic guidance
+  const introMsg = (level?.intro || '').trim();
+  if (introMsg) {
+    say(introMsg);
+  } else {
+    say('Select from hand/reserve to place; select a board tile to move; use hand slots to return or reserve slots to stage recalls.');
+  }
   return { rerender: renderAll, elements: _el };
 }
 
@@ -210,7 +316,7 @@ function bindDOM() {
     return n;
   };
   return {
-    board: get('boardMount'),
+    board: get('boardRoot'),
     hand: get('handMount'),
     reserve: get('reserveMount'),
     btnPlay: get('btnPlay'),
@@ -218,9 +324,6 @@ function bindDOM() {
     btnReset: get('btnReset'),
     btnToggleDir: get('btnToggleDir'),
     msg: get('messages'),
-    hudTurn: get('hudTurn'),
-    hudPar: get('hudPar'),
-    hudGoal: get('hudGoal'),
   };
 }
 
@@ -228,14 +331,13 @@ function renderAll() {
   renderBoard();
   renderHand();
   renderReserve();
-  renderHUD();
   disableControls(false);
 }
 
 function renderBoard() {
   const N = _state.size;
   const root = document.createElement('div');
-  root.className = 'board';
+  root.className = `board board--${N}`;
   root.style.setProperty('--cols', N);
   root.style.setProperty('--rows', N);
 
@@ -249,6 +351,7 @@ function renderBoard() {
       const cur = _state.grid[r][c];
       if (r === _state.goal.r && c === _state.goal.c) cellEl.classList.add('cell--goal');
       if (cur.seed) cellEl.classList.add('cell--seed');
+      if (cur.text && !cur.seed) cellEl.classList.add('cell--filled');
 
       if (_selectedBoard && _selectedBoard.r === r && _selectedBoard.c === c) {
         cellEl.classList.add('cell--selected');
@@ -256,7 +359,26 @@ function renderBoard() {
 
       if (cur.special === 'blocked') cellEl.classList.add('cell--blocked');
 
-      cellEl.textContent = cur.text ? String(cur.text).toUpperCase() : '';
+      // Render text inside a span so we can layer the goal star behind it
+      if (cur.text) {
+        const span = document.createElement('span');
+        span.className = 'cell__text';
+        span.textContent = String(cur.text).toUpperCase();
+        cellEl.appendChild(span);
+        const kind = boardTileKind(r, c);
+        if (kind === 'staged' || kind === 'committed') {
+          cellEl.setAttribute('draggable', 'true');
+          cellEl.addEventListener('dragstart', (ev) => {
+            setDragData(ev, {
+              origin: (kind === 'staged') ? 'board-staged' : 'board-committed',
+              tileId: cur.tileId,
+              r, c
+            });
+          });
+        }
+      } else {
+        cellEl.textContent = '';
+      }
       root.appendChild(cellEl);
     }
   }
@@ -277,6 +399,19 @@ function renderHand() {
       div.className = 'tile';
       div.dataset.id = t.id;
       if (_state.selectedTileId === t.id) div.classList.add('tile--selected');
+      // DnD from hand to board
+      div.setAttribute('draggable', 'true');
+      div.addEventListener('dragstart', (ev) => {
+        useTileDragImage(ev, t.text);
+        setDragData(ev, { origin: 'hand', tileId: t.id });
+        // Hide origin while dragging so it looks like you picked it up
+        div.classList.add('tile--dragging');
+      });
+      div.addEventListener('dragend', () => {
+        div.classList.remove('tile--dragging');
+        // If drop was canceled, ensure UI restores
+        renderAll();
+      });
       div.textContent = t.text.toUpperCase();
       slot.appendChild(div);
     } else {
@@ -311,6 +446,19 @@ function renderReserve() {
       if (i >= real.length) div.classList.add('tile--ghost'); // staged recall ghost
       if (_state.selectedTileId === t.id) div.classList.add('tile--selected'); // selecting real reserves
       div.textContent = String(t.text).toUpperCase();
+      // DnD from reserve (real only)
+      if (i < real.length) {
+        div.setAttribute('draggable', 'true');
+        div.addEventListener('dragstart', (ev) => {
+          useTileDragImage(ev, t.text);
+          setDragData(ev, { origin: 'reserve', tileId: t.id });
+          div.classList.add('tile--dragging');
+        });
+        div.addEventListener('dragend', () => {
+          div.classList.remove('tile--dragging');
+          renderAll();
+        });
+      }
       slot.appendChild(div);
     } else {
       slot.classList.add('slot--empty');
@@ -322,7 +470,7 @@ function renderReserve() {
   _el.reserve.replaceChildren(wrap);
 }
 
-function renderHUD() { _el.hudTurn.textContent = String(_state.turn); }
+// HUD removed
 
 function disableControls(yes) {
   _el.btnPlay.disabled = !!yes;
@@ -351,4 +499,36 @@ function getTileText(id) {
   if (inHand) return inHand.text.toUpperCase();
   const inRes = _state.reserve.find(x => x.id === id);
   return inRes ? inRes.text.toUpperCase() : '';
+}
+
+// DnD helpers
+function setDragData(ev, data) {
+  _dragPayload = data;
+  try { ev.dataTransfer.setData('application/json', JSON.stringify(data)); } catch {}
+  try { ev.dataTransfer.setData('text/plain', JSON.stringify(data)); } catch {}
+  ev.dataTransfer.effectAllowed = 'copyMove';
+}
+function getDragData(ev) {
+  try {
+    const s = ev.dataTransfer.getData('application/json') || ev.dataTransfer.getData('text/plain');
+    return s ? JSON.parse(s) : _dragPayload;
+  } catch { return _dragPayload; }
+}
+function getDrag() { return _dragPayload; }
+
+function useTileDragImage(ev, text) {
+  try {
+    // Clean any prior ghost
+    if (_dragImageEl) { _dragImageEl.remove(); _dragImageEl = null; }
+    const g = document.createElement('div');
+    g.className = 'tile tile--drag-ghost';
+    g.textContent = String(text || '').toUpperCase();
+    document.body.appendChild(g);
+    // Ensure it's laid out so we can center the drag hotspot
+    const rect = g.getBoundingClientRect();
+    const ox = Math.floor(rect.width / 2);
+    const oy = Math.floor(rect.height / 2);
+    ev.dataTransfer.setDragImage(g, ox, oy);
+    _dragImageEl = g;
+  } catch {}
 }

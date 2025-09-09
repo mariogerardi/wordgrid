@@ -57,6 +57,7 @@ function normalizeLevel(raw, fallbackId = 'unknown') {
   const id = (raw?.meta?.id ?? fallbackId) + '';
   const name = (raw?.meta?.name ?? `Level ${id}`) + '';
   const par = toInt(raw?.meta?.par, 7, 'meta.par', errors);
+  const intro = (raw?.meta?.intro ?? raw?.intro ?? '') + '';
 
   // ---- board ----
   const board = raw?.board ?? {};
@@ -129,6 +130,7 @@ function normalizeLevel(raw, fallbackId = 'unknown') {
   // Return flat shape (what the engine expects) + nested board for specials
   return {
     id, name, size, par, goal, seeds, deck, startingHand, allowedWords, notes,
+    intro,
     board: { specials }  // <-- used by state.startLevel(...) to mark blocked cells
   };
 }

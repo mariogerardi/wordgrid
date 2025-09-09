@@ -6,26 +6,20 @@
     name="viewport"
     content="width=device-width, initial-scale=1, viewport-fit=cover"
   />
-  <title>wordgrid (local)</title>
+  <title>griddl (local)</title>
   <link rel="preload" href="./styles.css" as="style">
   <link rel="stylesheet" href="./styles.css">
   <style>
     /* tiny inline safety so the page isn’t blank before styles.css exists */
     body { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 0; }
-    header, footer { padding: 12px 16px; border-bottom: 1px solid #eee; }
-    footer { border-top: 1px solid #eee; border-bottom: 0; color: #666; }
+    header { padding: 12px 16px; border-bottom: 1px solid #eee; }
     .container { padding: 16px; }
     .placeholder { color: #666; font-size: 14px; }
   </style>
 </head>
 <body>
   <header>
-    <h1>wordgrid</h1>
-    <div class="hud">
-      <span>Turn: <strong id="hudTurn">1</strong></span>
-      <span style="margin-left:12px;">Par: <strong id="hudPar">—</strong></span>
-      <span style="margin-left:12px;">Goal: <strong id="hudGoal">(—, —)</strong></span>
-    </div>
+    <h1><a href="#/" style="color:inherit; text-decoration:none;">griddl</a></h1>
   </header>
 
   <main class="container" id="app">
@@ -56,9 +50,6 @@
 
   </main>
 
-  <footer>
-    <small>local dev build • static only</small>
-  </footer>
 
   <noscript>
     <div class="container" style="color:#b00;">

@@ -2,7 +2,8 @@
   "meta": {
     "id": "110",
     "name": "Final Exam",
-    "par": 6
+    "par": 8,
+    "intro": "A full 5×5 with obstacles—use everything you’ve learned."
   },
   "board": {
     "size": 5,
@@ -21,7 +22,7 @@
   "startingHand": ["N", "TEM", "TIO", "PLA"],
   "allowedWords": [
     "con",
-
+    "connect",
     "contemplation",
     "connectivity", 
     "trust",        

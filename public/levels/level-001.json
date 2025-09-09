@@ -11,7 +11,7 @@
       { "r": 0, "c": 2, "type": "blocked" }
     ]
   },
-  "deck": ["HRO", "POL", "OGY", "BI", "OL", "ISA", "TOT", "LUT", "SEC", "UMN", "ARGON", "T", "AST", "RON"],
+  "deck": ["HRO", "POL", "OGY", "BI", "OL", "ISA", "TOT", "LUT", "SEC", "UMN"],
   "startingHand": ["HRO", "POL", "OGY", "BI"],
   "allowedWords": [
     "ant",
@@ -20,10 +20,7 @@
     "pollutant",
     "to",
     "go",
-    "goal",
-    "aut",
-    "autumn",
-    "taut"
+    "goal"
   ],
   "notes": "Dev test level mirroring the earlier example. Tight allowlist; adjust as puzzles evolve."
 }

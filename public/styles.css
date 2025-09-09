@@ -1,18 +1,18 @@
 /* ===========================
-   wordgrid • refreshed light theme (centered)
+   griddl • refreshed light theme (centered)
    =========================== */
 
 :root{
   --cell:56px;          /* grid cell size */
   --gap:8px;            /* grid gap */
   --radius:12px;
-  --ink:#1e2430;
-  --muted:#66707a;
-  --line:#e3e8ee;
-  --bg:#f7f8fb;
+  --ink:#111827;        /* charcoal body text */
+  --muted:#525a67;      /* muted charcoal */
+  --line:#d7dbe2;       /* soft cool gray borders */
+  --bg:#cce3ff;         /* light blue background */
   --panel:#ffffff;
-  --accent:#2563ff;
-  --accent-2:#ffb347;   /* goal star */
+  --accent:#2563ff;     /* keep blue accent */
+  --accent-2:#f59e0b;   /* goal star */
   --shadow:0 1px 2px rgba(16,24,40,.06),0 1px 3px rgba(16,24,40,.1);
   --shadow-inset:0 0 0 2px rgba(37,99,255,.12) inset;
 }
@@ -27,14 +27,14 @@ body{
   line-height:1.4;
 }
 
-/* ---------------- Header / HUD ---------------- */
+/* ---------------- Header ---------------- */
 
 header{
   background:var(--panel);
   border-bottom:1px solid var(--line);
 }
 h1{margin:0 0 4px;font-size:22px;letter-spacing:.2px}
-.hud{display:flex;flex-wrap:wrap;gap:12px;color:var(--muted);font-size:14px}
+/* HUD removed */
 
 /* ---------------- Layout (centered) ---------------- */
 
@@ -46,6 +46,16 @@ main.container{
   grid-template-columns:minmax(0,1fr); /* single column; board centered */
   gap:20px;
 }
+/* Hide app content until JS finishes first render to avoid flash */
+html:not(.app-ready) #app{ opacity:0; }
+#app{ transition: opacity .18s ease; }
+/* Subtle view transition to reduce flashing on navigation */
+.view{ animation: viewFadeIn .5s ease both; }
+@keyframes viewFadeIn{
+  from{ opacity:0; transform: translateY(4px); }
+  to{ opacity:1; transform:none; }
+}
+@media (prefers-reduced-motion: reduce){ .view{ animation: none; } }
 @media (max-width:600px){
   :root{ --cell:48px; --gap:6px }
   h1{font-size:20px}
@@ -54,14 +64,18 @@ main.container{
 /* Center the board panel */
 #boardMount{
   display:flex;
-  justify-content:center;
-  align-items:center;
+  flex-direction:column;
+  align-items:stretch;         /* children can choose their own width */
+  gap:12px;
   padding:12px;
-  background:var(--panel);
-  border:1px solid var(--line);
+  background:transparent;      /* transparent card */
+  border:0;                    /* no border */
   border-radius:16px;
-  box-shadow:var(--shadow);
+  box-shadow:none;             /* no shadow */
 }
+
+/* Center the grid itself within the panel */
+#boardRoot{ align-self:center; }
 
 /* ---------------- Board & Cells ---------------- */
 
@@ -72,10 +86,11 @@ main.container{
   grid-template-rows:repeat(var(--rows), var(--cell));
   gap:var(--gap);
   padding:var(--gap);
-  background:linear-gradient(180deg,#fafbff, #f7f9ff);
+  background:linear-gradient(180deg,#f8f9fb, #f5f6f8);
   border:1px solid var(--line);
   border-radius:14px;
   position:relative;
+  box-shadow: var(--shadow);
 }
 
 .cell{
@@ -93,13 +108,40 @@ main.container{
   user-select:none;
   transition:border-color .12s ease, background .12s ease, transform .03s ease;
   position: relative;            /* <-- needed so ★ anchors to the cell */
+  box-shadow: 0 1px 1px rgba(16,24,40,.06);
 }
+.cell__text{ position: relative; z-index: 1; }
+.cell--filled{
+  background: var(--accent);
+  border-color: var(--accent);
+  color:#fff;
+  box-shadow: 0 2px 8px rgba(31,77,255,.28);
+}
+.cell--filled .cell__text{ color:#fff; }
+.board--3 .cell{ font-size: clamp(13px, calc(var(--cell)*0.38), 22px); }
+.board--5 .cell{ font-size: clamp(12px, calc(var(--cell)*0.36), 20px); }
 .cell:hover{transform:translateY(-1px)}
-.cell--goal::after{
-  content:"★"; position:absolute; top:3px; right:6px;
-  font-size:16px; color:var(--accent-2)
+.cell--goal::before{
+  content:"★";
+  position:absolute;
+  left:50%; top:50%; transform: translate(-50%, -50%);
+  font-size: calc(var(--cell) * 0.44);
+  color:var(--accent-2);
+  opacity: .7;
+  pointer-events:none;
 }
-.cell--seed{ outline:2px dashed #bcd0ff; outline-offset:-3px; background:#f5f9ff }
+.cell--seed{
+  background:
+    linear-gradient(0deg, rgba(255,255,255,.05), rgba(255,255,255,.05)),
+    var(--accent);
+  border-color: var(--accent);
+  color:#fff;
+}
+.cell--seed .cell__text{ color:#fff; }
+.cell--seed::after{
+  content:""; position:absolute; inset:0; pointer-events:none; border-radius: inherit;
+  background: repeating-linear-gradient(45deg, rgba(255,255,255,.12) 0 6px, transparent 6px 12px);
+}
 .cell--preview{ border-style:dashed; opacity:.9 }
 .cell--conflict{ border-color:#e44; background:#fff2f2 }
 
@@ -119,15 +161,28 @@ h2{margin:8px 0 8px; font-size:15px; color:var(--muted); font-weight:700}
   display:inline-flex; align-items:center; justify-content:center;
   width:max(88px, fit-content);
   padding:14px 12px;
-  background:#f4f7ff;
-  border:1px solid #d6deff;
+  background: var(--accent);
+  border:1px solid var(--accent);
+  color:#fff;
   border-radius:12px;
   font-weight:800; letter-spacing:.5px;
   cursor:grab; user-select:none;
-  transition:transform .05s ease, background .15s ease, box-shadow .15s ease;
+  box-shadow: 0 2px 8px rgba(31,77,255,.28);
+  transition:transform .05s ease, filter .12s ease, background .15s ease, box-shadow .15s ease;
 }
 .tile:active{ cursor:grabbing; transform:translateY(1px) }
-.tile--selected{ outline:2px solid var(--accent); outline-offset:2px; background:#eaf0ff }
+.tile--dragging{ opacity: 0; }
+.tile--drag-ghost{
+  position: fixed;
+  top: -9999px; left: -9999px;
+  width: var(--cell);
+  height: var(--cell);
+  display: grid; place-items: center;
+  border-radius: 8px;
+  font-size: clamp(12px, calc(var(--cell)*0.34), 18px);
+  pointer-events: none;
+}
+.tile--selected{ filter: brightness(.96); box-shadow: 0 3px 10px rgba(31,77,255,.34); }
 .tile--ghost{ opacity:.6; border-style:dashed; cursor:pointer }
 .tile--ghost:hover{ opacity:.85 }
 .tile--locked{ opacity:.55; cursor:not-allowed }
@@ -151,10 +206,10 @@ h2{margin:8px 0 8px; font-size:15px; color:var(--muted); font-weight:700}
   box-shadow:var(--shadow);
   transition:background .15s ease, border-color .15s ease, color .15s ease;
 }
-.slot--empty{ font-weight:700; letter-spacing:.5px }
+.slot--empty{ font-weight:700; letter-spacing:.5px; background:#f1f3f5; border-color:#d7dee8; color:#8a95a5 }
 .slot--empty:hover{
   border-color:var(--accent); color:var(--accent);
-  background:#f5f7ff; cursor:pointer
+  background:#f2f4f7; cursor:pointer
 }
 .tiles--with-slots .tile{ width:100%; justify-content:center; position:relative }
 .tile--ghost::after{
@@ -175,7 +230,7 @@ button{
   font-weight:700; letter-spacing:.2px;
   cursor:pointer; color:var(--ink)
 }
-button:hover{ background:#f6f8ff }
+button:hover{ background:#f1f3f5 }
 button:active{ transform:translateY(1px) }
 button:disabled{
   color:#a0a8b4; border-color:#e7eaf0; background:#fbfcfe; cursor:not-allowed
@@ -193,145 +248,166 @@ button:disabled{
 
 /* Messages / status */
 #messages{ font-size:14px; color:#344055; margin-top:4px }
+/* Centered messages below the grid */
+#boardMount .game-messages{ text-align:center; color:#1f2937; }
 
 /* Focus ring */
 :focus-visible{ outline:2px solid var(--accent); outline-offset:2px; border-radius:6px }
 
+/* Toast notifications */
+#toastRoot{ position: fixed; left:50%; transform: translateX(-50%); bottom: 22px; z-index: 9999; display:flex; flex-direction:column; gap:10px; align-items:center; pointer-events:none }
+.toast{
+  pointer-events:auto;
+  background: var(--panel);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  padding: 10px 14px;
+  font-weight: 800;
+  letter-spacing: .2px;
+  opacity: 0;
+  transform: translateY(8px) scale(.98);
+  transition: opacity .22s ease, transform .22s ease;
+}
+.toast--in{ opacity: 1; transform: translateY(0) scale(1); }
+.toast--out{ opacity: 0; transform: translateY(8px) scale(.98); }
+
 /* --- Side-by-side trays (Hand + Reserve) --- */
 .trays{
-  display:grid;
-  grid-template-columns: 2fr 1fr;   /* Hand gets 2 parts, Reserve 1 part */
-  gap:20px;
-  align-items:start;
+  display:flex;
+  align-items:flex-start;
+  justify-content:center; /* center both groups */
+  gap:12px; /* same as tile gaps */
+  flex-wrap: wrap; /* allow controls to wrap below */
+}
+.tray--controls{
+  order: 2;
+  flex-basis: 100%;
+  margin-top: 12px;
+  display: flex;
+  justify-content: center;
 }
 .tray--controls{ grid-column: 1 / -1; } /* controls span both columns */
 
 @media (max-width: 900px){
-  .trays{ grid-template-columns: 1fr; }
+  .trays{ flex-direction: column; align-items: center; gap:12px; }
 }
 
-/* --- Uniform slot/tile width across both trays --- */
-:root{ --slotW: 136px; }  /* tweak this number to taste */
-
+/* --- Hand/Reserve slot sizing to match board cells --- */
 #handMount .tiles--with-slots,
 #reserveMount .tiles--with-slots{
-  /* override earlier grid with a simple non-stretch layout */
   display:flex !important;
   gap:12px;
-  flex-wrap:nowrap;       /* keep in one row inside each tray */
+  flex-wrap:nowrap;
 }
 
 .slot{
-  width: var(--slotW);    /* same width in Hand + Reserve */
-  flex: 0 0 var(--slotW);
+  width: var(--cell);
+  height: var(--cell);
+  min-height: var(--cell);
+  flex: 0 0 var(--cell);
+  border-radius: 8px; /* match cells */
 }
 
-/* tiles inside slots fill the slot width */
-.tiles--with-slots .tile{ width:100%; }
-
-/* ================================
-   Contrast boost (light theme only)
-   Append to the end of styles.css
-   ================================ */
-
-:root{
-  /* Stronger text & lines */
-  --ink: #0f1729;        /* darker body text */
-  --muted: #475366;      /* deeper muted text */
-  --line: #cbd5e1;       /* darker borders */
-  --bg: #f3f6fb;         /* slightly cooler background */
-  --panel: #ffffff;
-  --accent: #1f4dff;     /* punchier primary */
-  --accent-2: #f59e0b;   /* richer star color */
-  --shadow: 0 1px 2px rgba(16,24,40,.14), 0 2px 6px rgba(16,24,40,.08);
-  --shadow-inset: 0 0 0 2px rgba(31,77,255,.16) inset;
+/* tiles inside slots fill the slot area and mirror cell text sizing */
+.tiles--with-slots .tile{
+  width:100%; height:100%;
+  display:grid; place-items:center;
+  border-radius: 8px;
+  font-size: clamp(12px, calc(var(--cell)*0.34), 18px);
 }
 
-/* Panels */
-#boardMount{
-  border-color: var(--line);
-  box-shadow: var(--shadow);
+/* empty slot placeholder centered + sized like a cell */
+.slot--empty{
+  display:grid; place-items:center;
+  font-size: clamp(12px, calc(var(--cell)*0.34), 18px);
 }
-.section{
-  border-color: var(--line);
-}
-
-/* Board */
-.board{
-  background: linear-gradient(180deg,#fcfdff,#f5f7ff);
-  border-color: var(--line);
-}
-
-/* Cells */
-.cell{
-  background: #fff;
-  border-color: var(--line);
-  box-shadow: 0 0 0 1px rgba(203,213,225,.12) inset;
-}
-.cell:hover{ transform: translateY(-1px) }
-.cell--seed{ outline-color: #8db4ff; background:#f0f5ff }
-.cell--selected{
-  outline: 3px solid var(--accent);
-  box-shadow: var(--shadow-inset);
-}
-.cell--goal::after{ color: var(--accent-2) }
-
-/* Tiles */
-.tile{
-  background: #eef3ff;
-  border-color: #b7c6ff;
-  box-shadow: 0 1px 1px rgba(16,24,40,.06);
-}
-.tile--selected{ background:#dfe8ff; }
-.tile--ghost{
-  opacity: .7;
-  border-color: #9fb2ff;
-}
-.tile--ghost:hover{ opacity: .9; }
-
-/* Slots */
-.slot{
-  background: #fff;
-  border-color: var(--line);
-  color: var(--muted);
-  box-shadow: var(--shadow);
-}
-.slot--empty:hover{
-  background: #eef3ff;
-  border-color: var(--accent);
-  color: var(--accent);
-}
-
-/* Buttons */
-button{
-  border-color: var(--line);
-  background: var(--panel);
-  color: var(--ink);
-}
-button:hover{ background:#f0f4ff }
-#btnPlay{
-  background: var(--accent);
-  border-color: var(--accent);
-  color: #fff;
-  box-shadow: 0 2px 6px rgba(31,77,255,.28);
-}
-#btnPlay:hover{ filter: brightness(.96) }
-#btnPlay:disabled{
-  background:#9aaafc; border-color:#9aaafc; color:#eef2ff;
-}
-
-/* HUD & messages */
-.hud{ color: var(--muted); }
-#messages{ color:#1f2937; }
 
 /* =========================================
    Menus (Home / Packs / Tutorial)
    ========================================= */
 
 /* Hero-ish section on home */
-.section--centered {
-  text-align: center;
-  padding: 28px 20px;
+.section--centered { text-align: center; padding: 48px 20px; }
+.home-title{ margin:0 0 10px; font-size: 48px; letter-spacing:.3px }
+.home-tagline{ color: var(--muted); margin:0 0 22px; font-size:18px }
+.home-actions{ display:none }
+/* Grid-style menu tiles */
+.menu-grid{
+  --tileMin: 160px;
+  display:grid;
+  grid-template-columns: repeat(auto-fit, minmax(var(--tileMin), 1fr));
+  gap:16px;
+  max-width: 920px;
+  margin: 0 auto;
+}
+.menu-tile{
+  display:grid; place-items:center;
+  aspect-ratio: 1 / 1;              /* square, scales automatically */
+  background: var(--panel);
+  border:1px solid var(--line);
+  border-radius: 12px;               /* nod to board cells */
+  box-shadow: var(--shadow);
+  color: var(--ink);
+  text-decoration:none;
+  font-weight:800; letter-spacing:.3px;
+  transition: transform .12s ease, background .15s ease, border-color .15s ease, box-shadow .15s ease;
+  position: relative;
+  overflow:hidden;
+  will-change: transform;
+}
+/* subtle inner grid pattern */
+.menu-tile::before{
+  content:""; position:absolute; inset:0; pointer-events:none;
+  background:
+    repeating-linear-gradient(0deg, transparent 0, transparent calc(33.33% - 1px), rgba(31,77,255,.06) calc(33.33% - 1px), rgba(31,77,255,.06) 33.33%),
+    repeating-linear-gradient(90deg, transparent 0, transparent calc(33.33% - 1px), rgba(31,77,255,.06) calc(33.33% - 1px), rgba(31,77,255,.06) 33.33%);
+}
+.menu-tile:hover{
+  background:#f7f9ff; border-color:#cbd5e1;
+  box-shadow: 0 6px 18px rgba(16,24,40,.18);
+  animation: tileWobble 520ms ease-out, tileFloat 2.6s ease-in-out .5s infinite alternate;
+}
+.menu-tile__label{ font-size:18px; text-align:center; padding:0 10px }
+.menu-tile--primary{ background: var(--accent); border-color: var(--accent); color:#fff; box-shadow: 0 2px 8px rgba(31,77,255,.28); }
+/* Slightly off-white label for better depth on blue */
+.menu-tile--primary .menu-tile__label{ color: inherit; text-shadow: none; }
+.menu-tile--primary::before{ background:
+  repeating-linear-gradient(0deg, transparent 0, transparent calc(33.33% - 1px), rgba(255,255,255,.10) calc(33.33% - 1px), rgba(255,255,255,.10) 33.33%),
+  repeating-linear-gradient(90deg, transparent 0, transparent calc(33.33% - 1px), rgba(255,255,255,.10) calc(33.33% - 1px), rgba(255,255,255,.10) 33.33%);
+}
+/* Integrated hover for primary tile: slightly darker tone + subtle inner ring */
+.menu-tile--primary:hover{
+  background:
+    linear-gradient(0deg, rgba(0,0,0,.05), rgba(0,0,0,.05)),
+    var(--accent);
+  border-color:#1b3fe0;
+  box-shadow: 0 8px 20px rgba(31,77,255,.34), 0 0 0 2px rgba(255,255,255,.22) inset;
+}
+/* Hover state: keep contrasty label and tone down overlay a hair */
+.menu-tile--primary:hover .menu-tile__label{ color: inherit; text-shadow: none; }
+.menu-tile--primary:hover::before{ background:
+  repeating-linear-gradient(0deg, transparent 0, transparent calc(33.33% - 1px), rgba(255,255,255,.12) calc(33.33% - 1px), rgba(255,255,255,.12) 33.33%),
+  repeating-linear-gradient(90deg, transparent 0, transparent calc(33.33% - 1px), rgba(255,255,255,.12) calc(33.33% - 1px), rgba(255,255,255,.12) 33.33%);
+}
+/* Fun tilt + float animations on hover */
+@keyframes tileWobble{
+  0%   { transform: translateY(0) rotate(0deg) scale(1); }
+  30%  { transform: translateY(-8px) rotate(-2.2deg) scale(1.015); }
+  60%  { transform: translateY(-6px) rotate(1.5deg) scale(1.01); }
+  100% { transform: translateY(-7px) rotate(0deg) scale(1.01); }
+}
+@keyframes tileFloat{
+  from { transform: translateY(-7px) rotate(0deg) scale(1.01); }
+  to   { transform: translateY(-11px) rotate(-0.6deg) scale(1.01); }
+}
+@media (prefers-reduced-motion: reduce){
+  .menu-tile:hover{ animation: none; transform: translateY(-2px); }
+}
+@media (max-width: 560px){
+  .menu-grid{ --tileMin: 130px; gap:12px }
+  .menu-tile__label{ font-size:16px }
 }
 
 /* Generic buttons/links for menu screens */
@@ -346,7 +422,7 @@ button:hover{ background:#f0f4ff }
   font-weight:700;
   transition: background .15s ease, border-color .15s ease, transform .06s ease;
 }
-.btn:hover{ background:#f0f4ff; transform: translateY(-1px); }
+.btn:not(.btn--primary):hover{ background:#f1f3f5; transform: translateY(-1px); }
 .btn--primary{
   background: var(--accent);
   border-color: var(--accent);
@@ -355,18 +431,34 @@ button:hover{ background:#f0f4ff }
 }
 .btn--primary:hover{ filter: brightness(.96); }
 
-.link{ color:#1f4dff; text-decoration:none; }
+.link{ color:var(--accent); text-decoration:none; }
 .link:hover{ text-decoration:underline; }
 
 /* Packs grid (Play → packs) */
+.packs-section{ padding: 14px 0 18px; border-top: 1px solid var(--line); margin-top: 10px; }
+.packs-section:first-of-type{ border-top: 0; margin-top: 0; padding-top: 0; }
+.packs-section__title{
+  margin: 0 0 8px;
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: .3px;
+  position: relative;
+}
+.packs-section__title::after{
+  content: "";
+  display:block; width: 64px; height: 3px; margin-top: 6px;
+  background: var(--accent);
+  border-radius: 3px;
+}
+.packs-section__desc{ margin: 6px 0 14px; color: var(--muted); font-size: 15px; }
 .pack-grid{
   display:grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap:12px;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap:16px;
 }
 .pack-card{
   display:block;
-  padding:14px 14px 12px;
+  padding:18px 18px 14px;
   border:1px solid var(--line);
   border-radius:12px;
   background: var(--panel);
@@ -377,8 +469,8 @@ button:hover{ background:#f0f4ff }
 }
 .pack-card:hover{ transform: translateY(-1px); background:#f7f9ff; border-color:#cbd5e1; }
 .pack-card--locked{ opacity: .6; pointer-events:none; }
-.pack-card__title{ font-weight:800; margin-bottom:4px; }
-.pack-card__desc{ color: var(--muted); font-size: 14px; }
+.pack-card__title{ font-weight:800; margin-bottom:6px; font-size:18px }
+.pack-card__desc{ color: var(--muted); font-size: 15px; }
 .pack-card__tag{
   display:inline-block;
   margin-top:8px;
@@ -413,9 +505,13 @@ button:hover{ background:#f0f4ff }
 .puzzle-tile:hover{ transform: translateY(-1px); background:#f7f9ff; border-color:#cbd5e1; }
 .puzzle-tile--locked{ pointer-events:none; opacity:.55; }
 .puzzle-tile__num{ font-weight:800; margin-bottom:4px; }
+.puzzle-tile__row{ display:flex; align-items:flex-start; justify-content:space-between; gap:8px; }
 .puzzle-tile__name{ color: var(--muted); font-size: 14px; }
-.puzzle-tile__status{ margin-top:8px; font-size: 12px; color: #1f4dff; }
+.puzzle-tile__par{ color: var(--muted); font-size: 12px; }
+.puzzle-tile__status{ margin-top:8px; font-size: 12px; color: var(--accent); }
 .puzzle-tile--locked .puzzle-tile__status{ color:#66707a; }
+/* Style: italicize tutorial puzzle names */
+.puzzles-grid[data-pack="tutorial"] .puzzle-tile__name{ font-style: italic; }
 
 /* Minor polish for hr between board and trays on game screen */
 main hr{
@@ -460,3 +556,5 @@ main hr{
   margin-bottom: 10px;
   line-height: 1.45;
 }
+/* Force charcoal theme by class to ensure overrides take effect */
+/* removed dark theme override */

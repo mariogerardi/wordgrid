@@ -2,7 +2,8 @@
   "meta": {
     "id": "107",
     "name": "Stockpile",
-    "par": 5
+    "par": 5,
+    "intro": "Recall to stock your reserve, then spend wisely to finish."
   },
   "board": {
     "size": 3,

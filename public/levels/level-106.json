@@ -2,7 +2,8 @@
   "meta": {
     "id": "106",
     "name": "Recall",
-    "par": 5
+    "par": 5,
+    "intro": "Use Recall to reclaim tiles from the board and reach ★."
   },
   "board": {
     "size": 3,

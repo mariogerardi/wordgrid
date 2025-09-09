@@ -1,0 +1,14 @@
+{
+  "meta": { "id": "204", "name": "HAT Trick", "par": 1, "intro": "Complete HAT along the top row." },
+  "board": {
+    "size": 3,
+    "goal": [0, 2],
+    "seeds": [ { "text": "H", "r": 0, "c": 0, "dir": "H" } ],
+    "specials": []
+  },
+  "deck": ["A", "T"],
+  "startingHand": ["A", "T"],
+  "allowedWords": ["hat", "at"],
+  "notes": ""
+}
+

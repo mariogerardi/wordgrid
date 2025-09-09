@@ -1,0 +1,8 @@
+{
+  "meta": { "id": "305", "name": "Basics 5", "par": 1, "intro": "Placeholder level." },
+  "board": { "size": 3, "goal": [1, 0], "seeds": [ { "text": "E", "r": 1, "c": 2, "dir": "H" } ], "specials": [] },
+  "deck": ["R"],
+  "startingHand": ["R"],
+  "allowedWords": ["re", "e"],
+  "notes": "Basics placeholder."
+}

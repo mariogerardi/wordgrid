@@ -1,0 +1,8 @@
+{
+  "meta": { "id": "307", "name": "Basics 7", "par": 1, "intro": "Placeholder level." },
+  "board": { "size": 3, "goal": [2, 0], "seeds": [ { "text": "G", "r": 0, "c": 0, "dir": "V" } ], "specials": [] },
+  "deck": ["O"],
+  "startingHand": ["O"],
+  "allowedWords": ["go", "g"],
+  "notes": "Basics placeholder."
+}

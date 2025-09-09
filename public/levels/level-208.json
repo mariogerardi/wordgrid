@@ -1,0 +1,14 @@
+{
+  "meta": { "id": "208", "name": "RUN Along", "par": 1, "intro": "Run R-U-N down the center column." },
+  "board": {
+    "size": 3,
+    "goal": [2, 1],
+    "seeds": [ { "text": "R", "r": 0, "c": 1, "dir": "V" } ],
+    "specials": []
+  },
+  "deck": ["U", "N"],
+  "startingHand": ["U", "N"],
+  "allowedWords": ["run", "urn"],
+  "notes": ""
+}
+
