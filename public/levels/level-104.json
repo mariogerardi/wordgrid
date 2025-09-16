@@ -3,7 +3,7 @@
     "id": "104",
     "name": "U",
     "par": 3,
-    "intro": "Blocked tiles force a detour—shape a U to the ★."
+    "intro": "Blocked tiles force a detour! Drift around the corner to the ★ goal."
   },
   "board": {
     "size": 3,
@@ -23,7 +23,7 @@
     "u", "um", "un", "us",
 
     "bug", "bus", "bun", "bum", "but",
-    "gun", "gut", "gnu", "tug", "nub", "sub", "sum", "sun", "gum"
+    "gun", "gut", "gnu", "tug", "nub", "sub", "sum", "sun", "gum", "mug"
   ],
   "notes": ""
 }

@@ -1,29 +1,43 @@
 {
   "meta": {
     "id": "103",
-    "name": "Going Backward",
-    "par": 3,
-    "intro": "Advance first, then branch back when new tiles arrive."
+    "name": "Backtrack",
+    "par": 2,
+    "intro": "Head to the ★ North Star."
   },
   "board": {
-    "size": 3,
-    "goal": [0, 0],
+    "size": [
+      5,
+      1
+    ],
+    "goal": [
+      0,
+      0
+    ],
     "seeds": [
-      { "text": "COM", "r": 1, "c": 1, "dir": "H" }
+      {
+        "text": "sh",
+        "r": 2,
+        "c": 0,
+        "dir": "H"
+      }
     ],
     "specials": []
   },
-  "deck": ["MON", "UN", "SOON", "EY", "ABO", "DE", "F"],
-  "startingHand": ["MON", "UN", "SOON", "EY"],
+  "deck": [
+    "AD",
+    "OW",
+    "NO",
+    "PA",
+    "RE",
+    "FO"
+  ],
+  "startingHand": [],
   "allowedWords": [
-    "uncommon",
-    "common",
-    "money",
-    "demon",
-    "abode",
-    "delay",
-    "fun",
-    "monsoon"
+    "shadow",
+    "foreshadow",
+    "show",
+    "fore"
   ],
   "notes": ""
 }

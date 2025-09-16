@@ -2,29 +2,52 @@
   "meta": {
     "id": "105",
     "name": "O",
-    "par": 4,
-    "intro": "The center is blocked—route around the hole to score."
+    "par": 5,
+    "intro": "The center is blocked! Take a detour around it."
   },
   "board": {
-    "size": 3,
-    "goal": [1, 0],
+    "size": [
+      3,
+      3
+    ],
+    "goal": [
+      1,
+      2
+    ],
     "seeds": [
-      { "text": "UBT", "r": 1, "c": 2, "dir": "H" }
+      {
+        "text": "TO",
+        "r": 1,
+        "c": 0,
+        "dir": "H"
+      }
     ],
     "specials": [
-      { "r": 1, "c": 1, "type": "blocked" }
+      {
+        "r": 1,
+        "c": 1,
+        "type": "blocked"
+      }
     ]
   },
-  "deck": ["DO", "TO", "RNA", "FUL", "CH", "EER", "PZA", "ESO", "PHR", "U"],
-  "startingHand": ["DO", "TO", "RNA", "FUL"],
+  "deck": [
+    "UR",
+    "DE",
+    "nt",
+    "GE",
+    "LE",
+    "TE",
+    "NA"
+  ],
+  "startingHand": [],
   "allowedWords": [
-    "do",
     "to",
-    "cheer",
-    "cheerful",
-    "touch",
-    "tornado",
-    "doubtful"
+    "tour",
+    "detour",
+    "urge",
+    "urgent",
+    "delete",
+    "tenant"
   ],
   "notes": ""
 }

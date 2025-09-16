@@ -1,8 +1,13 @@
 {
-  "meta": { "id": "305", "name": "Basics 5", "par": 1, "intro": "Placeholder level." },
-  "board": { "size": 3, "goal": [1, 0], "seeds": [ { "text": "E", "r": 1, "c": 2, "dir": "H" } ], "specials": [] },
-  "deck": ["R"],
-  "startingHand": ["R"],
-  "allowedWords": ["re", "e"],
-  "notes": "Basics placeholder."
+  "meta": { "id": "305", "name": "ZIP Line", "par": 1, "intro": "Stack I and P under Z to spell ZIP." },
+  "board": {
+    "size": 3,
+    "goal": [2, 0],
+    "seeds": [ { "text": "Z", "r": 0, "c": 0, "dir": "V" } ],
+    "specials": []
+  },
+  "deck": ["I", "P"],
+  "startingHand": ["I", "P"],
+  "allowedWords": ["zip", "pi"],
+  "notes": ""
 }

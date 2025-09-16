@@ -1,8 +1,13 @@
 {
-  "meta": { "id": "306", "name": "Basics 6", "par": 1, "intro": "Placeholder level." },
-  "board": { "size": 3, "goal": [0, 1], "seeds": [ { "text": "F", "r": 2, "c": 1, "dir": "V" } ], "specials": [] },
-  "deck": ["A"],
-  "startingHand": ["A"],
-  "allowedWords": ["fa", "f"],
-  "notes": "Basics placeholder."
+  "meta": { "id": "306", "name": "BOX Seat", "par": 1, "intro": "Fill BOX along the bottom row." },
+  "board": {
+    "size": 3,
+    "goal": [2, 2],
+    "seeds": [ { "text": "B", "r": 2, "c": 0, "dir": "H" } ],
+    "specials": []
+  },
+  "deck": ["O", "X"],
+  "startingHand": ["O", "X"],
+  "allowedWords": ["box", "ox"],
+  "notes": ""
 }

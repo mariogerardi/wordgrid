@@ -1,0 +1,8 @@
+{
+  "meta": { "id": "129", "name": "Building Blocks 9", "par": 1, "intro": "Placeholder level." },
+  "board": { "size": 3, "goal": [1, 1], "seeds": [ { "text": "I", "r": 1, "c": 0, "dir": "H" } ], "specials": [] },
+  "deck": ["N"],
+  "startingHand": ["N"],
+  "allowedWords": ["i", "in"],
+  "notes": "Placeholder puzzle for Building Blocks."
+}

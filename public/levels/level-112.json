@@ -1,0 +1,83 @@
+{
+  "meta": {
+    "id": "112",
+    "name": "Edge",
+    "par": 7,
+    "intro": "You're already so close. How difficult could it be?"
+  },
+  "board": {
+    "size": [
+      3,
+      4
+    ],
+    "goal": [
+      1,
+      0
+    ],
+    "seeds": [
+      {
+        "text": "wo",
+        "r": 1,
+        "c": 1,
+        "dir": "H"
+      }
+    ],
+    "specials": [
+      {
+        "r": 0,
+        "c": 0,
+        "type": "blocked"
+      },
+      {
+        "r": 2,
+        "c": 0,
+        "type": "blocked"
+      },
+      {
+        "r": 0,
+        "c": 2,
+        "type": "blocked"
+      },
+      {
+        "r": 2,
+        "c": 2,
+        "type": "blocked"
+      },
+      {
+        "r": 0,
+        "c": 1,
+        "type": "blocked"
+      }
+    ]
+  },
+  "deck": [
+    "un",
+    "r",
+    "d",
+    "uld",
+    "a",
+    "o",
+    "ol",
+    "rld",
+    "ult",
+    "n",
+    "s"
+  ],
+  "startingHand": [],
+  "allowedWords": [
+    "word",
+    "undo",
+    "do",
+    "ado",
+    "ad",
+    "adult",
+    "would",
+    "wore",
+    "wound",
+    "wool",
+    "world",
+    "won",
+    "sword"
+  ],
+  "notes": ""
+}

@@ -1,0 +1,112 @@
+{
+  "meta": {
+    "id": "402",
+    "name": "Crossword",
+    "par": 4,
+    "intro": "Make it to the ★ goal while navigating multiple portals."
+  },
+  "board": {
+    "size": [
+      4,
+      4
+    ],
+    "goal": [
+      3,
+      0
+    ],
+    "seeds": [
+      {
+        "text": "ct",
+        "r": 2,
+        "c": 2,
+        "dir": "H"
+      }
+    ],
+    "specials": [
+      {
+        "r": 1,
+        "c": 0,
+        "type": "blocked"
+      },
+      {
+        "r": 1,
+        "c": 1,
+        "type": "blocked"
+      },
+      {
+        "r": 0,
+        "c": 1,
+        "type": "blocked"
+      },
+      {
+        "r": 0,
+        "c": 0,
+        "type": "blocked"
+      },
+      {
+        "r": 0,
+        "c": 3,
+        "type": "blocked"
+      },
+      {
+        "r": 1,
+        "c": 3,
+        "type": "blocked"
+      },
+      {
+        "r": 3,
+        "c": 3,
+        "type": "blocked"
+      },
+      {
+        "r": 3,
+        "c": 1,
+        "type": "blocked"
+      },
+      {
+        "r": 2,
+        "c": 3,
+        "type": "portal",
+        "group": "B"
+      },
+      {
+        "r": 3,
+        "c": 2,
+        "type": "portal",
+        "group": "B"
+      },
+      {
+        "r": 2,
+        "c": 0,
+        "type": "portal",
+        "group": "A"
+      },
+      {
+        "r": 0,
+        "c": 2,
+        "type": "portal",
+        "group": "A"
+      }
+    ]
+  },
+  "deck": [
+    "fle",
+    "re",
+    "ion",
+    "fra",
+    "dop",
+    "mir",
+    "ima",
+    "flex"
+  ],
+  "startingHand": [],
+  "allowedWords": [
+    "reflect",
+    "reflection",
+    "refract",
+    "refraction",
+    "fraction",
+    "reflex"
+  ],
+  "notes": ""
+}

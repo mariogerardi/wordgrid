@@ -1,8 +1,13 @@
 {
-  "meta": { "id": "308", "name": "Basics 8", "par": 1, "intro": "Placeholder level." },
-  "board": { "size": 3, "goal": [0, 0], "seeds": [ { "text": "H", "r": 2, "c": 2, "dir": "H" } ], "specials": [] },
-  "deck": ["I"],
-  "startingHand": ["I"],
-  "allowedWords": ["hi", "h"],
-  "notes": "Basics placeholder."
+  "meta": { "id": "308", "name": "RUN Along", "par": 1, "intro": "Run R-U-N down the center column." },
+  "board": {
+    "size": 3,
+    "goal": [2, 1],
+    "seeds": [ { "text": "R", "r": 0, "c": 1, "dir": "V" } ],
+    "specials": []
+  },
+  "deck": ["U", "N"],
+  "startingHand": ["U", "N"],
+  "allowedWords": ["run", "urn"],
+  "notes": ""
 }

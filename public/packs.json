@@ -9,7 +9,7 @@
     {
       "id": "tutorial",
       "name": "Tutorial",
-      "description": "Ten guided stages that teach the mechanics.",
+      "description": "Guided stages that teach the mechanics.",
       "section": "curriculum",
       "unlocked": true,
       "puzzles": [
@@ -27,79 +27,74 @@
     },
     { "id": "basics", "name": "Basics", "description": "Core moves and simple routes.", "section": "curriculum",
       "puzzles": [
-        { "id": "301", "name": "Basics 1",  "unlocked": true },
-        { "id": "302", "name": "Basics 2",  "unlocked": true },
-        { "id": "303", "name": "Basics 3",  "unlocked": true },
-        { "id": "304", "name": "Basics 4",  "unlocked": true },
-        { "id": "305", "name": "Basics 5",  "unlocked": true },
-        { "id": "306", "name": "Basics 6",  "unlocked": true },
-        { "id": "307", "name": "Basics 7",  "unlocked": true },
-        { "id": "308", "name": "Basics 8",  "unlocked": true },
-        { "id": "309", "name": "Basics 9",  "unlocked": true },
-        { "id": "310", "name": "Basics 10", "unlocked": true }
+        { "id": "111", "name": "Rescue",  "unlocked": true },
+        { "id": "112", "name": "Basics 2",  "unlocked": true },
+        { "id": "113", "name": "Basics 3",  "unlocked": true },
+        { "id": "114", "name": "Basics 4",  "unlocked": true },
+        { "id": "115", "name": "Basics 5",  "unlocked": true },
+        { "id": "116", "name": "Basics 6",  "unlocked": true },
+        { "id": "117", "name": "Basics 7",  "unlocked": true },
+        { "id": "118", "name": "Basics 8",  "unlocked": true },
+        { "id": "119", "name": "Basics 9",  "unlocked": true },
+        { "id": "120", "name": "Basics 10", "unlocked": true }
       ]
     },
-    { "id": "building-blocks", "name": "Building Blocks", "description": "Compose longer runs from simple parts.", "section": "curriculum", "puzzles": [] },
-    { "id": "crossing-paths", "name": "Crossing Paths", "description": "First crossings and intersections.", "section": "curriculum", "puzzles": [] },
-    { "id": "branching", "name": "Branching", "description": "Splits, forks, and detours.", "section": "curriculum", "puzzles": [] },
-    { "id": "recall-101", "name": "Recall 101", "description": "Recall fundamentals and planning.", "section": "curriculum", "puzzles": [] },
-    { "id": "advanced-plays", "name": "Advanced Plays", "description": "Multi-turn setups and payoffs.", "section": "curriculum", "puzzles": [] },
+    { "id": "building-blocks", "name": "Building Blocks", "description": "Compose longer runs from simple parts.", "section": "curriculum",
+      "puzzles": [
+        { "id": "121", "name": "Building Blocks 1",  "unlocked": true },
+        { "id": "122", "name": "Building Blocks 2",  "unlocked": true },
+        { "id": "123", "name": "Building Blocks 3",  "unlocked": true },
+        { "id": "124", "name": "Building Blocks 4",  "unlocked": true },
+        { "id": "125", "name": "Building Blocks 5",  "unlocked": true },
+        { "id": "126", "name": "Building Blocks 6",  "unlocked": true },
+        { "id": "127", "name": "Building Blocks 7",  "unlocked": true },
+        { "id": "128", "name": "Building Blocks 8",  "unlocked": true },
+        { "id": "129", "name": "Building Blocks 9",  "unlocked": true },
+        { "id": "130", "name": "Building Blocks 10", "unlocked": true }
+      ]
+    },
+    { "id": "concepts", "name": "Concepts", "description": "Abstracting the fundamentals.", "section": "curriculum", "puzzles": [] },
+    { "id": "intermediate", "name": "Intermediate", "description": "You're about halfway there.", "section": "curriculum", "puzzles": [] },
+    { "id": "strategize", "name": "Strategize", "description": "Plan ahead.", "section": "curriculum", "puzzles": [] },
+    { "id": "advanced-plays", "name": "Advanced Plays", "description": "Tricky setups and payoffs.", "section": "curriculum", "puzzles": [] },
     { "id": "expert-tactics", "name": "Expert Tactics", "description": "Tight routes and efficiency.", "section": "curriculum", "puzzles": [] },
     { "id": "mastery", "name": "Mastery", "description": "The final exams of the course.", "section": "curriculum", "puzzles": [] },
-    {
-      "id": "foundations",
-      "name": "Foundations",
-      "description": "Early prototypes and scaling demos.",
-      "section": "variety",
+    
+    { "id": "whirl", "name": "Whirl", "description": "Spirals and loops.", "section": "variety", "puzzles": [] },
+    { "id": "portals", "name": "Portals", "description": "Linked tiles that project across portals.", "section": "variety",
       "puzzles": [
-        { "id": "001", "name": "Waste Not",    "unlocked": true },
-        { "id": "002", "name": "Rookie Roots", "unlocked": true },
-        { "id": "003", "name": "Tiny Trial",   "unlocked": true }
+        { "id": "401", "name": "First Portal", "unlocked": true },
+        { "id": "402", "name": "Crossword", "unlocked": true },
+        { "id": "403", "name": "Travel", "unlocked": true },
+        { "id": "404", "name": "Final Exam", "unlocked": true }
       ]
     },
-    { "id": "echoes", "name": "Echoes", "description": "Repetitions and rhythmic boards.", "section": "variety", "puzzles": [] },
-    { "id": "whirl", "name": "Whirl", "description": "Spirals and loops.", "section": "variety", "puzzles": [] },
-    { "id": "portals", "name": "Portals", "description": "Theme-y boards with tricky shapes.", "section": "variety", "puzzles": [] },
-    { "id": "tides", "name": "Tides", "description": "Flowing paths and reversals.", "section": "variety", "puzzles": [] },
     { "id": "mosaic", "name": "Mosaic", "description": "Patterned block layouts.", "section": "variety", "puzzles": [] },
-    { "id": "overpass", "name": "Overpass", "description": "Bridges and crossings.", "section": "variety", "puzzles": [] },
-    { "id": "switchback", "name": "Switchback", "description": "Zigzags and hairpins.", "section": "variety", "puzzles": [] },
-    { "id": "lighthouse", "name": "Lighthouse", "description": "Guiding goals and long sights.", "section": "variety", "puzzles": [] },
     {
       "id": "singles",
       "name": "Singles",
       "description": "Ten quick puzzles using single-letter tiles.",
       "section": "constraints",
       "puzzles": [
-        { "id": "201", "name": "CAT Walk",      "unlocked": true },
-        { "id": "202", "name": "DOG Days",      "unlocked": true },
-        { "id": "203", "name": "SUN Up",        "unlocked": true },
-        { "id": "204", "name": "HAT Trick",     "unlocked": true },
-        { "id": "205", "name": "ZIP Line",      "unlocked": true },
-        { "id": "206", "name": "BOX Seat",      "unlocked": true },
-        { "id": "207", "name": "JAM Session",    "unlocked": true },
-        { "id": "208", "name": "RUN Along",     "unlocked": true },
-        { "id": "209", "name": "FOX Trot",      "unlocked": true },
-        { "id": "210", "name": "ZEN Garden",    "unlocked": true }
+        { "id": "301", "name": "CAT Walk",      "unlocked": true },
+        { "id": "302", "name": "DOG Days",      "unlocked": true },
+        { "id": "303", "name": "SUN Up",        "unlocked": true },
+        { "id": "304", "name": "HAT Trick",     "unlocked": true },
+        { "id": "305", "name": "ZIP Line",      "unlocked": true },
+        { "id": "306", "name": "BOX Seat",      "unlocked": true },
+        { "id": "307", "name": "JAM Session",    "unlocked": true },
+        { "id": "308", "name": "RUN Along",     "unlocked": true },
+        { "id": "309", "name": "FOX Trot",      "unlocked": true },
+        { "id": "310", "name": "ZEN Garden",    "unlocked": true }
       ]
     },
     { "id": "doubles", "name": "Doubles", "description": "Two-letter tiles only.", "section": "constraints", "puzzles": [] },
     { "id": "triples", "name": "Triples", "description": "Three-letter tiles only.", "section": "constraints", "puzzles": [] },
-    { "id": "x-factor", "name": "X‑Factor", "description": "Every route features the letter X.", "section": "constraints", "puzzles": [] },
-    { "id": "vowels", "name": "Vowels", "description": "Heavy vowel usage.", "section": "constraints", "puzzles": [] },
-    { "id": "consonants", "name": "Consonants", "description": "Consonant corridors.", "section": "constraints", "puzzles": [] },
     { "id": "palindrome", "name": "Palindrome", "description": "Mirrored plays and symmetry.", "section": "constraints", "puzzles": [] },
     { "id": "alliteration", "name": "Alliteration", "description": "Shared starting sounds.", "section": "constraints", "puzzles": [] },
     { "id": "minimalist", "name": "Minimalist", "description": "Tiny decks, exact routes.", "section": "constraints", "puzzles": [] },
-
     { "id": "crossroads", "name": "Crossroads", "description": "All about intersections.", "section": "archetypes", "puzzles": [] },
-    { "id": "detours", "name": "Detours", "description": "Purposeful backtracks.", "section": "archetypes", "puzzles": [] },
-    { "id": "ladders", "name": "Ladders", "description": "Stepwise climbs.", "section": "archetypes", "puzzles": [] },
-    { "id": "bridges", "name": "Bridges", "description": "Span the gaps.", "section": "archetypes", "puzzles": [] },
-    { "id": "loops", "name": "Loops", "description": "Round trips.", "section": "archetypes", "puzzles": [] },
-    { "id": "blockades", "name": "Blockades", "description": "Working around walls.", "section": "archetypes", "puzzles": [] },
     { "id": "keyholes", "name": "Keyholes", "description": "Tight fits.", "section": "archetypes", "puzzles": [] },
-    { "id": "forks", "name": "Forks", "description": "Choices and splits.", "section": "archetypes", "puzzles": [] },
     { "id": "labyrinths", "name": "Labyrinths", "description": "Long mazes.", "section": "archetypes", "puzzles": [] }
   ]
 }

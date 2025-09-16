@@ -11,7 +11,13 @@
     "seeds": [
       { "text": "LOW", "r": 1, "c": 1, "dir": "H" }
     ],
-    "specials": []
+    "specials": [
+      {
+        "r": 2,
+        "c": 1,
+        "type": "blocked"
+      }
+    ]
   },
   "deck": ["ER", "CH", "RY", "BUE", "CHRY", "MU", "F"],
   "startingHand": ["ER", "CH", "RY", "BUE"],

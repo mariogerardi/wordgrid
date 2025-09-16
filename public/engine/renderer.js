@@ -22,6 +22,8 @@ let _dragImageEl = null; // temporary ghost element for nicer cursor image
 
 /** Track selected board tile */
 let _selectedBoard = null; // { r, c, tileId, kind: 'staged'|'committed'|'seed' }
+let _boardEl = null;       // persistent grid element to avoid re-creating cells
+let _cellRefs = [];        // 2D array of cell elements [r][c]
 
 const HAND_SLOTS = 4;
 const RESERVE_SLOTS = 2;
@@ -29,6 +31,12 @@ const RESERVE_SLOTS = 2;
 export function initUI(state, level, { onWin } = {}) {
   _state = state;
   _el = bindDOM();
+  // Ensure no lingering selections from previous puzzles carry over
+  _selectedBoard = null;
+  _state.selectedTileId = null;
+  // Reset cached board DOM so re-entering a puzzle mounts correctly
+  _boardEl = null;
+  _cellRefs = [];
 
   // Hide legacy Direction & Recall buttons
   if (_el.btnToggleDir) _el.btnToggleDir.style.display = 'none';
@@ -335,54 +343,94 @@ function renderAll() {
 }
 
 function renderBoard() {
-  const N = _state.size;
-  const root = document.createElement('div');
-  root.className = `board board--${N}`;
-  root.style.setProperty('--cols', N);
-  root.style.setProperty('--rows', N);
+  const R = _state.rows, C = _state.cols;
+  const scaleClass = `board--${Math.max(R, C)}`;
 
-  for (let r = 0; r < N; r++) {
-    for (let c = 0; c < N; c++) {
-      const cellEl = document.createElement('div');
-      cellEl.className = 'cell';
-      cellEl.dataset.r = r;
-      cellEl.dataset.c = c;
+  // Build once (or on size change) so CSS animations on cells don't restart
+  const mustBuild = !_boardEl || Number(_boardEl.dataset.rows || 0) !== R || Number(_boardEl.dataset.cols || 0) !== C;
+  if (mustBuild) {
+    _boardEl = document.createElement('div');
+    _boardEl.className = `board ${scaleClass}`;
+    _boardEl.dataset.rows = String(R);
+    _boardEl.dataset.cols = String(C);
+    _boardEl.style.setProperty('--cols', C);
+    _boardEl.style.setProperty('--rows', R);
 
+    _cellRefs = Array.from({ length: R }, () => Array.from({ length: C }, () => null));
+    for (let r = 0; r < R; r++) {
+      for (let c = 0; c < C; c++) {
+        const cellEl = document.createElement('div');
+        cellEl.className = 'cell';
+        cellEl.dataset.r = r;
+        cellEl.dataset.c = c;
+        _cellRefs[r][c] = cellEl;
+        _boardEl.appendChild(cellEl);
+      }
+    }
+    _el.board.replaceChildren(_boardEl);
+  } else {
+    // Update board container scale/vars if needed
+    _boardEl.className = `board ${scaleClass}`;
+    _boardEl.style.setProperty('--cols', C);
+    _boardEl.style.setProperty('--rows', R);
+  }
+
+  // Update each cell in-place
+  for (let r = 0; r < R; r++) {
+    for (let c = 0; c < C; c++) {
+      const cellEl = _cellRefs[r][c];
       const cur = _state.grid[r][c];
+
+      // Reset base class
+      cellEl.className = 'cell';
       if (r === _state.goal.r && c === _state.goal.c) cellEl.classList.add('cell--goal');
       if (cur.seed) cellEl.classList.add('cell--seed');
       if (cur.text && !cur.seed) cellEl.classList.add('cell--filled');
-
-      if (_selectedBoard && _selectedBoard.r === r && _selectedBoard.c === c) {
-        cellEl.classList.add('cell--selected');
+      if (_selectedBoard && _selectedBoard.r === r && _selectedBoard.c === c) cellEl.classList.add('cell--selected');
+      if (cur.special === 'blocked') cellEl.classList.add('cell--blocked');
+      if (cur.special === 'portal') {
+        cellEl.classList.add('cell--portal');
+        const gid = _state.portalAt?.[r]?.[c];
+        if (gid) cellEl.classList.add(`cell--portal-${gid}`);
       }
 
-      if (cur.special === 'blocked') cellEl.classList.add('cell--blocked');
+      // Clear existing children and draggable attributes
+      cellEl.textContent = '';
+      cellEl.removeAttribute('draggable');
+      cellEl.ondragstart = null;
+      cellEl.ondragend = null;
 
-      // Render text inside a span so we can layer the goal star behind it
-      if (cur.text) {
+      // Text content or projection
+      const overlayText = (!cur.text && _state.portalAt?.[r]?.[c]) ? getPortalOverlayTextLocal(_state, r, c) : '';
+      if (cur.text || overlayText) {
         const span = document.createElement('span');
         span.className = 'cell__text';
-        span.textContent = String(cur.text).toUpperCase();
+        span.textContent = String(cur.text || overlayText).toUpperCase();
         cellEl.appendChild(span);
         const kind = boardTileKind(r, c);
-        if (kind === 'staged' || kind === 'committed') {
+        if (cur.text && (kind === 'staged' || kind === 'committed')) {
           cellEl.setAttribute('draggable', 'true');
-          cellEl.addEventListener('dragstart', (ev) => {
+          cellEl.ondragstart = (ev) => {
             setDragData(ev, {
               origin: (kind === 'staged') ? 'board-staged' : 'board-committed',
               tileId: cur.tileId,
               r, c
             });
-          });
+          };
+          cellEl.ondragend = () => { renderAll(); };
         }
-      } else {
-        cellEl.textContent = '';
+        if (!cur.text && overlayText) cellEl.classList.add('cell--projection');
       }
-      root.appendChild(cellEl);
+
+      // A1 coordinate label for non-blocked cells
+      if (cur.special !== 'blocked') {
+        const coordEl = document.createElement('span');
+        coordEl.className = 'cell__coord';
+        coordEl.textContent = toA1(r, c);
+        cellEl.appendChild(coordEl);
+      }
     }
   }
-  _el.board.replaceChildren(root);
 }
 
 function renderHand() {
@@ -501,6 +549,24 @@ function getTileText(id) {
   return inRes ? inRes.text.toUpperCase() : '';
 }
 
+function getPortalOverlayTextLocal(state, r, c) {
+  const gid = state.portalAt?.[r]?.[c];
+  if (!gid) return '';
+  if (state.grid[r][c]?.text) return '';
+  const cells = state.portalGroups?.get?.(gid) || [];
+  for (const pos of cells) {
+    const t = state.grid[pos.r][pos.c]?.text;
+    if (t) return String(t);
+  }
+  return '';
+}
+
+// Convert r,c (0-based) → A1-style label (columns A–Z, rows 1..)
+function toA1(r, c){
+  // Supports up to 26 columns; product currently ≤10
+  const col = String.fromCharCode(65 + c);
+  return `${col}${r + 1}`;
+}
 // DnD helpers
 function setDragData(ev, data) {
   _dragPayload = data;

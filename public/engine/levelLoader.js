@@ -10,7 +10,9 @@
      {
        id: string,
        name: string,
-       size: number,                       // board size (e.g., 7)
+       rows: number,                       // board rows (min 2, max 10)
+       cols: number,                       // board cols (min 2, max 10)
+       // size: number,                   // (legacy) kept for back-compat when rows==cols
        par: number,                        // target turns
        goal: { r: number, c: number },     // 0-index
        seeds: [ { text, r, c, dir: 'H'|'V' }, ... ],
@@ -61,7 +63,25 @@ function normalizeLevel(raw, fallbackId = 'unknown') {
 
   // ---- board ----
   const board = raw?.board ?? {};
-  const size = toInt(board.size, 7, 'board.size', errors);
+  // Accept board.size as number (NxN), [rows,cols] tuple, or explicit board.rows/board.cols
+  let rows = 0, cols = 0;
+  if (Array.isArray(board.size) && board.size.length === 2) {
+    rows = toInt(board.size[0], 7, 'board.size[0]', errors);
+    cols = toInt(board.size[1], 7, 'board.size[1]', errors);
+  } else if (typeof board.size === 'number') {
+    const n = toInt(board.size, 7, 'board.size', errors);
+    rows = n; cols = n;
+  } else if (typeof board.rows === 'number' && typeof board.cols === 'number') {
+    rows = toInt(board.rows, 7, 'board.rows', errors);
+    cols = toInt(board.cols, 7, 'board.cols', errors);
+  } else {
+    // fallback to 7x7
+    rows = 7; cols = 7;
+  }
+  // Clamp/validate bounds per product requirements (allow 1 in either dimension)
+  if (rows < 1 || cols < 1 || rows > 10 || cols > 10) {
+    errors.push('board size must be between 1 and 10 in each dimension.');
+  }
 
   const goalArr = Array.isArray(board.goal) ? board.goal : null;
   if (!goalArr || goalArr.length !== 2) errors.push('board.goal must be [row, col].');
@@ -82,7 +102,7 @@ function normalizeLevel(raw, fallbackId = 'unknown') {
   });
 
   // specials (blocked cells, etc.)
-  const specials = validateSpecials(board, size);
+  const specials = validateSpecials(board, rows, cols);
 
   // ---- deck / words ----
   const deck = toStringArray(raw?.deck, 'deck', errors);
@@ -91,9 +111,9 @@ function normalizeLevel(raw, fallbackId = 'unknown') {
   const notes = (raw?.notes ?? '') + '';
 
   // ---- bounds sanity ----
-  if (size <= 0) errors.push('board.size must be > 0.');
-  if (goal.r < 0 || goal.c < 0 || goal.r >= size || goal.c >= size) {
-    errors.push(`board.goal out of bounds for size ${size}.`);
+  if (rows <= 0 || cols <= 0) errors.push('board size must be > 0.');
+  if (goal.r < 0 || goal.c < 0 || goal.r >= rows || goal.c >= cols) {
+    errors.push(`board.goal out of bounds for size ${rows}×${cols}.`);
   }
 
   // Single-cell bounds check for seeds only (no multi-letter fit check)
@@ -101,8 +121,8 @@ function normalizeLevel(raw, fallbackId = 'unknown') {
     if (!s.text || !/^[A-Za-z]+$/.test(s.text)) {
       errors.push(`board.seeds[${i}].text must be letters A–Z.`);
     }
-    if (s.r < 0 || s.c < 0 || s.r >= size || s.c >= size) {
-      errors.push(`board.seeds[${i}] is out of bounds for the ${size}×${size} board.`);
+    if (s.r < 0 || s.c < 0 || s.r >= rows || s.c >= cols) {
+      errors.push(`board.seeds[${i}] is out of bounds for the ${rows}×${cols} board.`);
     }
   });
 
@@ -128,8 +148,9 @@ function normalizeLevel(raw, fallbackId = 'unknown') {
   }
 
   // Return flat shape (what the engine expects) + nested board for specials
+  const legacySize = rows === cols ? rows : undefined;
   return {
-    id, name, size, par, goal, seeds, deck, startingHand, allowedWords, notes,
+    id, name, rows, cols, ...(legacySize ? { size: legacySize } : {}), par, goal, seeds, deck, startingHand, allowedWords, notes,
     intro,
     board: { specials }  // <-- used by state.startLevel(...) to mark blocked cells
   };
@@ -177,9 +198,9 @@ function normalizeDir(dir, label, errors) {
   return 'H';
 }
 
-function fits(size, r, c, dir, len) {
-  if (dir === 'H') return r >= 0 && r < size && c >= 0 && c + len - 1 < size;
-  return c >= 0 && c < size && r >= 0 && r + len - 1 < size;
+function fitsRowsCols(rows, cols, r, c, dir, len) {
+  if (dir === 'H') return r >= 0 && r < rows && c >= 0 && c + len - 1 < cols;
+  return c >= 0 && c < cols && r >= 0 && r + len - 1 < rows;
 }
 
 function countBy(arr) {
@@ -190,16 +211,16 @@ function countBy(arr) {
 
 function w(x) { return x || x === 0; }
 
-function validateSpecials(board, size) {
+function validateSpecials(board, rows, cols) {
   const specials = Array.isArray(board.specials) ? board.specials : [];
   for (const s of specials) {
     if (typeof s.r !== 'number' || typeof s.c !== 'number' || typeof s.type !== 'string') {
       throw new Error('board.specials entries must be { r, c, type }.');
     }
-    if (s.r < 0 || s.c < 0 || s.r >= size || s.c >= size) {
+    if (s.r < 0 || s.c < 0 || s.r >= rows || s.c >= cols) {
       throw new Error(`board.specials out of bounds at [${s.r},${s.c}].`);
     }
-    if (s.type !== 'blocked') {
+    if (s.type !== 'blocked' && s.type !== 'portal') {
       throw new Error(`board.specials unsupported type "${s.type}".`);
     }
   }

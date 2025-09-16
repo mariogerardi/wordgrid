@@ -1,26 +1,37 @@
 {
   "meta": {
     "id": "102",
-    "name": "Branching Off",
+    "name": "Branch",
     "par": 2,
-    "intro": "Build a branch to connect to the ★ goal."
+    "intro": "Branch off an existing word to reach the ★ goal."
   },
   "board": {
-    "size": 3,
-    "goal": [2, 2],
+    "size": [
+      2,
+      2
+    ],
+    "goal": [
+      0,
+      0
+    ],
     "seeds": [
-      { "text": "BI", "r": 0, "c": 0, "dir": "H" }
+      {
+        "text": "AD",
+        "r": 1,
+        "c": 1,
+        "dir": "H"
+      }
     ],
     "specials": []
   },
-  "deck": ["LE", "CYC", "MON", "PRO", "ADE", "LAY"],
-  "startingHand": ["LE", "CYC", "MON", "PRO"],
-  "allowedWords": [
-    "bi",
-    "bile",
-    "bicycle",
-    "lemon",
-    "lemonade"
+  "deck": [
+    "re",
+    "fi"
   ],
-  "notes": "Place CYC at [1,0] and LE at [2,0] in one turn to form BICYCLE down the left column and reach the goal."
+  "startingHand": [],
+  "allowedWords": [
+    "fire",
+    "read"
+  ],
+  "notes": ""
 }

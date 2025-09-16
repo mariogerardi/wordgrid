@@ -1,27 +1,24 @@
 {
   "meta": {
     "id": "101",
-    "name": "Baby's First Word",
+    "name": "Place",
     "par": 1,
     "intro": "Create a simple word to reach the ★ goal."
   },
   "board": {
-    "size": 3,
-    "goal": [1, 2],
+    "size": [1, 3],
+    "goal": [0, 2],
     "seeds": [
-      { "text": "BEG", "r": 1, "c": 0, "dir": "H" }
+      { "text": "C", "r": 0, "c": 0, "dir": "H" }
     ],
     "specials": []
   },
-  "deck": ["INN", "ER", "UI", "LED"],
-  "startingHand": ["INN", "ER", "UI", "LED"],
+  "deck": ["A", "N", "R", "T"],
+  "startingHand": ["A", "N", "R", "T"],
   "allowedWords": [
-    "beg",
-    "inn",
-    "inner",
-    "led",
-    "beguiled",
-    "beginner"
+    "cat",
+    "car",
+    "can"
   ],
   "notes": "Par-1: place two tiles in a single turn to complete either BEGUILED (UI+LED) or BEGINNER (INN+ER)."
 }

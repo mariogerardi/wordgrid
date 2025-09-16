@@ -1,8 +1,13 @@
 {
-  "meta": { "id": "307", "name": "Basics 7", "par": 1, "intro": "Placeholder level." },
-  "board": { "size": 3, "goal": [2, 0], "seeds": [ { "text": "G", "r": 0, "c": 0, "dir": "V" } ], "specials": [] },
-  "deck": ["O"],
-  "startingHand": ["O"],
-  "allowedWords": ["go", "g"],
-  "notes": "Basics placeholder."
+  "meta": { "id": "307", "name": "JAM Session", "par": 1, "intro": "Complete JAM across the middle row." },
+  "board": {
+    "size": 3,
+    "goal": [1, 2],
+    "seeds": [ { "text": "J", "r": 1, "c": 0, "dir": "H" } ],
+    "specials": []
+  },
+  "deck": ["A", "M"],
+  "startingHand": ["A", "M"],
+  "allowedWords": ["jam", "am"],
+  "notes": ""
 }

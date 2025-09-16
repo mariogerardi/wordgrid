@@ -1,0 +1,8 @@
+{
+  "meta": { "id": "126", "name": "Building Blocks 6", "par": 1, "intro": "Placeholder level." },
+  "board": { "size": 3, "goal": [0, 1], "seeds": [ { "text": "F", "r": 2, "c": 1, "dir": "V" } ], "specials": [] },
+  "deck": ["A"],
+  "startingHand": ["A"],
+  "allowedWords": ["f", "fa"],
+  "notes": "Placeholder puzzle for Building Blocks."
+}

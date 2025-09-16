@@ -1,8 +1,13 @@
 {
-  "meta": { "id": "304", "name": "Basics 4", "par": 1, "intro": "Placeholder level." },
-  "board": { "size": 3, "goal": [2, 2], "seeds": [ { "text": "D", "r": 2, "c": 0, "dir": "H" } ], "specials": [] },
-  "deck": ["O"],
-  "startingHand": ["O"],
-  "allowedWords": ["do", "d"],
-  "notes": "Basics placeholder."
+  "meta": { "id": "304", "name": "HAT Trick", "par": 1, "intro": "Complete HAT along the top row." },
+  "board": {
+    "size": 3,
+    "goal": [0, 2],
+    "seeds": [ { "text": "H", "r": 0, "c": 0, "dir": "H" } ],
+    "specials": []
+  },
+  "deck": ["A", "T"],
+  "startingHand": ["A", "T"],
+  "allowedWords": ["hat", "at"],
+  "notes": ""
 }

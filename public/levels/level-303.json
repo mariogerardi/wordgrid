@@ -1,8 +1,13 @@
 {
-  "meta": { "id": "303", "name": "Basics 3", "par": 1, "intro": "Placeholder level." },
-  "board": { "size": 3, "goal": [2, 1], "seeds": [ { "text": "C", "r": 0, "c": 1, "dir": "V" } ], "specials": [] },
-  "deck": ["O"],
-  "startingHand": ["O"],
-  "allowedWords": ["co", "c"],
-  "notes": "Basics placeholder."
+  "meta": { "id": "303", "name": "SUN Up", "par": 1, "intro": "Build SUN down the middle column." },
+  "board": {
+    "size": 3,
+    "goal": [2, 1],
+    "seeds": [ { "text": "S", "r": 0, "c": 1, "dir": "V" } ],
+    "specials": []
+  },
+  "deck": ["U", "N"],
+  "startingHand": ["U", "N"],
+  "allowedWords": ["sun", "us"],
+  "notes": ""
 }

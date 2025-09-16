@@ -1,0 +1,98 @@
+{
+  "meta": {
+    "id": "114",
+    "name": "Bedtime",
+    "par": 2,
+    "intro": "Zzz..."
+  },
+  "board": {
+    "size": [
+      3,
+      6
+    ],
+    "goal": [
+      2,
+      4
+    ],
+    "seeds": [
+      {
+        "text": "g",
+        "r": 0,
+        "c": 1,
+        "dir": "H"
+      }
+    ],
+    "specials": [
+      {
+        "r": 2,
+        "c": 0,
+        "type": "portal",
+        "group": "A"
+      },
+      {
+        "r": 1,
+        "c": 3,
+        "type": "blocked"
+      },
+      {
+        "r": 1,
+        "c": 2,
+        "type": "blocked"
+      },
+      {
+        "r": 1,
+        "c": 1,
+        "type": "blocked"
+      },
+      {
+        "r": 1,
+        "c": 0,
+        "type": "blocked"
+      },
+      {
+        "r": 1,
+        "c": 4,
+        "type": "blocked"
+      },
+      {
+        "r": 1,
+        "c": 5,
+        "type": "blocked"
+      },
+      {
+        "r": 2,
+        "c": 5,
+        "type": "blocked"
+      },
+      {
+        "r": 0,
+        "c": 0,
+        "type": "blocked"
+      },
+      {
+        "r": 0,
+        "c": 5,
+        "type": "portal",
+        "group": "A"
+      }
+    ]
+  },
+  "deck": [
+    "xy",
+    "l",
+    "a",
+    "a",
+    "lo",
+    "ne",
+    "p",
+    "ho"
+  ],
+  "startingHand": [],
+  "allowedWords": [
+    "gala",
+    "galaxy",
+    "xylophone",
+    "phone"
+  ],
+  "notes": ""
+}

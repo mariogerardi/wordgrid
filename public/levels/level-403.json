@@ -1,0 +1,32 @@
+{
+  "meta": {
+    "id": "403",
+    "name": "Travel",
+    "par": 3,
+    "intro": "Use the portals to extend your reach into other areas of the grid."
+  },
+  "board": {
+    "size": [5, 3],
+    "goal": [4, 0],
+    "seeds": [ { "text": "CAT", "r": 0, "c": 0, "dir": "H" } ],
+    "specials": [
+      { "r": 1, "c": 1, "type": "blocked" },
+      { "r": 1, "c": 0, "type": "blocked" },
+      { "r": 1, "c": 2, "type": "blocked" },
+      { "r": 0, "c": 1, "type": "portal", "group": "A" },
+      { "r": 0, "c": 2, "type": "portal", "group": "B" },
+      { "r": 3, "c": 2, "type": "blocked" },
+      { "r": 3, "c": 1, "type": "blocked" },
+      { "r": 3, "c": 0, "type": "blocked" },
+      { "r": 2, "c": 0, "type": "portal", "group": "A" },
+      { "r": 2, "c": 2, "type": "portal", "group": "B" },
+      { "r": 2, "c": 1, "type": "portal", "group": "C" },
+      { "r": 4, "c": 1, "type": "portal", "group": "C" }
+    ]
+  },
+  "deck": ["ER","ER","AS","ER","TE"],
+  "startingHand": [],
+  "allowedWords": ["CAT","CATER","CATERER","ERAS","ERASER","TEASER"],
+  "notes": "Moved from tutorial 109 to portals series (id 403)."
+}
+

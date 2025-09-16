@@ -1,9 +1,9 @@
 {
   "meta": {
-    "id": "109",
-    "name": "More Portals",
-    "par": 2,
-    "intro": "Two sets of portals? Try to branch up to the goal."
+    "id": "401",
+    "name": "Labyrinth",
+    "par": 8,
+    "intro": "There must be a way to the ★ goal..."
   },
   "board": {
     "size": [
@@ -12,139 +12,153 @@
     ],
     "goal": [
       0,
-      2
+      4
     ],
     "seeds": [
       {
-        "text": "s",
-        "r": 2,
+        "text": "ca",
+        "r": 0,
         "c": 0,
         "dir": "H"
       }
     ],
     "specials": [
       {
-        "r": 2,
-        "c": 1,
+        "r": 1,
+        "c": 0,
+        "type": "portal",
+        "group": "A"
+      },
+      {
+        "r": 4,
+        "c": 0,
         "type": "portal",
         "group": "A"
       },
       {
         "r": 2,
+        "c": 0,
+        "type": "blocked"
+      },
+      {
+        "r": 2,
+        "c": 4,
+        "type": "blocked"
+      },
+      {
+        "r": 0,
+        "c": 1,
+        "type": "blocked"
+      },
+      {
+        "r": 4,
+        "c": 1,
+        "type": "blocked"
+      },
+      {
+        "r": 0,
         "c": 3,
-        "type": "portal",
-        "group": "A"
+        "type": "blocked"
+      },
+      {
+        "r": 4,
+        "c": 3,
+        "type": "blocked"
       },
       {
         "r": 3,
-        "c": 2,
+        "c": 1,
         "type": "portal",
         "group": "B"
       },
       {
         "r": 1,
+        "c": 1,
+        "type": "blocked"
+      },
+      {
+        "r": 2,
+        "c": 1,
+        "type": "blocked"
+      },
+      {
+        "r": 3,
+        "c": 2,
+        "type": "blocked"
+      },
+      {
+        "r": 4,
+        "c": 2,
+        "type": "blocked"
+      },
+      {
+        "r": 1,
+        "c": 3,
+        "type": "blocked"
+      },
+      {
+        "r": 2,
+        "c": 3,
+        "type": "blocked"
+      },
+      {
+        "r": 0,
         "c": 2,
         "type": "portal",
         "group": "B"
       },
       {
-        "r": 1,
-        "c": 0,
-        "type": "blocked"
-      },
-      {
-        "r": 0,
-        "c": 0,
-        "type": "blocked"
-      },
-      {
-        "r": 0,
-        "c": 1,
-        "type": "blocked"
-      },
-      {
-        "r": 1,
-        "c": 1,
-        "type": "blocked"
-      },
-      {
-        "r": 0,
-        "c": 3,
-        "type": "blocked"
-      },
-      {
-        "r": 1,
-        "c": 3,
-        "type": "blocked"
-      },
-      {
-        "r": 1,
-        "c": 4,
-        "type": "blocked"
-      },
-      {
-        "r": 0,
-        "c": 4,
-        "type": "blocked"
-      },
-      {
-        "r": 3,
-        "c": 4,
-        "type": "blocked"
+        "r": 2,
+        "c": 2,
+        "type": "portal",
+        "group": "C"
       },
       {
         "r": 3,
         "c": 3,
-        "type": "blocked"
-      },
-      {
-        "r": 4,
-        "c": 3,
-        "type": "blocked"
+        "type": "portal",
+        "group": "C"
       },
       {
         "r": 4,
         "c": 4,
-        "type": "blocked"
+        "type": "portal",
+        "group": "D"
       },
       {
-        "r": 3,
-        "c": 0,
-        "type": "blocked"
-      },
-      {
-        "r": 3,
-        "c": 1,
-        "type": "blocked"
-      },
-      {
-        "r": 4,
-        "c": 1,
-        "type": "blocked"
-      },
-      {
-        "r": 4,
-        "c": 0,
-        "type": "blocked"
+        "r": 1,
+        "c": 4,
+        "type": "portal",
+        "group": "D"
       }
     ]
   },
   "deck": [
-    "l",
-    "a",
-    "o",
-    "d",
-    "r",
-    "c"
+    "ke",
+    "ba",
+    "re",
+    "ir",
+    "pa",
+    "on",
+    "to",
+    "in"
   ],
   "startingHand": [],
   "allowedWords": [
-    "salad",
-    "color",
-    "solo",
-    "sad",
-    "lad",
-    "rod"
+    "care",
+    "cake",
+    "bare",
+    "bake",
+    "pair",
+    "repair",
+    "iron",
+    "pain",
+    "onto",
+    "into",
+    "on",
+    "to",
+    "in",
+    "pa"
   ],
   "notes": ""
 }

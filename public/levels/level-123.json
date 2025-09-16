@@ -1,0 +1,60 @@
+{
+  "meta": {
+    "id": "123",
+    "name": "Expel",
+    "par": 7,
+    "intro": "Don't get distracted."
+  },
+  "board": {
+    "size": [
+      4,
+      2
+    ],
+    "goal": [
+      2,
+      1
+    ],
+    "seeds": [
+      {
+        "text": "ous",
+        "r": 2,
+        "c": 0,
+        "dir": "H"
+      }
+    ],
+    "specials": [
+      {
+        "r": 0,
+        "c": 1,
+        "type": "blocked"
+      },
+      {
+        "r": 1,
+        "c": 1,
+        "type": "blocked"
+      },
+      {
+        "r": 3,
+        "c": 1,
+        "type": "blocked"
+      }
+    ]
+  },
+  "deck": [
+    "ly",
+    "rip",
+    "cal",
+    "fam",
+    "tro",
+    "in",
+    "t"
+  ],
+  "startingHand": [],
+  "allowedWords": [
+    "oust",
+    "famous",
+    "famously",
+    "infamously"
+  ],
+  "notes": ""
+}

@@ -11,7 +11,28 @@
     "seeds": [
       { "text": "NUT", "r": 1, "c": 1, "dir": "H" }
     ],
-    "specials": []
+    "specials": [
+      {
+        "r": 0,
+        "c": 0,
+        "type": "blocked"
+      },
+      {
+        "r": 0,
+        "c": 2,
+        "type": "blocked"
+      },
+      {
+        "r": 2,
+        "c": 0,
+        "type": "blocked"
+      },
+      {
+        "r": 2,
+        "c": 2,
+        "type": "blocked"
+      }
+    ]
   },
   "deck": ["PEA", "WAL", "COCO", "WING", "HAZEL", "CHEST", "TY"],
   "startingHand": ["PEA", "WAL", "COCO", "WING"],

@@ -1,31 +1,59 @@
 {
   "meta": {
     "id": "108",
-    "name": "All Grown Up",
-    "par": 6,
-    "intro": "Welcome to 5×5—plan longer runs to reach the ★."
+    "name": "Portals",
+    "par": 2,
+    "intro": "Use the portals to project your tiles in multiple locations."
   },
   "board": {
-    "size": 5,
-    "goal": [2, 4],
-    "seeds": [
-      { "text": "DOM", "r": 2, "c": 0, "dir": "H" }
+    "size": [
+      1,
+      7
     ],
-    "specials": []
+    "goal": [
+      0,
+      4
+    ],
+    "seeds": [
+      {
+        "text": "le",
+        "r": 0,
+        "c": 2,
+        "dir": "H"
+      }
+    ],
+    "specials": [
+      {
+        "r": 0,
+        "c": 3,
+        "type": "blocked"
+      },
+      {
+        "r": 0,
+        "c": 1,
+        "type": "portal",
+        "group": "A"
+      },
+      {
+        "r": 0,
+        "c": 5,
+        "type": "portal",
+        "group": "A"
+      }
+    ]
   },
-  "deck": ["FR", "IGHT", "EN", "EE", "GA", "GE", "ME", "NT", "CK", "THUN", "RA", "O", "BA", "QUI", "EST"],
-  "startingHand": ["FR", "IGHT", "EN", "EE"],
+  "deck": [
+    "oub",
+    "d",
+    "raz",
+    "utt",
+    "le",
+    "tr"
+  ],
+  "startingHand": [],
   "allowedWords": [
-    "freedom",   
-    "fright",    
-    "frighten",  
-    "engage",    
-    "engagement",
-    "thunder",
-    "gecko",
-    "frock",
-    "front",   
-    "rant"
+    "double",
+    "trouble"
   ],
   "notes": ""
 }

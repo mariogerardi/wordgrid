@@ -1,0 +1,8 @@
+{
+  "meta": { "id": "124", "name": "Building Blocks 4", "par": 1, "intro": "Placeholder level." },
+  "board": { "size": 3, "goal": [2, 2], "seeds": [ { "text": "D", "r": 2, "c": 0, "dir": "H" } ], "specials": [] },
+  "deck": ["O"],
+  "startingHand": ["O"],
+  "allowedWords": ["d", "do"],
+  "notes": "Placeholder puzzle for Building Blocks."
+}

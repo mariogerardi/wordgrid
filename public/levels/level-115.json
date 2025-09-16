@@ -1,0 +1,88 @@
+{
+  "meta": {
+    "id": "115",
+    "name": "Hazy",
+    "par": 7,
+    "intro": "Is that what it looks like?"
+  },
+  "board": {
+    "size": [
+      3,
+      6
+    ],
+    "goal": [
+      2,
+      5
+    ],
+    "seeds": [
+      {
+        "text": "m",
+        "r": 1,
+        "c": 0,
+        "dir": "H"
+      }
+    ],
+    "specials": [
+      {
+        "r": 0,
+        "c": 1,
+        "type": "blocked"
+      },
+      {
+        "r": 2,
+        "c": 2,
+        "type": "blocked"
+      },
+      {
+        "r": 2,
+        "c": 0,
+        "type": "blocked"
+      },
+      {
+        "r": 0,
+        "c": 3,
+        "type": "blocked"
+      },
+      {
+        "r": 2,
+        "c": 4,
+        "type": "blocked"
+      },
+      {
+        "r": 0,
+        "c": 5,
+        "type": "blocked"
+      },
+      {
+        "r": 1,
+        "c": 3,
+        "type": "portal",
+        "group": "A"
+      },
+      {
+        "r": 0,
+        "c": 0,
+        "type": "portal",
+        "group": "A"
+      }
+    ]
+  },
+  "deck": [
+    "g",
+    "a",
+    "e",
+    "r",
+    "o",
+    "t",
+    "bi",
+    "n",
+    "i",
+    "eg",
+    "nk",
+    "zp",
+    "at"
+  ],
+  "startingHand": [],
+  "allowedWords": ["mirage", "rage", "mage", "big", "in", "it", "on", "or", "an", "at", "am", "no,", "rag", "eat"],
+  "notes": ""
+}

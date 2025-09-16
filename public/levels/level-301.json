@@ -1,8 +1,15 @@
 {
-  "meta": { "id": "301", "name": "Basics 1", "par": 1, "intro": "Placeholder level." },
-  "board": { "size": 3, "goal": [1, 2], "seeds": [ { "text": "A", "r": 1, "c": 0, "dir": "H" } ], "specials": [] },
-  "deck": ["T"],
-  "startingHand": ["T"],
-  "allowedWords": ["at", "a"],
-  "notes": "Basics placeholder."
+  "meta": { "id": "301", "name": "X Marks the Spot", "par": 3, "intro": "Seed X is centered on a 5×5. Reach the ★ at bottom-right using single-letter tiles." },
+  "board": {
+    "size": 5,
+    "goal": [4, 4],
+    "seeds": [ { "text": "X", "r": 2, "c": 2, "dir": "H" } ],
+    "specials": []
+  },
+  "deck": ["O", "E", "B", "R", "C", "O", "A", "L"],
+  "allowedWords": [
+    "CORAL", "ORAL", "ORCA", "BOXER", "OX", "BOX", "COAX", "LOBE", "LOCO",
+    "BRACE", "LACE", "RACE", "BARE", "CARE", "BEAR", "COAL", "AXE", "LOX"
+  ],
+  "notes": "Singles pack: all tiles are single letters."
 }

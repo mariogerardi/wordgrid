@@ -1,0 +1,91 @@
+{
+  "meta": {
+    "id": "111",
+    "name": "Rescue",
+    "par": 3,
+    "intro": "Help the CAT get down from there."
+  },
+  "board": {
+    "size": [
+      4,
+      4
+    ],
+    "goal": [
+      3,
+      3
+    ],
+    "seeds": [
+      {
+        "text": "CAT",
+        "r": 0,
+        "c": 0,
+        "dir": "H"
+      }
+    ],
+    "specials": [
+      {
+        "r": 2,
+        "c": 0,
+        "type": "blocked"
+      },
+      {
+        "r": 3,
+        "c": 2,
+        "type": "blocked"
+      },
+      {
+        "r": 1,
+        "c": 3,
+        "type": "blocked"
+      },
+      {
+        "r": 0,
+        "c": 1,
+        "type": "blocked"
+      },
+      {
+        "r": 0,
+        "c": 2,
+        "type": "blocked"
+      },
+      {
+        "r": 0,
+        "c": 3,
+        "type": "blocked"
+      },
+      {
+        "r": 3,
+        "c": 0,
+        "type": "blocked"
+      },
+      {
+        "r": 3,
+        "c": 1,
+        "type": "blocked"
+      }
+    ]
+  },
+  "deck": [
+    "yx",
+    "ch",
+    "me",
+    "ro",
+    "ss",
+    "le",
+    "on"
+  ],
+  "startingHand": [],
+  "allowedWords": [
+    "cat",
+    "catch",
+    "chrome",
+    "lesson",
+    "role",
+    "mess",
+    "less",
+    "onyx",
+    "me",
+    "on"
+  ],
+  "notes": ""
+}
