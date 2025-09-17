@@ -11,131 +11,168 @@
 */
 
 import { loadLevel, normalizeLevel } from './engine/levelLoader.js';
+import { initState, startLevel } from './engine/state.js';
+import { makeValidatorFromLevel, applyValidatorToState } from './engine/validator.js';
+import { __patchRendererForShim as initUI } from './engine/renderer.js';
+import { toA1 } from './engine/shared/geometry.js';
+import { LS_KEY, DAILY_EXCLUDE, DAILY_FALLBACK_LEVEL } from './engine/shared/constants.js';
+import { hashStr, showToast, safeJSONParse } from './engine/shared/utils.js';
+import { setGridCellSize, enableResponsiveGrid, disableResponsiveGrid } from './engine/shared/layout.js';
 
 // DEV FORCE-UNLOCK (toggle for local testing)
 // Location: public/main.js (top of file, near imports)
 // Set to true to unlock ALL packs and ALL levels regardless of saved progress.
 // Remember to set back to false before sharing builds.
 const DEV_FORCE_UNLOCK_ALL = false;
-import { initState, startLevel } from './engine/state.js';
-import { makeValidatorFromLevel, applyValidatorToState } from './engine/validator.js';
-import { __patchRendererForShim as initUI } from './engine/renderer.js';
+
+console.info('[gridl/main] bootstrap • routing + layout modules active');
 
 /* ---------------- Packs data (fetched with fallback) ---------------- */
 
 let PACKS_DB = null;
 let PROGRESS = null; // { completed: Set<string>, unlockedPacks: Set<string>, unlockedLevels: Set<string>, bestScores: Record<string, number> }
+let progressSaveWarned = false;
 
 /* ---------------- Progress (localStorage) ---------------- */
 
-const LS_KEY = 'gridl_progress_v1';
+const INITIAL_UNLOCKED_PACKS = ['tutorial'];
+const INITIAL_UNLOCKED_LEVELS = ['101', '102', '103'];
+
+function createDefaultProgress() {
+  return {
+    completed: new Set(),
+    unlockedPacks: new Set(INITIAL_UNLOCKED_PACKS),
+    unlockedLevels: new Set(INITIAL_UNLOCKED_LEVELS),
+    bestScores: Object.create(null)
+  };
+}
+
+function collectIds(value) {
+  if (!value) return [];
+  if (Array.isArray(value)) return value;
+  if (value instanceof Set) return [...value];
+  if (typeof value === 'object') return Object.keys(value).filter((key) => Boolean(value[key]));
+  return [];
+}
+
+function migrateProgress(raw) {
+  if (!raw || typeof raw !== 'object') return null;
+  const base = createDefaultProgress();
+  const completed = new Set([...base.completed, ...collectIds(raw.completed).map(String)]);
+  const unlockedPacks = new Set([...base.unlockedPacks, ...collectIds(raw.unlockedPacks).map(String)]);
+  const unlockedLevels = new Set([...base.unlockedLevels, ...collectIds(raw.unlockedLevels).map(String)]);
+  const bestScores = Object.create(null);
+  const srcBest = (raw.bestScores && typeof raw.bestScores === 'object') ? raw.bestScores : {};
+  for (const [key, value] of Object.entries(srcBest)) {
+    const turns = Number(value);
+    if (Number.isFinite(turns) && turns > 0) {
+      bestScores[String(key)] = turns;
+    }
+  }
+  return { completed, unlockedPacks, unlockedLevels, bestScores };
+}
 
 function loadProgress() {
   if (PROGRESS) return PROGRESS;
+  let stored = null;
   try {
-    const raw = JSON.parse(localStorage.getItem(LS_KEY) || 'null');
-    if (raw && raw.completed && raw.unlockedPacks && raw.unlockedLevels) {
-      PROGRESS = {
-        completed: new Set(raw.completed),
-        unlockedPacks: new Set(raw.unlockedPacks),
-        unlockedLevels: new Set(raw.unlockedLevels),
-        bestScores: Object.assign({}, raw.bestScores || {})
-      };
-      return PROGRESS;
-    }
-  } catch {}
-  // Default: tutorial pack unlocked, first three tutorial levels unlocked, foundations unlocked
-  PROGRESS = {
-    completed: new Set(),
-    unlockedPacks: new Set(['tutorial']),
-    unlockedLevels: new Set(['101', '102', '103']),
-    bestScores: {}
-  };
-  saveProgress();
+    stored = safeJSONParse(localStorage.getItem(LS_KEY), null);
+  } catch {
+    stored = null;
+  }
+  const migrated = migrateProgress(stored);
+  PROGRESS = migrated ?? createDefaultProgress();
+  const tutorialUnlocksChanged = applyTutorialUnlocks(PROGRESS);
+  if (!migrated || tutorialUnlocksChanged) saveProgress();
   return PROGRESS;
 }
 
 function saveProgress() {
+  if (!PROGRESS) return;
   try {
     const data = {
       completed: [...PROGRESS.completed],
       unlockedPacks: [...PROGRESS.unlockedPacks],
       unlockedLevels: [...PROGRESS.unlockedLevels],
-      bestScores: PROGRESS.bestScores || {}
+      bestScores: { ...PROGRESS.bestScores }
     };
     localStorage.setItem(LS_KEY, JSON.stringify(data));
-  } catch {}
+  } catch (err) {
+    if (!progressSaveWarned) {
+      console.warn('[progress] save failed; continuing without persistence', err);
+      progressSaveWarned = true;
+    }
+  }
 }
 
-function syncPacksUnlockedFromProgress() {
-  if (!PACKS_DB || !PROGRESS) return;
+function syncPacksUnlockedFromProgress(progress = PROGRESS, packsDb = PACKS_DB) {
+  if (!progress || !packsDb) return;
   try {
-    for (const p of PACKS_DB.list) {
-      p.unlocked = PROGRESS.unlockedPacks.has(p.id) || !!p.unlocked;
+    for (const pack of packsDb.list) {
+      pack.unlocked = progress.unlockedPacks.has(pack.id) || Boolean(pack.unlocked);
     }
   } catch {}
 }
 
 /* ---------------- Small UI toasts for unlocks ---------------- */
-function ensureToastRoot() {
-  let root = document.getElementById('toastRoot');
-  if (!root) {
-    root = document.createElement('div');
-    root.id = 'toastRoot';
-    document.body.appendChild(root);
-  }
-  return root;
-}
-function showUnlockToast(message) {
-  const root = ensureToastRoot();
-  const n = document.createElement('div');
-  n.className = 'toast';
-  n.textContent = message;
-  root.appendChild(n);
-  // animate in
-  requestAnimationFrame(() => n.classList.add('toast--in'));
-  // auto-dismiss
-  setTimeout(() => {
-    n.classList.remove('toast--in');
-    n.classList.add('toast--out');
-    setTimeout(() => n.remove(), 350);
-  }, 2600);
+function showUnlockToast(message, opts) {
+  showToast(message, opts);
 }
 
-function unlockLevel(id) {
-  PROGRESS.unlockedLevels.add(String(id));
+function unlockLevel(id, progress = PROGRESS) {
+  if (!progress) return;
+  progress.unlockedLevels.add(String(id));
 }
-function unlockPack(id) {
-  PROGRESS.unlockedPacks.add(String(id));
+function unlockPack(id, progress = PROGRESS) {
+  if (!progress) return;
+  progress.unlockedPacks.add(String(id));
 }
-function markCompleted(id) {
-  PROGRESS.completed.add(String(id));
+function markCompleted(id, progress = PROGRESS) {
+  if (!progress) return;
+  progress.completed.add(String(id));
 }
 
-function recordBest(id, turns) {
+function recordBest(id, turns, progress = PROGRESS) {
+  if (!progress) return;
   const key = String(id);
   const t = Math.max(1, Number(turns || 0));
-  const prev = PROGRESS.bestScores[key];
-  if (!prev || t < prev) PROGRESS.bestScores[key] = t;
+  const prev = progress.bestScores[key];
+  if (!prev || t < prev) progress.bestScores[key] = t;
 }
 
 // Apply tutorial gating: start with 101-103; then completing 101-103 → unlock 104-105; completing 104-105 → unlock 106-107; completing 106-107 → unlock 108-110.
-function applyTutorialUnlocks() {
-  const c = PROGRESS.completed;
-  // Ensure initial levels stay unlocked
-  ['101','102','103'].forEach(unlockLevel);
-  if (['101','102','103'].every(id => c.has(id))) {
-    ['104','105'].forEach(unlockLevel);
-    if (['104','105'].every(id => c.has(id))) {
-      ['106','107'].forEach(unlockLevel);
-      if (['106','107'].every(id => c.has(id))) {
-        ['108','109','110'].forEach(unlockLevel);
+function applyTutorialUnlocks(progress = PROGRESS) {
+  if (!progress) return false;
+  const beforeLevels = progress.unlockedLevels.size;
+  const beforePacks = progress.unlockedPacks.size;
+  const completed = progress.completed;
+
+  INITIAL_UNLOCKED_LEVELS.forEach((id) => unlockLevel(id, progress));
+  if (INITIAL_UNLOCKED_LEVELS.every((id) => completed.has(id))) {
+    ['104', '105'].forEach((id) => unlockLevel(id, progress));
+    if (['104', '105'].every((id) => completed.has(id))) {
+      ['106', '107'].forEach((id) => unlockLevel(id, progress));
+      if (['106', '107'].every((id) => completed.has(id))) {
+        ['108', '109', '110'].forEach((id) => unlockLevel(id, progress));
       }
     }
   }
-  // Pack unlocks from tutorial milestones
-  if (c.has('105')) unlockPack('singles');
-  if (c.has('110')) unlockPack('basics');
+
+  if (completed.has('105')) unlockPack('singles', progress);
+  if (completed.has('110')) unlockPack('basics', progress);
+
+  return progress.unlockedLevels.size !== beforeLevels || progress.unlockedPacks.size !== beforePacks;
+}
+
+function applyDevOverrides(progress, packsDb) {
+  if (!DEV_FORCE_UNLOCK_ALL || !progress || !packsDb) return;
+  for (const pack of packsDb.list) {
+    pack.unlocked = true;
+    progress.unlockedPacks.add(String(pack.id));
+    for (const level of pack.puzzles || []) {
+      if (level?.id != null) progress.unlockedLevels.add(String(level.id));
+    }
+  }
 }
 
 async function loadPacks() {
@@ -143,7 +180,9 @@ async function loadPacks() {
   try {
     const res = await fetch('./packs.json', { cache: 'no-store' });
     if (!res.ok) throw new Error(`packs.json ${res.status}`);
-    const json = await res.json();
+    const text = await res.text();
+    const json = safeJSONParse(text, null);
+    if (!json) throw new Error('packs.json parse failed');
     PACKS_DB = normalizePacks(json);
   } catch (e) {
     console.warn('[packs] falling back due to:', e);
@@ -171,49 +210,88 @@ async function loadPacks() {
 }
 
 function normalizePacks(raw) {
-  const packs = Array.isArray(raw?.packs) ? raw.packs : [];
-  const sections = Array.isArray(raw?.sections) ? raw.sections : [];
+  const progress = loadProgress();
+  const packsInput = Array.isArray(raw?.packs) ? raw.packs : [];
+  const packs = [];
   const byId = Object.create(null);
-  for (const p of packs) byId[p.id] = p;
-  const sectionsById = Object.create(null);
-  for (const s of sections) sectionsById[s.id] = s;
-  // Merge in dynamic unlocks from progress
-  loadProgress();
-  applyTutorialUnlocks();
-  // Pack unlocked flag defaults to PROGRESS; fallback to existing p.unlocked
-  for (const p of packs) {
-    p.unlocked = PROGRESS.unlockedPacks.has(p.id) || !!p.unlocked;
+
+  for (const entry of packsInput) {
+    if (!entry) continue;
+    const rawId = entry.id != null ? String(entry.id).trim() : '';
+    if (!rawId) continue;
+    const puzzles = Array.isArray(entry.puzzles)
+      ? entry.puzzles.map((pz) => {
+          if (!pz || pz.id == null) return null;
+          const id = String(pz.id).trim();
+          if (!id) return null;
+          return { ...pz, id };
+        }).filter(Boolean)
+      : [];
+    const sectionId = entry.section ? String(entry.section) : 'variety';
+    const pack = {
+      ...entry,
+      id: rawId,
+      section: sectionId,
+      puzzles,
+      unlocked: progress?.unlockedPacks.has(rawId) || Boolean(entry.unlocked)
+    };
+    packs.push(pack);
+    byId[rawId] = pack;
   }
-  // Curriculum progression: strictly compute unlocking based on previous pack completion
+
+  const sectionsById = Object.create(null);
+  const sectionsList = [];
+  const sourceSections = Array.isArray(raw?.sections) ? raw.sections : [];
+
+  const ensureSection = (section) => {
+    if (!section) return;
+    const id = section.id != null ? String(section.id).trim() : '';
+    if (!id || sectionsById[id]) return;
+    const name = section.name || id.replace(/[-_]/g, ' ').replace(/\b\w/g, (ch) => ch.toUpperCase()).trim() || 'Packs';
+    const description = section.description || '';
+    const normalized = { id, name, description };
+    sectionsById[id] = normalized;
+    sectionsList.push(normalized);
+  };
+
+  sourceSections.forEach((section) => ensureSection(section));
+  for (const pack of packs) {
+    if (!sectionsById[pack.section]) {
+      ensureSection({ id: pack.section });
+    }
+  }
+  if (sectionsList.length === 0) {
+    ensureSection({ id: 'variety', name: 'Packs', description: 'More puzzles coming soon.' });
+  }
+
+  applyTutorialUnlocks(progress);
+
+  for (const pack of packs) {
+    pack.unlocked = progress.unlockedPacks.has(pack.id) || Boolean(pack.unlocked);
+  }
+
   try {
-    const curriculum = packs.filter(p => p.section === 'curriculum');
-    // Ensure order is preserved as declared in packs.json
-    for (let i = 0; i < curriculum.length; i++) {
-      const pk = curriculum[i];
+    const curriculum = packs.filter((pack) => pack.section === 'curriculum');
+    for (let i = 0; i < curriculum.length; i += 1) {
+      const pack = curriculum[i];
       let unlocked = false;
-      if (i === 0) unlocked = true; // first curriculum pack always unlocked
-      else {
+      if (i === 0) {
+        unlocked = true;
+      } else {
         const prev = curriculum[i - 1];
-        const prevIds = (prev.puzzles || []).map(z => String(z.id));
-        const allPrevCompleted = prevIds.length === 0 || prevIds.every(id => PROGRESS.completed.has(id));
+        const prevIds = (prev.puzzles || []).map((pz) => String(pz.id));
+        const allPrevCompleted = prevIds.length === 0 || prevIds.every((id) => progress.completed.has(id));
         unlocked = allPrevCompleted;
       }
-      pk.unlocked = unlocked;
-      if (unlocked) PROGRESS.unlockedPacks.add(pk.id); else PROGRESS.unlockedPacks.delete(pk.id);
+      pack.unlocked = unlocked;
+      if (unlocked) progress.unlockedPacks.add(pack.id); else progress.unlockedPacks.delete(pack.id);
     }
   } catch {}
-  // DEV: force unlock everything for local testing
-  if (DEV_FORCE_UNLOCK_ALL) {
-    for (const p of packs) {
-      p.unlocked = true;
-      PROGRESS.unlockedPacks.add(p.id);
-      for (const lvl of (p.puzzles || [])) {
-        PROGRESS.unlockedLevels.add(String(lvl.id));
-      }
-    }
-  }
+
+  const packsDb = { list: packs, byId, sections: { list: sectionsList, byId: sectionsById } };
+  applyDevOverrides(progress, packsDb);
   saveProgress();
-  return { list: packs, byId, sections: { list: sections, byId: sectionsById } };
+  return packsDb;
 }
 
 /* ---------------- Tiny router ---------------- */
@@ -256,72 +334,6 @@ function route() {
 
 window.addEventListener('hashchange', route);
 window.addEventListener('load', route);
-
-/* ---------------- Shared DOM helpers ---------------- */
-
-let _resizeHandler = null;
-
-/** Set CSS variables for cell size/gap based on rows/cols and available width/height. */
-function setGridCellSize(rows, cols) {
-  const N = Math.max(Number(rows || 7), Number(cols || 7));
-  // Base sizes by overall grid scale
-  // Base size scales down as boards get larger. Previously 56 for 7×7 —
-  // reduce ~10% and keep tapering down toward 10×10.
-  // 3×N → 96, 5×N → 72, 7×N → ~50, 8–10×N → ~48–46
-  let basePx;
-  if (N <= 3) basePx = 96;
-  else if (N <= 5) basePx = 60; // 5×5 should feel closer to ~60px
-  else {
-    basePx = Math.round(56 - (N - 5) * 3); // N=6→53, 7→50, 8→47, 9→44, 10→41
-    basePx = Math.max(46, basePx); // don’t go below ~46 via base; minCell guards further
-  }
-  const baseGap = (N <= 3) ? 8 : (N <= 5) ? 6 : 6;
-
-  // Fit within the board mount width (minus padding/gaps)
-  const mount = document.getElementById('boardMount');
-  const vw = window.innerWidth || 1024;
-  const mountWidth = (mount?.clientWidth || Math.min(920, vw - 48));
-  // Compute available height for the board (viewport minus header/meta/trays)
-  const vh = window.innerHeight || 768;
-  const toolbarEl = document.querySelector('.game-toolbar');
-  const toolbarH = (toolbarEl && toolbarEl.classList.contains('game-toolbar--overlay')) ? 0 : (toolbarEl?.offsetHeight || 0);
-  const metaH = document.querySelector('.level-meta')?.offsetHeight || 0;
-  const traysH = document.querySelector('.trays--in-panel')?.offsetHeight || 0;
-  const verticalMargins = 64; // breathing room + section padding
-  const availableHeight = Math.max(160, vh - toolbarH - metaH - traysH - verticalMargins);
-
-  // Choose gap smaller when cells are compact
-  let gap = baseGap;
-  // Max cell from width and height
-  const maxCellFromWidth = Math.floor((mountWidth - (Number(cols) + 1) * baseGap - 2) / Number(cols));
-  const maxCellFromHeight = Math.floor((availableHeight - (Number(rows) + 1) * baseGap - 2) / Number(rows));
-  const rawCell = Math.min(maxCellFromWidth, maxCellFromHeight);
-
-  // Final cell bounded by min/max
-  const minCell = 44;
-  const maxCell = basePx;
-  const cellPx = Math.max(minCell, Math.min(maxCell, rawCell));
-  if (cellPx < 54) gap = 4;
-
-  document.documentElement.style.setProperty('--cell', `${cellPx}px`);
-  document.documentElement.style.setProperty('--gap', `${gap}px`);
-  // Toggle compact/spacious helpers for CSS fine-tuning
-  document.documentElement.classList.toggle('cells-compact', cellPx < 54);
-  document.documentElement.classList.toggle('cells-spacious', cellPx > 84);
-  // Force single-column layout on all devices (no side-by-side)
-  document.documentElement.classList.remove('layout-side');
-}
-
-/** Attach a resize listener while in game view; detach on navigation. */
-function enableResponsiveGrid(rows, cols) {
-  disableResponsiveGrid(); // remove any prior
-  _resizeHandler = () => setGridCellSize(rows, cols);
-  window.addEventListener('resize', _resizeHandler, { passive: true });
-}
-function disableResponsiveGrid() {
-  if (_resizeHandler) window.removeEventListener('resize', _resizeHandler);
-  _resizeHandler = null;
-}
 
 const app = () => document.getElementById('app');
 // HUD removed; no-op helpers deleted
@@ -370,17 +382,15 @@ function getAllLevelIds(packs){
   for (const p of packs.list){
     for (const z of (p.puzzles||[])) ids.push(String(z.id));
   }
-  // Exclude tutorial 101–105
-  return ids.filter(id => !(id >= '101' && id <= '105'));
+  const exclude = new Set(DAILY_EXCLUDE.map(String));
+  return ids.filter((id) => !exclude.has(id));
 }
-
-function hashStr(s){ let h=5381; for(let i=0;i<s.length;i++){ h=((h<<5)+h) ^ s.charCodeAt(i);} return (h>>>0); }
 
 async function renderDailyGame(){
   const packs = await loadPacks();
   const ids = getAllLevelIds(packs);
   const key = new Date().toLocaleDateString('en-CA');
-  const pick = ids.length ? ids[ hashStr(key) % ids.length ] : '106';
+  const pick = ids.length ? ids[ hashStr(key) % ids.length ] : DAILY_FALLBACK_LEVEL;
   document.documentElement.classList.add('is-daily');
   await GameView(['', pick]);
   document.documentElement.classList.add('is-daily');
@@ -398,8 +408,9 @@ async function PacksView() {
     const status = unlocked
       ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 10V7a5 5 0 0 1 10 0"/><rect x="5" y="10" width="14" height="10" rx="2"/></svg>'
       : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M7 10V7a5 5 0 0 1 10 0v3"/></svg>';
+    const disabledAttrs = unlocked ? '' : 'aria-disabled="true" tabindex="-1"';
     return `
-      <a class="${cardCls}" href="${href}" ${unlocked ? '' : 'aria-disabled="true"'}>
+      <a class="${cardCls}" href="${href}" ${disabledAttrs}>
         <div class="pack-card__body">
           <div class="pack-card__title">${p.name}</div>
           <div class="pack-card__desc">${p.description || ''}</div>
@@ -492,8 +503,9 @@ async function PackView(match) {
     const href = locked ? 'javascript:void(0)' : `#/play/level/${pz.id}`;
     const best = (pz.best != null) ? `<div class=\"puzzle-tile__best\">Best ${pz.best}</div>` : '';
     const check = pz.completed ? '<div class="puzzle-tile__check" aria-hidden="true">✓</div>' : '';
+    const disabledAttrs = locked ? 'aria-disabled=\"true\" tabindex=\"-1\"' : '';
     return `
-      <a class="puzzle-tile ${locked ? 'puzzle-tile--locked' : ''}" href="${href}" ${locked ? 'aria-disabled=\"true\"' : ''}>
+      <a class="puzzle-tile ${locked ? 'puzzle-tile--locked' : ''}" href="${href}" ${disabledAttrs}>
         ${check}
         <div class="puzzle-tile__num">${label}</div>
         <div class="puzzle-tile__row">
@@ -972,17 +984,6 @@ function EditorView() {
 
   let tool = E.lastTool || 'seed';
   let portalGroup = portalGroupEl.value || 'A';
-
-  function toA1(r, c) {
-    let n = c + 1;
-    let col = '';
-    while (n > 0) {
-      const rem = (n - 1) % 26;
-      col = String.fromCharCode(65 + rem) + col;
-      n = Math.floor((n - 1) / 26);
-    }
-    return `${col}${r + 1}`;
-  }
 
   function specialAt(r, c) { return E.specials.find((s) => s.r === r && s.c === c); }
   function seedAt(r, c) { return E.seeds.find((s) => s.r === r && s.c === c); }
