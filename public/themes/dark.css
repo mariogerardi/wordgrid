@@ -1,0 +1,7 @@
+/* Wordgrid theme overrides: dark theme (optional load)
+   Override tokens only—no component selectors here. */
+@layer tokens {
+  :root[data-theme="dark"] {
+    /* Example: --color-bg: #101828; */
+  }
+}

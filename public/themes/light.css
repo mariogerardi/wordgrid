@@ -1,0 +1,8 @@
+/* Wordgrid theme overrides: light theme (optional load)
+   This file mirrors :root[data-theme="light"] in the main stylesheet. */
+@layer tokens {
+  :root[data-theme="light"] {
+    /* Override design tokens for the light theme here. */
+    /* Example: --color-bg: #cce3ff; */
+  }
+}

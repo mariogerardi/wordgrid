@@ -1,0 +1,7 @@
+/* Wordgrid theme overrides: high-contrast theme (optional load)
+   Use this to increase contrast via token overrides only. */
+@layer tokens {
+  :root[data-theme="contrast"] {
+    /* Example: --color-line: #000; */
+  }
+}
