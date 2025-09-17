@@ -52,7 +52,7 @@ export function levelIdFromURL() {
 
 /* -------------------- Normalization & validation -------------------- */
 
-function normalizeLevel(raw, fallbackId = 'unknown') {
+export function normalizeLevel(raw, fallbackId = 'unknown') {
   const errors = [];
 
   // ---- meta ----

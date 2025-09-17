@@ -10,7 +10,7 @@
      - /levels/level-001.json  (and future levels)
 */
 
-import { loadLevel } from './engine/levelLoader.js';
+import { loadLevel, normalizeLevel } from './engine/levelLoader.js';
 
 // DEV FORCE-UNLOCK (toggle for local testing)
 // Location: public/main.js (top of file, near imports)
@@ -224,6 +224,7 @@ const routes = [
   { match: /^#\/play\/([a-z0-9-]+)\/?$/, view: PackView },        // <— dynamic pack route
   { match: /^#\/play\/level\/(\d{3})\/?$/, view: GameView },
   { match: /^#\/how\/?$/, view: HowToPlayView },
+  { match: /^#\/editor\/test\/?$/, view: EditorTestView },
   { match: /^#\/editor\/?$/, view: EditorView },
   { match: /^#\/settings\/?$/, view: SettingsView },
   { match: /^#\/themes\/?$/, view: ThemesView },
@@ -520,30 +521,34 @@ async function PackView(match) {
   // styles are in styles.css
 }
 
-async function GameView(match) {
+async function GameView(match, opts = {}) {
   document.documentElement.classList.remove('is-daily');
 
-  const levelId = match[1]; // e.g. "001"
+  const levelOverride = opts.levelData || null;
+  const matchId = Array.isArray(match) && match.length > 1 ? String(match[1]) : '';
+  const resolvedLevelId = levelOverride?.id != null ? String(levelOverride.id) : (matchId || '001');
 
-  // Find the pack that contains this level for a back link and potential next link
-  let backHref = '#/play';
-  let nextHref = '';
-  try {
-    const packs = await loadPacks();
-    const found = packs.list.find(pk => (pk.puzzles || []).some(pz => String(pz.id) === String(levelId)));
-    if (found) {
-      backHref = `#/play/${found.id}`;
-      const ix = (found.puzzles || []).findIndex(pz => String(pz.id) === String(levelId));
-      const next = ix >= 0 ? (found.puzzles || [])[ix + 1] : null;
-      if (next && next.id) nextHref = `#/play/level/${next.id}`;
-    }
-  } catch {}
+  let backHref = opts.backHrefOverride || '#/play';
+  let nextHref = opts.nextHrefOverride || '';
+  if (!levelOverride && !opts.nextHrefOverride) {
+    try {
+      const packs = await loadPacks();
+      const found = packs.list.find(pk => (pk.puzzles || []).some(pz => String(pz.id) === String(resolvedLevelId)));
+      if (found) {
+        backHref = `#/play/${found.id}`;
+        const ix = (found.puzzles || []).findIndex(pz => String(pz.id) === String(resolvedLevelId));
+        const next = ix >= 0 ? (found.puzzles || [])[ix + 1] : null;
+        if (next && next.id) nextHref = `#/play/level/${next.id}`;
+      }
+    } catch {}
+  }
 
-  const level = await loadLevel(levelId); // expects ./levels/level-<id>.json
+  const level = levelOverride || await loadLevel(resolvedLevelId);
 
-  // Build par meter HTML (always 10 pips) with animated fill and best marker
   const parCount = Math.max(0, Math.min(10, Number(level.par || 0)));
-  const bestTurns = PROGRESS?.bestScores?.[String(levelId)] || null;
+  const bestTurns = (!opts.skipProgress && !levelOverride)
+    ? (PROGRESS?.bestScores?.[String(resolvedLevelId)] || null)
+    : null;
   const trackHTML = Array.from({ length: 10 }, (_, i) => {
     const isFill = i < parCount;
     const isBest = bestTurns && bestTurns >= 1 && bestTurns <= 10 && i === (bestTurns - 1);
@@ -551,16 +556,20 @@ async function GameView(match) {
     const style = isFill ? ` style=\"--i:${i}\"` : '';
     return `<span class=\"${cls}\"${style}></span>`;
   }).join('');
-  
-  // Build engine shell (board + trays inside one panel)
+
+  const showNextButton = Boolean(nextHref) && !opts.disableNextButton;
+  const backLabel = opts.backLabel || '← Back';
+  const nextLabel = opts.nextButtonLabel || 'Next →';
+  const levelTitle = level.name || (levelOverride ? 'Editor Test' : `Level ${resolvedLevelId}`);
+
   app().innerHTML = `
     <section class="section view">
       <div class="game-toolbar game-toolbar--overlay" style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
-        <div><a class="btn" href="${backHref}">← Back</a></div>
-        <div>${nextHref ? `<a id=\"btnNext\" class=\"btn btn--primary\" href=\"${nextHref}\" style=\"display:none\">Next →</a>` : ''}</div>
+        <div><a class="btn" href="${backHref}">${backLabel}</a></div>
+        <div>${showNextButton ? `<a id=\"btnNext\" class=\"btn btn--primary\" href=\"${nextHref}\" style=\"display:none\">${nextLabel}</a>` : ''}</div>
       </div>
       <div class="level-meta">
-        <div class="level-meta__title">${level.name || `Level ${levelId}`}</div>
+        <div class="level-meta__title">${levelTitle}</div>
         <div class="level-meta__stats">
           <div class="par-meter" title="Par ${level.par}">
             <div class="par-meter__track">${trackHTML}</div>
@@ -593,7 +602,6 @@ async function GameView(match) {
     </section>
   `;
 
-  // 👉 Set cell size & responsive behavior based on level rows/cols
   const rows = Number(level.rows || level.size || 7);
   const cols = Number(level.cols || level.size || 7);
   setGridCellSize(rows, cols);
@@ -606,42 +614,44 @@ async function GameView(match) {
 
   initUI(state, level, {
     onWin: ({ state: finalState }) => {
-      // Reveal Next button (if present) when the puzzle is completed
-      const nextBtn = document.getElementById('btnNext');
-      if (nextBtn) nextBtn.style.display = '';
-      // Update progress & unlocks
+      if (showNextButton) {
+        const nextBtn = document.getElementById('btnNext');
+        if (nextBtn) nextBtn.style.display = '';
+      }
+      if (opts.skipProgress) {
+        const usedTurns = Math.max(1, (finalState?.turn || 1) - 1);
+        showUnlockToast(`✅ Test run complete in ${usedTurns} turn${usedTurns === 1 ? '' : 's'}.`);
+        if (typeof opts.onWin === 'function') opts.onWin({ state: finalState });
+        return;
+      }
+
       loadProgress();
-      // snapshot before applying new unlocks
       const prevLevels = new Set(PROGRESS.unlockedLevels);
       const prevPacks = new Set(PROGRESS.unlockedPacks);
-      const id = String(level.id || match[1]);
+      const id = String(level.id || resolvedLevelId);
       markCompleted(id);
       const used = Math.max(1, (finalState?.turn || 1) - 1);
       recordBest(id, used);
       if (level.meta?.id) markCompleted(String(level.meta.id));
       applyTutorialUnlocks();
       saveProgress();
-      // Update cached packs so navigating back reflects unlocks immediately
       syncPacksUnlockedFromProgress();
 
-      // Compute diffs and announce
       const newlyUnlockedLevels = [...PROGRESS.unlockedLevels].filter(v => !prevLevels.has(v));
       const newlyUnlockedPacks = [...PROGRESS.unlockedPacks].filter(v => !prevPacks.has(v));
-      // Daily/game completion toast with par context
       const usedTurns = Math.max(1, (finalState?.turn || 1) - 1);
       const par = Number(level.par || 0);
       const diff = usedTurns - par;
       let perf = par ? (diff < 0 ? `Under par by ${Math.abs(diff)}!` : diff === 0 ? `Right at par.` : `Over par by ${diff}.`) : '';
       showUnlockToast(`🎉 Nice! You finished in ${usedTurns}. ${perf}`.trim());
+      if (typeof opts.onWin === 'function') opts.onWin({ state: finalState });
     }
   });
 
-  // Hard reset button: reload the same level fresh
+  const restartOptions = levelOverride ? { ...opts, levelData: levelOverride } : { ...opts };
   document.getElementById('btnHardReset')?.addEventListener('click', () => {
-    GameView(['', levelId]);
+    GameView(['', resolvedLevelId], restartOptions);
   });
-
-  // HUD removed
 }
 
 function HowToPlayView() {
@@ -791,24 +801,85 @@ function AchievementsView(){
 
 /* ---------------- Simple Level Editor (experimental) ---------------- */
 
-function EditorView() {
-  const E = {
+let EDITOR_DRAFT = null;
+let EDITOR_TEST_LEVEL = null;
+
+function createEmptyEditorDraft() {
+  return {
     rows: 5,
     cols: 5,
     goal: { r: 0, c: 0 },
-    seeds: [], // [{text,r,c,dir:'H'}]
-    specials: [], // [{r,c,type:'blocked'|'portal',group?:'A'}]
+    seeds: [],
+    specials: [],
     deck: [],
     startingHand: [],
     allowedWords: [],
-    notes: ''
+    allowedWordsText: '',
+    notes: '',
+    meta: { id: '', name: '', par: 7, intro: '' },
+    seedText: 'CAT',
+    portalGroup: 'A',
+    lastTool: 'seed'
   };
+}
+
+function getEditorDraft() {
+  if (!EDITOR_DRAFT) EDITOR_DRAFT = createEmptyEditorDraft();
+  return EDITOR_DRAFT;
+}
+
+function parseAllowedWordsInput(text) {
+  return (text || '')
+    .split(/[\n,]/)
+    .map((w) => w.trim())
+    .filter(Boolean);
+}
+
+function pruneDraftToBounds(draft) {
+  draft.seeds = draft.seeds.filter((s) => s.r < draft.rows && s.c < draft.cols);
+  draft.specials = draft.specials.filter((s) => s.r < draft.rows && s.c < draft.cols);
+  if (draft.goal.r >= draft.rows || draft.goal.c >= draft.cols) {
+    draft.goal = { r: 0, c: 0 };
+  }
+}
+
+function buildEditorRawLevel(draft) {
+  const rows = Math.max(1, Math.min(10, Number(draft.rows || 5)));
+  const cols = Math.max(1, Math.min(10, Number(draft.cols || 5)));
+  const specials = draft.specials.map((s) => (
+    s.type === 'portal'
+      ? { r: s.r, c: s.c, type: 'portal', group: s.group }
+      : { r: s.r, c: s.c, type: 'blocked' }
+  ));
+  return {
+    meta: {
+      id: String(draft.meta?.id || ''),
+      name: (draft.meta?.name || '').trim() || 'Custom Level',
+      par: Math.max(0, Number.parseInt(draft.meta?.par, 10) || 0),
+      intro: draft.meta?.intro || ''
+    },
+    board: {
+      size: [rows, cols],
+      goal: [draft.goal?.r ?? 0, draft.goal?.c ?? 0],
+      seeds: (draft.seeds || []).map((s) => ({ text: s.text, r: s.r, c: s.c, dir: s.dir || 'H' })),
+      specials
+    },
+    deck: [...(draft.deck || [])],
+    startingHand: [...(draft.startingHand || [])],
+    allowedWords: [...(draft.allowedWords || [])],
+    notes: draft.notes || ''
+  };
+}
+
+function EditorView() {
+  const E = getEditorDraft();
 
   app().innerHTML = `
     <section class="section view" style="max-width:1080px; margin:auto;">
       <div class="editor-toolbar">
         <div><a class="btn" href="#/">← Back</a></div>
         <div style="display:flex; gap:8px; align-items:center;">
+          <button id="btnTest" class="btn">Test</button>
           <button id="btnExport" class="btn btn--primary">Copy Level JSON</button>
         </div>
       </div>
@@ -826,7 +897,7 @@ function EditorView() {
             <h3>Metadata</h3>
             <div class="field"><label for="metaId">Level ID</label><input id="metaId" type="text" placeholder="e.g., 999"></div>
             <div class="field"><label for="metaName">Name</label><input id="metaName" type="text" placeholder="Custom Level"></div>
-            <div class="field"><label for="metaPar">Par</label><input id="metaPar" type="number" value="7" min="0" style="width:100px"></div>
+            <div class="field"><label for="metaPar">Par</label><input id="metaPar" type="number" min="0" style="width:100px"></div>
             <div class="field"><label for="metaIntro">Intro</label><input id="metaIntro" type="text" placeholder="Optional intro"></div>
           </div>
         </div>
@@ -845,7 +916,7 @@ function EditorView() {
             <button class="btn" data-tool="erase">Erase</button>
           </div>
           <div id="seedControls" class="field">
-            <label>Seed text</label><input id="seedText" type="text" value="CAT">
+            <label>Seed text</label><input id="seedText" type="text">
             <span class="muted">(click a cell to place/edit)</span>
           </div>
           <div id="portalControls" class="field" style="display:none;">
@@ -871,11 +942,6 @@ function EditorView() {
     </section>
   `;
 
-  // stateful locals
-  let tool = 'seed';
-  let portalGroup = 'A';
-
-  // wire controls
   const byId = (id) => document.getElementById(id);
   const rowsEl = byId('edRows');
   const colsEl = byId('edCols');
@@ -885,17 +951,47 @@ function EditorView() {
   const notesTA = byId('notesTA');
   const deckInput = byId('deckInput');
   const deckList = byId('deckList');
+  const btnAddDeck = byId('btnAddDeck');
+  const btnTest = byId('btnTest');
+  const btnExport = byId('btnExport');
+  const metaIdEl = byId('metaId');
+  const metaNameEl = byId('metaName');
+  const metaParEl = byId('metaPar');
+  const metaIntroEl = byId('metaIntro');
 
-  function toA1(r, c){
-    let n = c + 1, col = '';
-    while(n>0){ const rem=(n-1)%26; col = String.fromCharCode(65+rem)+col; n=Math.floor((n-1)/26);} 
-    return `${col}${r+1}`;
+  rowsEl.value = E.rows;
+  colsEl.value = E.cols;
+  seedTextEl.value = E.seedText || '';
+  portalGroupEl.value = E.portalGroup || 'A';
+  metaIdEl.value = E.meta?.id || '';
+  metaNameEl.value = E.meta?.name || '';
+  metaParEl.value = E.meta?.par ?? 7;
+  metaIntroEl.value = E.meta?.intro || '';
+  allowTA.value = E.allowedWordsText || (E.allowedWords?.join('\n') || '');
+  notesTA.value = E.notes || '';
+
+  let tool = E.lastTool || 'seed';
+  let portalGroup = portalGroupEl.value || 'A';
+
+  function toA1(r, c) {
+    let n = c + 1;
+    let col = '';
+    while (n > 0) {
+      const rem = (n - 1) % 26;
+      col = String.fromCharCode(65 + rem) + col;
+      n = Math.floor((n - 1) / 26);
+    }
+    return `${col}${r + 1}`;
   }
 
-  function specialAt(r,c){ return E.specials.find(s=>s.r===r && s.c===c); }
-  function seedAt(r,c){ return E.seeds.find(s=>s.r===r && s.c===c); }
+  function specialAt(r, c) { return E.specials.find((s) => s.r === r && s.c === c); }
+  function seedAt(r, c) { return E.seeds.find((s) => s.r === r && s.c === c); }
 
-  function renderDeck(){
+  function edSay(msg) {
+    byId('edMsg').textContent = msg || '';
+  }
+
+  function renderDeck() {
     deckList.innerHTML = E.deck.map((t, i) => `
       <div style="display:flex; align-items:center; gap:6px; margin:4px 0;">
         <code style="font-weight:800;">${t.toUpperCase()}</code>
@@ -906,140 +1002,270 @@ function EditorView() {
     `).join('');
   }
 
-  function setTool(t){
+  function setTool(t) {
     tool = t;
-    byId('seedControls').style.display = (t==='seed')?'' : 'none';
-    byId('portalControls').style.display = (t==='portal')?'' : 'none';
-    document.querySelectorAll('[data-tool]').forEach(b=>{
-      b.classList.toggle('btn--primary', b.dataset.tool===tool);
+    E.lastTool = t;
+    byId('seedControls').style.display = (t === 'seed') ? '' : 'none';
+    byId('portalControls').style.display = (t === 'portal') ? '' : 'none';
+    document.querySelectorAll('[data-tool]').forEach((b) => {
+      b.classList.toggle('btn--primary', b.dataset.tool === tool);
     });
     edSay(`Tool: ${tool}`);
   }
 
-  function edSay(msg){ byId('edMsg').textContent = msg || '' }
-
-  function onCellClick(r,c){
-    const sp = specialAt(r,c);
-    const sd = seedAt(r,c);
-    if (tool==='erase'){
-      if (sp) E.specials = E.specials.filter(x=>x!==sp);
-      if (sd) E.seeds = E.seeds.filter(x=>x!==sd);
-      if (E.goal.r===r && E.goal.c===c) E.goal = { r: 0, c: 0 };
-      renderBoard(); return;
+  function onCellClick(r, c) {
+    const sp = specialAt(r, c);
+    const sd = seedAt(r, c);
+    if (tool === 'erase') {
+      if (sp) E.specials = E.specials.filter((x) => x !== sp);
+      if (sd) E.seeds = E.seeds.filter((x) => x !== sd);
+      if (E.goal.r === r && E.goal.c === c) E.goal = { r: 0, c: 0 };
+      renderBoard();
+      return;
     }
-    if (tool==='blocked'){
-      if (sp?.type==='blocked') E.specials = E.specials.filter(x=>x!==sp); else E.specials.push({ r,c,type:'blocked' });
-      // cannot block goal or seed — silently un-set them
-      if (E.goal.r===r && E.goal.c===c) E.goal = { r: 0, c: 0 };
-      if (sd) E.seeds = E.seeds.filter(x=>x!==sd);
-      renderBoard(); return;
+    if (tool === 'blocked') {
+      if (sp?.type === 'blocked') E.specials = E.specials.filter((x) => x !== sp); else E.specials.push({ r, c, type: 'blocked' });
+      if (E.goal.r === r && E.goal.c === c) E.goal = { r: 0, c: 0 };
+      if (sd) E.seeds = E.seeds.filter((x) => x !== sd);
+      renderBoard();
+      return;
     }
-    if (tool==='portal'){
-      if (sp?.type==='portal' && sp.group===portalGroup) E.specials = E.specials.filter(x=>x!==sp);
-      else {
-        // remove blocked if present; also remove seed to avoid overlap errors
-        if (sp) E.specials = E.specials.filter(x=>x!==sp);
-        if (sd) E.seeds = E.seeds.filter(x=>x!==sd);
-        E.specials.push({ r,c,type:'portal', group: portalGroup });
+    if (tool === 'portal') {
+      if (sp?.type === 'portal' && sp.group === portalGroup) {
+        E.specials = E.specials.filter((x) => x !== sp);
+      } else {
+        if (sp) E.specials = E.specials.filter((x) => x !== sp);
+        if (sd) E.seeds = E.seeds.filter((x) => x !== sd);
+        E.specials.push({ r, c, type: 'portal', group: portalGroup });
       }
-      renderBoard(); return;
+      renderBoard();
+      return;
     }
-    if (tool==='goal'){
-      // forbid blocking
-      const spx = specialAt(r,c); if (spx?.type==='blocked') { edSay('Goal cannot be on a blocked cell.'); return; }
-      E.goal = { r, c }; renderBoard(); return;
+    if (tool === 'goal') {
+      const spx = specialAt(r, c);
+      if (spx?.type === 'blocked') {
+        edSay('Goal cannot be on a blocked cell.');
+        return;
+      }
+      E.goal = { r, c };
+      renderBoard();
+      return;
     }
-    if (tool==='seed'){
+    if (tool === 'seed') {
       const t = (seedTextEl.value || '').trim();
-      if (!t){ edSay('Enter seed text first.'); return; }
-      // cannot overlap blocked
-      if (sp?.type==='blocked'){ edSay('Cannot place seed on a blocked cell.'); return; }
-      if (sd) sd.text = t; else E.seeds.push({ r,c,text:t,dir:'H' });
-      renderBoard(); return;
+      if (!t) {
+        edSay('Enter seed text first.');
+        return;
+      }
+      if (sp?.type === 'blocked') {
+        edSay('Cannot place seed on a blocked cell.');
+        return;
+      }
+      if (sd) sd.text = t; else E.seeds.push({ r, c, text: t, dir: 'H' });
+      renderBoard();
+      return;
     }
   }
 
-  function renderBoard(){
-    const R = E.rows, C = E.cols;
+  function renderBoard() {
+    pruneDraftToBounds(E);
+    const R = E.rows;
+    const C = E.cols;
     const root = document.getElementById('editorBoard');
     root.className = 'board';
     root.style.setProperty('--cols', C);
     root.style.setProperty('--rows', R);
     setGridCellSize(R, C);
-    root.innerHTML='';
-    for(let r=0;r<R;r++){
-      for(let c=0;c<C;c++){
+    root.innerHTML = '';
+    for (let r = 0; r < R; r++) {
+      for (let c = 0; c < C; c++) {
         const cell = document.createElement('div');
         cell.className = 'cell';
-        const sp = specialAt(r,c);
-        const sd = seedAt(r,c);
-        if (E.goal.r===r && E.goal.c===c) cell.classList.add('cell--goal');
-        if (sp?.type==='blocked') cell.classList.add('cell--blocked');
-        if (sp?.type==='portal') { cell.classList.add('cell--portal'); if (sp.group) cell.classList.add(`cell--portal-${sp.group}`); }
-        if (sd){ cell.classList.add('cell--seed','cell--filled');
-          const t = document.createElement('span'); t.className='cell__text'; t.textContent = String(sd.text).toUpperCase(); cell.appendChild(t);
+        const sp = specialAt(r, c);
+        const sd = seedAt(r, c);
+        if (E.goal.r === r && E.goal.c === c) cell.classList.add('cell--goal');
+        if (sp?.type === 'blocked') cell.classList.add('cell--blocked');
+        if (sp?.type === 'portal') {
+          cell.classList.add('cell--portal');
+          if (sp.group) cell.classList.add(`cell--portal-${sp.group}`);
         }
-        // No group letter badge in editor; color indicates group
-        const coord = document.createElement('span'); coord.className='cell__coord'; coord.textContent = toA1(r,c); cell.appendChild(coord);
-        cell.addEventListener('click', ()=> onCellClick(r,c));
+        if (sd) {
+          cell.classList.add('cell--seed', 'cell--filled');
+          const t = document.createElement('span');
+          t.className = 'cell__text';
+          t.textContent = String(sd.text).toUpperCase();
+          cell.appendChild(t);
+        }
+        const coord = document.createElement('span');
+        coord.className = 'cell__coord';
+        coord.textContent = toA1(r, c);
+        cell.appendChild(coord);
+        cell.addEventListener('click', () => onCellClick(r, c));
         root.appendChild(cell);
       }
     }
   }
 
-  // deck operations
-  deckList.addEventListener('click', (e)=>{
+  function syncEditorFromInputs() {
+    const rowVal = Number(rowsEl.value);
+    const colVal = Number(colsEl.value);
+    E.rows = Math.max(1, Math.min(10, Number.isFinite(rowVal) ? rowVal : E.rows || 5));
+    E.cols = Math.max(1, Math.min(10, Number.isFinite(colVal) ? colVal : E.cols || 5));
+    rowsEl.value = E.rows;
+    colsEl.value = E.cols;
+    E.seedText = seedTextEl.value || '';
+    E.portalGroup = portalGroupEl.value || 'A';
+    E.meta.id = metaIdEl.value.trim();
+    E.meta.name = metaNameEl.value;
+    const parsedPar = Number.parseInt(metaParEl.value, 10);
+    if (Number.isFinite(parsedPar) && parsedPar >= 0) {
+      E.meta.par = parsedPar;
+    }
+    metaParEl.value = E.meta.par ?? 7;
+    E.meta.intro = metaIntroEl.value;
+    E.allowedWordsText = allowTA.value;
+    E.allowedWords = parseAllowedWordsInput(E.allowedWordsText);
+    E.notes = notesTA.value;
+    pruneDraftToBounds(E);
+  }
+
+  deckList.addEventListener('click', (e) => {
     const up = e.target.getAttribute('data-up');
     const down = e.target.getAttribute('data-down');
     const del = e.target.getAttribute('data-del');
-    if (up!=null){ const i=+up; if(i>0){ const t=E.deck[i]; E.deck[i]=E.deck[i-1]; E.deck[i-1]=t; renderDeck(); } }
-    if (down!=null){ const i=+down; if(i<E.deck.length-1){ const t=E.deck[i]; E.deck[i]=E.deck[i+1]; E.deck[i+1]=t; renderDeck(); } }
-    if (del!=null){ const i=+del; E.deck.splice(i,1); renderDeck(); }
-  });
-  byId('btnAddDeck').addEventListener('click', ()=>{
-    const t = (deckInput.value||'').trim(); if(!t) return;
-    E.deck.push(t); deckInput.value=''; renderDeck();
+    if (up != null) {
+      const i = +up;
+      if (i > 0) {
+        const t = E.deck[i];
+        E.deck[i] = E.deck[i - 1];
+        E.deck[i - 1] = t;
+        renderDeck();
+      }
+    }
+    if (down != null) {
+      const i = +down;
+      if (i < E.deck.length - 1) {
+        const t = E.deck[i];
+        E.deck[i] = E.deck[i + 1];
+        E.deck[i + 1] = t;
+        renderDeck();
+      }
+    }
+    if (del != null) {
+      const i = +del;
+      E.deck.splice(i, 1);
+      renderDeck();
+    }
   });
 
-  // general controls
-  rowsEl.addEventListener('change', ()=>{ E.rows = Math.max(1, Math.min(10, Number(rowsEl.value||5))); renderBoard(); });
-  colsEl.addEventListener('change', ()=>{ E.cols = Math.max(1, Math.min(10, Number(colsEl.value||5))); renderBoard(); });
-  document.querySelectorAll('[data-tool]').forEach(b=> b.addEventListener('click', ()=> setTool(b.dataset.tool)));
-  portalGroupEl.addEventListener('change', ()=>{ portalGroup = portalGroupEl.value; });
+  btnAddDeck.addEventListener('click', () => {
+    const t = (deckInput.value || '').trim();
+    if (!t) return;
+    E.deck.push(t);
+    deckInput.value = '';
+    renderDeck();
+  });
 
-  // export JSON
-  byId('btnExport').addEventListener('click', async ()=>{
-    const id = (byId('metaId').value||'').trim();
-    const name = (byId('metaName').value||'').trim() || 'Custom Level';
-    const par = Math.max(0, Number(byId('metaPar').value||'7'));
-    const intro = (byId('metaIntro').value||'').trim();
-    // process allowed words from textarea
-    const allowRaw = allowTA.value || '';
-    E.allowedWords = allowRaw.split(/[\,\n]/).map(s=>s.trim()).filter(Boolean);
-    E.notes = notesTA.value || '';
-    // build specials (blocked/portal) from E.specials
-    const specials = E.specials.map(s=> s.type==='portal' ? { r:s.r, c:s.c, type:'portal', group: s.group } : { r:s.r, c:s.c, type:'blocked' });
-    const level = {
-      meta: { id: String(id), name, par, intro },
-      board: { size: [E.rows, E.cols], goal: [E.goal.r, E.goal.c], seeds: E.seeds.map(s=>({ text:s.text, r:s.r, c:s.c, dir:'H' })), specials },
-      deck: [...E.deck],
-      startingHand: [...E.startingHand],
-      allowedWords: [...E.allowedWords],
-      notes: E.notes
-    };
-    const json = JSON.stringify(level, null, 2);
-    try{
+  rowsEl.addEventListener('change', () => {
+    const val = Math.max(1, Math.min(10, Number(rowsEl.value || E.rows || 5)));
+    E.rows = val;
+    rowsEl.value = val;
+    renderBoard();
+  });
+  colsEl.addEventListener('change', () => {
+    const val = Math.max(1, Math.min(10, Number(colsEl.value || E.cols || 5)));
+    E.cols = val;
+    colsEl.value = val;
+    renderBoard();
+  });
+  document.querySelectorAll('[data-tool]').forEach((b) => b.addEventListener('click', () => setTool(b.dataset.tool)));
+  portalGroupEl.addEventListener('change', () => {
+    portalGroup = portalGroupEl.value;
+    E.portalGroup = portalGroup;
+  });
+  seedTextEl.addEventListener('input', () => {
+    E.seedText = seedTextEl.value;
+  });
+  allowTA.addEventListener('input', () => {
+    E.allowedWordsText = allowTA.value;
+    E.allowedWords = parseAllowedWordsInput(E.allowedWordsText);
+  });
+  notesTA.addEventListener('input', () => {
+    E.notes = notesTA.value;
+  });
+  metaIdEl.addEventListener('input', () => {
+    E.meta.id = metaIdEl.value.trim();
+  });
+  metaNameEl.addEventListener('input', () => {
+    E.meta.name = metaNameEl.value;
+  });
+  metaParEl.addEventListener('change', () => {
+    const parsed = Number.parseInt(metaParEl.value, 10);
+    if (Number.isFinite(parsed) && parsed >= 0) {
+      E.meta.par = parsed;
+    }
+    metaParEl.value = E.meta.par ?? 7;
+  });
+  metaIntroEl.addEventListener('input', () => {
+    E.meta.intro = metaIntroEl.value;
+  });
+
+  btnTest.addEventListener('click', () => {
+    syncEditorFromInputs();
+    try {
+      const raw = buildEditorRawLevel(E);
+      const normalized = normalizeLevel(raw, raw.meta?.id || 'editor-test');
+      EDITOR_TEST_LEVEL = normalized;
+      edSay('');
+      location.hash = '#/editor/test';
+    } catch (err) {
+      console.error('Editor test launch failed', err);
+      const msg = err?.message ? String(err.message).replace(/\n/g, ' ') : 'Unable to start test.';
+      edSay(msg);
+    }
+  });
+
+  btnExport.addEventListener('click', async () => {
+    syncEditorFromInputs();
+    const raw = buildEditorRawLevel(E);
+    const json = JSON.stringify(raw, null, 2);
+    try {
       await navigator.clipboard.writeText(json);
       edSay('Copied level JSON to clipboard.');
       showUnlockToast('Level JSON copied to clipboard');
-    }catch{
+    } catch {
       edSay('Unable to copy. JSON printed to console.');
       console.log(json);
     }
   });
 
-  // initial render
-  setTool('seed');
+  pruneDraftToBounds(E);
   renderBoard();
   renderDeck();
+  setTool(tool);
+}
+
+function EditorTestView() {
+  if (!EDITOR_TEST_LEVEL) {
+    app().innerHTML = `
+      <section class="section view" style="max-width:640px; margin:auto; padding:20px;">
+        <h2>No test level ready</h2>
+        <p>Build a level in the editor and click “Test” to try it out.</p>
+        <div class="game-toolbar" style="margin-top:12px;">
+          <a class="btn" href="#/editor">← Back to Editor</a>
+        </div>
+      </section>
+    `;
+    return;
+  }
+
+  const levelId = EDITOR_TEST_LEVEL.id || 'custom';
+  return GameView(['', levelId], {
+    levelData: EDITOR_TEST_LEVEL,
+    backHrefOverride: '#/editor',
+    backLabel: '← Back to Editor',
+    disableNextButton: true,
+    skipProgress: true,
+    mode: 'editor-test'
+  });
 }
