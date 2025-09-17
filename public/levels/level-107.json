@@ -1,15 +1,23 @@
 {
   "meta": {
     "id": "107",
-    "name": "Stockpile",
+    "name": "Tutorial 7",
     "par": 5,
     "intro": "Recall to stock your reserve, then spend wisely to finish."
   },
   "board": {
     "size": 3,
-    "goal": [2, 1],
+    "goal": [
+      2,
+      1
+    ],
     "seeds": [
-      { "text": "NUT", "r": 1, "c": 1, "dir": "H" }
+      {
+        "text": "NUT",
+        "r": 1,
+        "c": 1,
+        "dir": "H"
+      }
     ],
     "specials": [
       {
@@ -34,8 +42,21 @@
       }
     ]
   },
-  "deck": ["PEA", "WAL", "COCO", "WING", "HAZEL", "CHEST", "TY"],
-  "startingHand": ["PEA", "WAL", "COCO", "WING"],
+  "deck": [
+    "PEA",
+    "WAL",
+    "COCO",
+    "WING",
+    "HAZEL",
+    "CHEST",
+    "TY"
+  ],
+  "startingHand": [
+    "PEA",
+    "WAL",
+    "COCO",
+    "WING"
+  ],
   "allowedWords": [
     "nut",
     "peanut",

@@ -1,164 +1,24 @@
 {
   "meta": {
     "id": "401",
-    "name": "Labyrinth",
-    "par": 8,
-    "intro": "There must be a way to the ★ goal..."
+    "name": "Whirl 1",
+    "par": 0,
+    "intro": ""
   },
   "board": {
     "size": [
-      5,
-      5
+      1,
+      1
     ],
     "goal": [
       0,
-      4
+      0
     ],
-    "seeds": [
-      {
-        "text": "ca",
-        "r": 0,
-        "c": 0,
-        "dir": "H"
-      }
-    ],
-    "specials": [
-      {
-        "r": 1,
-        "c": 0,
-        "type": "portal",
-        "group": "A"
-      },
-      {
-        "r": 4,
-        "c": 0,
-        "type": "portal",
-        "group": "A"
-      },
-      {
-        "r": 2,
-        "c": 0,
-        "type": "blocked"
-      },
-      {
-        "r": 2,
-        "c": 4,
-        "type": "blocked"
-      },
-      {
-        "r": 0,
-        "c": 1,
-        "type": "blocked"
-      },
-      {
-        "r": 4,
-        "c": 1,
-        "type": "blocked"
-      },
-      {
-        "r": 0,
-        "c": 3,
-        "type": "blocked"
-      },
-      {
-        "r": 4,
-        "c": 3,
-        "type": "blocked"
-      },
-      {
-        "r": 3,
-        "c": 1,
-        "type": "portal",
-        "group": "B"
-      },
-      {
-        "r": 1,
-        "c": 1,
-        "type": "blocked"
-      },
-      {
-        "r": 2,
-        "c": 1,
-        "type": "blocked"
-      },
-      {
-        "r": 3,
-        "c": 2,
-        "type": "blocked"
-      },
-      {
-        "r": 4,
-        "c": 2,
-        "type": "blocked"
-      },
-      {
-        "r": 1,
-        "c": 3,
-        "type": "blocked"
-      },
-      {
-        "r": 2,
-        "c": 3,
-        "type": "blocked"
-      },
-      {
-        "r": 0,
-        "c": 2,
-        "type": "portal",
-        "group": "B"
-      },
-      {
-        "r": 2,
-        "c": 2,
-        "type": "portal",
-        "group": "C"
-      },
-      {
-        "r": 3,
-        "c": 3,
-        "type": "portal",
-        "group": "C"
-      },
-      {
-        "r": 4,
-        "c": 4,
-        "type": "portal",
-        "group": "D"
-      },
-      {
-        "r": 1,
-        "c": 4,
-        "type": "portal",
-        "group": "D"
-      }
-    ]
+    "seeds": [],
+    "specials": []
   },
-  "deck": [
-    "ke",
-    "ba",
-    "re",
-    "ir",
-    "pa",
-    "on",
-    "to",
-    "in"
-  ],
+  "deck": [],
   "startingHand": [],
-  "allowedWords": [
-    "care",
-    "cake",
-    "bare",
-    "bake",
-    "pair",
-    "repair",
-    "iron",
-    "pain",
-    "onto",
-    "into",
-    "on",
-    "to",
-    "in",
-    "pa"
-  ],
+  "allowedWords": [],
   "notes": ""
 }

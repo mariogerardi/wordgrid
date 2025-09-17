@@ -1,7 +1,7 @@
 {
   "meta": {
     "id": "115",
-    "name": "Hazy",
+    "name": "Basics 5",
     "par": 7,
     "intro": "Is that what it looks like?"
   },
@@ -83,6 +83,21 @@
     "at"
   ],
   "startingHand": [],
-  "allowedWords": ["mirage", "rage", "mage", "big", "in", "it", "on", "or", "an", "at", "am", "no,", "rag", "eat"],
+  "allowedWords": [
+    "mirage",
+    "rage",
+    "mage",
+    "big",
+    "in",
+    "it",
+    "on",
+    "or",
+    "an",
+    "at",
+    "am",
+    "no,",
+    "rag",
+    "eat"
+  ],
   "notes": ""
 }

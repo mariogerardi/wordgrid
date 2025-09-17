@@ -1,0 +1,81 @@
+{
+  "meta": {
+    "id": "414",
+    "name": "Final Exam",
+    "par": 7,
+    "intro": "It looks like a crossword puzzle, but don't let that intimidate you."
+  },
+  "board": {
+    "size": [
+      4,
+      4
+    ],
+    "goal": [
+      3,
+      3
+    ],
+    "seeds": [
+      {
+        "text": "c",
+        "r": 0,
+        "c": 0,
+        "dir": "H"
+      }
+    ],
+    "specials": [
+      {
+        "r": 0,
+        "c": 3,
+        "type": "portal",
+        "group": "A"
+      },
+      {
+        "r": 3,
+        "c": 0,
+        "type": "portal",
+        "group": "A"
+      },
+      {
+        "r": 1,
+        "c": 2,
+        "type": "blocked"
+      },
+      {
+        "r": 2,
+        "c": 1,
+        "type": "blocked"
+      }
+    ]
+  },
+  "deck": [
+    "tiv",
+    "rea",
+    "ct",
+    "e",
+    "pabl",
+    "a",
+    "lain",
+    "vil",
+    "xp",
+    "xc",
+    "e",
+    "wh",
+    "ay",
+    "ed"
+  ],
+  "startingHand": [],
+  "allowedWords": [
+    "creative",
+    "capable",
+    "react",
+    "act",
+    "area",
+    "evil",
+    "explain",
+    "explained",
+    "exceed",
+    "vile",
+    "villain"
+  ],
+  "notes": "Moved from tutorial 110 to portals series (id 404)."
+}

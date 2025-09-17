@@ -1,15 +1,23 @@
 {
   "meta": {
     "id": "106",
-    "name": "Recall",
+    "name": "Tutorial 6",
     "par": 5,
     "intro": "Use Recall to reclaim tiles from the board and reach ★."
   },
   "board": {
     "size": 3,
-    "goal": [2, 0],
+    "goal": [
+      2,
+      0
+    ],
     "seeds": [
-      { "text": "LOW", "r": 1, "c": 1, "dir": "H" }
+      {
+        "text": "LOW",
+        "r": 1,
+        "c": 1,
+        "dir": "H"
+      }
     ],
     "specials": [
       {
@@ -19,8 +27,21 @@
       }
     ]
   },
-  "deck": ["ER", "CH", "RY", "BUE", "CHRY", "MU", "F"],
-  "startingHand": ["ER", "CH", "RY", "BUE"],
+  "deck": [
+    "ER",
+    "CH",
+    "RY",
+    "BUE",
+    "CHRY",
+    "MU",
+    "F"
+  ],
+  "startingHand": [
+    "ER",
+    "CH",
+    "RY",
+    "BUE"
+  ],
   "allowedWords": [
     "low",
     "lower",

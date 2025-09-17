@@ -1,9 +1,25 @@
 {
   "sections": [
-    { "id": "curriculum",  "name": "Curriculum",  "description": "From basics to mastery." },
-    { "id": "archetypes",  "name": "Archetypes",  "description": "Canonical puzzle patterns." },
-    { "id": "constraints", "name": "Constraints", "description": "Technical challenges with restrictions." },
-    { "id": "variety",     "name": "Variety",     "description": "Fun themes and experiments." }
+    {
+      "id": "curriculum",
+      "name": "Curriculum",
+      "description": "From basics to mastery."
+    },
+    {
+      "id": "archetypes",
+      "name": "Archetypes",
+      "description": "Canonical puzzle patterns."
+    },
+    {
+      "id": "constraints",
+      "name": "Constraints",
+      "description": "Technical challenges with restrictions."
+    },
+    {
+      "id": "variety",
+      "name": "Variety",
+      "description": "Fun themes and experiments."
+    }
   ],
   "packs": [
     {
@@ -13,88 +29,1237 @@
       "section": "curriculum",
       "unlocked": true,
       "puzzles": [
-        { "id": "101", "name": "Tutorial 1",  "unlocked": true },
-        { "id": "102", "name": "Tutorial 2",  "unlocked": true },
-        { "id": "103", "name": "Tutorial 3",  "unlocked": true },
-        { "id": "104", "name": "Tutorial 4",  "unlocked": true },
-        { "id": "105", "name": "Tutorial 5",  "unlocked": true },
-        { "id": "106", "name": "Tutorial 6",  "unlocked": true },
-        { "id": "107", "name": "Tutorial 7",  "unlocked": true },
-        { "id": "108", "name": "Tutorial 8",  "unlocked": true },
-        { "id": "109", "name": "Tutorial 9",  "unlocked": true },
-        { "id": "110", "name": "Tutorial 10", "unlocked": true }
+        {
+          "id": "101",
+          "name": "Tutorial 1",
+          "unlocked": true
+        },
+        {
+          "id": "102",
+          "name": "Tutorial 2",
+          "unlocked": true
+        },
+        {
+          "id": "103",
+          "name": "Tutorial 3",
+          "unlocked": true
+        },
+        {
+          "id": "104",
+          "name": "Tutorial 4",
+          "unlocked": true
+        },
+        {
+          "id": "105",
+          "name": "Tutorial 5",
+          "unlocked": true
+        },
+        {
+          "id": "106",
+          "name": "Tutorial 6",
+          "unlocked": true
+        },
+        {
+          "id": "107",
+          "name": "Tutorial 7",
+          "unlocked": true
+        },
+        {
+          "id": "108",
+          "name": "Tutorial 8",
+          "unlocked": true
+        },
+        {
+          "id": "109",
+          "name": "Tutorial 9",
+          "unlocked": true
+        },
+        {
+          "id": "110",
+          "name": "Tutorial 10",
+          "unlocked": true
+        }
       ]
     },
-    { "id": "basics", "name": "Basics", "description": "Core moves and simple routes.", "section": "curriculum",
+    {
+      "id": "basics",
+      "name": "Basics",
+      "description": "Core moves and simple routes.",
+      "section": "curriculum",
+      "unlocked": true,
       "puzzles": [
-        { "id": "111", "name": "Rescue",  "unlocked": true },
-        { "id": "112", "name": "Basics 2",  "unlocked": true },
-        { "id": "113", "name": "Basics 3",  "unlocked": true },
-        { "id": "114", "name": "Basics 4",  "unlocked": true },
-        { "id": "115", "name": "Basics 5",  "unlocked": true },
-        { "id": "116", "name": "Basics 6",  "unlocked": true },
-        { "id": "117", "name": "Basics 7",  "unlocked": true },
-        { "id": "118", "name": "Basics 8",  "unlocked": true },
-        { "id": "119", "name": "Basics 9",  "unlocked": true },
-        { "id": "120", "name": "Basics 10", "unlocked": true }
+        {
+          "id": "111",
+          "name": "Rescue",
+          "unlocked": true
+        },
+        {
+          "id": "112",
+          "name": "Basics 2",
+          "unlocked": true
+        },
+        {
+          "id": "113",
+          "name": "Basics 3",
+          "unlocked": true
+        },
+        {
+          "id": "114",
+          "name": "Basics 4",
+          "unlocked": true
+        },
+        {
+          "id": "115",
+          "name": "Basics 5",
+          "unlocked": true
+        },
+        {
+          "id": "116",
+          "name": "Basics 6",
+          "unlocked": true
+        },
+        {
+          "id": "117",
+          "name": "Basics 7",
+          "unlocked": true
+        },
+        {
+          "id": "118",
+          "name": "Basics 8",
+          "unlocked": true
+        },
+        {
+          "id": "119",
+          "name": "Basics 9",
+          "unlocked": true
+        },
+        {
+          "id": "120",
+          "name": "Basics 10",
+          "unlocked": true
+        }
       ]
     },
-    { "id": "building-blocks", "name": "Building Blocks", "description": "Compose longer runs from simple parts.", "section": "curriculum",
+    {
+      "id": "building-blocks",
+      "name": "Building Blocks",
+      "description": "Compose longer runs from simple parts.",
+      "section": "curriculum",
+      "unlocked": true,
       "puzzles": [
-        { "id": "121", "name": "Building Blocks 1",  "unlocked": true },
-        { "id": "122", "name": "Building Blocks 2",  "unlocked": true },
-        { "id": "123", "name": "Building Blocks 3",  "unlocked": true },
-        { "id": "124", "name": "Building Blocks 4",  "unlocked": true },
-        { "id": "125", "name": "Building Blocks 5",  "unlocked": true },
-        { "id": "126", "name": "Building Blocks 6",  "unlocked": true },
-        { "id": "127", "name": "Building Blocks 7",  "unlocked": true },
-        { "id": "128", "name": "Building Blocks 8",  "unlocked": true },
-        { "id": "129", "name": "Building Blocks 9",  "unlocked": true },
-        { "id": "130", "name": "Building Blocks 10", "unlocked": true }
+        {
+          "id": "121",
+          "name": "Building Blocks 1",
+          "unlocked": true
+        },
+        {
+          "id": "122",
+          "name": "Building Blocks 2",
+          "unlocked": true
+        },
+        {
+          "id": "123",
+          "name": "Building Blocks 3",
+          "unlocked": true
+        },
+        {
+          "id": "124",
+          "name": "Building Blocks 4",
+          "unlocked": true
+        },
+        {
+          "id": "125",
+          "name": "Building Blocks 5",
+          "unlocked": true
+        },
+        {
+          "id": "126",
+          "name": "Building Blocks 6",
+          "unlocked": true
+        },
+        {
+          "id": "127",
+          "name": "Building Blocks 7",
+          "unlocked": true
+        },
+        {
+          "id": "128",
+          "name": "Building Blocks 8",
+          "unlocked": true
+        },
+        {
+          "id": "129",
+          "name": "Building Blocks 9",
+          "unlocked": true
+        },
+        {
+          "id": "130",
+          "name": "Building Blocks 10",
+          "unlocked": true
+        }
       ]
     },
-    { "id": "concepts", "name": "Concepts", "description": "Abstracting the fundamentals.", "section": "curriculum", "puzzles": [] },
-    { "id": "intermediate", "name": "Intermediate", "description": "You're about halfway there.", "section": "curriculum", "puzzles": [] },
-    { "id": "strategize", "name": "Strategize", "description": "Plan ahead.", "section": "curriculum", "puzzles": [] },
-    { "id": "advanced-plays", "name": "Advanced Plays", "description": "Tricky setups and payoffs.", "section": "curriculum", "puzzles": [] },
-    { "id": "expert-tactics", "name": "Expert Tactics", "description": "Tight routes and efficiency.", "section": "curriculum", "puzzles": [] },
-    { "id": "mastery", "name": "Mastery", "description": "The final exams of the course.", "section": "curriculum", "puzzles": [] },
-    
-    { "id": "whirl", "name": "Whirl", "description": "Spirals and loops.", "section": "variety", "puzzles": [] },
-    { "id": "portals", "name": "Portals", "description": "Linked tiles that project across portals.", "section": "variety",
+    {
+      "id": "concepts",
+      "name": "Concepts",
+      "description": "Abstracting the fundamentals.",
+      "section": "curriculum",
+      "unlocked": true,
       "puzzles": [
-        { "id": "401", "name": "First Portal", "unlocked": true },
-        { "id": "402", "name": "Crossword", "unlocked": true },
-        { "id": "403", "name": "Travel", "unlocked": true },
-        { "id": "404", "name": "Final Exam", "unlocked": true }
+        {
+          "id": "131",
+          "name": "Concepts 1",
+          "unlocked": true
+        },
+        {
+          "id": "132",
+          "name": "Concepts 2",
+          "unlocked": true
+        },
+        {
+          "id": "133",
+          "name": "Concepts 3",
+          "unlocked": true
+        },
+        {
+          "id": "134",
+          "name": "Concepts 4",
+          "unlocked": true
+        },
+        {
+          "id": "135",
+          "name": "Concepts 5",
+          "unlocked": true
+        },
+        {
+          "id": "136",
+          "name": "Concepts 6",
+          "unlocked": true
+        },
+        {
+          "id": "137",
+          "name": "Concepts 7",
+          "unlocked": true
+        },
+        {
+          "id": "138",
+          "name": "Concepts 8",
+          "unlocked": true
+        },
+        {
+          "id": "139",
+          "name": "Concepts 9",
+          "unlocked": true
+        },
+        {
+          "id": "140",
+          "name": "Concepts 10",
+          "unlocked": true
+        }
       ]
     },
-    { "id": "mosaic", "name": "Mosaic", "description": "Patterned block layouts.", "section": "variety", "puzzles": [] },
+    {
+      "id": "intermediate",
+      "name": "Intermediate",
+      "description": "You're about halfway there.",
+      "section": "curriculum",
+      "unlocked": true,
+      "puzzles": [
+        {
+          "id": "141",
+          "name": "Intermediate 1",
+          "unlocked": true
+        },
+        {
+          "id": "142",
+          "name": "Intermediate 2",
+          "unlocked": true
+        },
+        {
+          "id": "143",
+          "name": "Intermediate 3",
+          "unlocked": true
+        },
+        {
+          "id": "144",
+          "name": "Intermediate 4",
+          "unlocked": true
+        },
+        {
+          "id": "145",
+          "name": "Intermediate 5",
+          "unlocked": true
+        },
+        {
+          "id": "146",
+          "name": "Intermediate 6",
+          "unlocked": true
+        },
+        {
+          "id": "147",
+          "name": "Intermediate 7",
+          "unlocked": true
+        },
+        {
+          "id": "148",
+          "name": "Intermediate 8",
+          "unlocked": true
+        },
+        {
+          "id": "149",
+          "name": "Intermediate 9",
+          "unlocked": true
+        },
+        {
+          "id": "150",
+          "name": "Intermediate 10",
+          "unlocked": true
+        }
+      ]
+    },
+    {
+      "id": "strategize",
+      "name": "Strategize",
+      "description": "Plan ahead.",
+      "section": "curriculum",
+      "unlocked": true,
+      "puzzles": [
+        {
+          "id": "151",
+          "name": "Strategize 1",
+          "unlocked": true
+        },
+        {
+          "id": "152",
+          "name": "Strategize 2",
+          "unlocked": true
+        },
+        {
+          "id": "153",
+          "name": "Strategize 3",
+          "unlocked": true
+        },
+        {
+          "id": "154",
+          "name": "Strategize 4",
+          "unlocked": true
+        },
+        {
+          "id": "155",
+          "name": "Strategize 5",
+          "unlocked": true
+        },
+        {
+          "id": "156",
+          "name": "Strategize 6",
+          "unlocked": true
+        },
+        {
+          "id": "157",
+          "name": "Strategize 7",
+          "unlocked": true
+        },
+        {
+          "id": "158",
+          "name": "Strategize 8",
+          "unlocked": true
+        },
+        {
+          "id": "159",
+          "name": "Strategize 9",
+          "unlocked": true
+        },
+        {
+          "id": "160",
+          "name": "Strategize 10",
+          "unlocked": true
+        }
+      ]
+    },
+    {
+      "id": "advanced-plays",
+      "name": "Advanced Plays",
+      "description": "Tricky setups and payoffs.",
+      "section": "curriculum",
+      "unlocked": true,
+      "puzzles": [
+        {
+          "id": "161",
+          "name": "Advanced Plays 1",
+          "unlocked": true
+        },
+        {
+          "id": "162",
+          "name": "Advanced Plays 2",
+          "unlocked": true
+        },
+        {
+          "id": "163",
+          "name": "Advanced Plays 3",
+          "unlocked": true
+        },
+        {
+          "id": "164",
+          "name": "Advanced Plays 4",
+          "unlocked": true
+        },
+        {
+          "id": "165",
+          "name": "Advanced Plays 5",
+          "unlocked": true
+        },
+        {
+          "id": "166",
+          "name": "Advanced Plays 6",
+          "unlocked": true
+        },
+        {
+          "id": "167",
+          "name": "Advanced Plays 7",
+          "unlocked": true
+        },
+        {
+          "id": "168",
+          "name": "Advanced Plays 8",
+          "unlocked": true
+        },
+        {
+          "id": "169",
+          "name": "Advanced Plays 9",
+          "unlocked": true
+        },
+        {
+          "id": "170",
+          "name": "Advanced Plays 10",
+          "unlocked": true
+        }
+      ]
+    },
+    {
+      "id": "expert-tactics",
+      "name": "Expert Tactics",
+      "description": "Tight routes and efficiency.",
+      "section": "curriculum",
+      "unlocked": true,
+      "puzzles": [
+        {
+          "id": "171",
+          "name": "Expert Tactics 1",
+          "unlocked": true
+        },
+        {
+          "id": "172",
+          "name": "Expert Tactics 2",
+          "unlocked": true
+        },
+        {
+          "id": "173",
+          "name": "Expert Tactics 3",
+          "unlocked": true
+        },
+        {
+          "id": "174",
+          "name": "Expert Tactics 4",
+          "unlocked": true
+        },
+        {
+          "id": "175",
+          "name": "Expert Tactics 5",
+          "unlocked": true
+        },
+        {
+          "id": "176",
+          "name": "Expert Tactics 6",
+          "unlocked": true
+        },
+        {
+          "id": "177",
+          "name": "Expert Tactics 7",
+          "unlocked": true
+        },
+        {
+          "id": "178",
+          "name": "Expert Tactics 8",
+          "unlocked": true
+        },
+        {
+          "id": "179",
+          "name": "Expert Tactics 9",
+          "unlocked": true
+        },
+        {
+          "id": "180",
+          "name": "Expert Tactics 10",
+          "unlocked": true
+        }
+      ]
+    },
+    {
+      "id": "mastery",
+      "name": "Mastery",
+      "description": "The final exams of the course.",
+      "section": "curriculum",
+      "unlocked": true,
+      "puzzles": [
+        {
+          "id": "181",
+          "name": "Mastery 1",
+          "unlocked": true
+        },
+        {
+          "id": "182",
+          "name": "Mastery 2",
+          "unlocked": true
+        },
+        {
+          "id": "183",
+          "name": "Mastery 3",
+          "unlocked": true
+        },
+        {
+          "id": "184",
+          "name": "Mastery 4",
+          "unlocked": true
+        },
+        {
+          "id": "185",
+          "name": "Mastery 5",
+          "unlocked": true
+        },
+        {
+          "id": "186",
+          "name": "Mastery 6",
+          "unlocked": true
+        },
+        {
+          "id": "187",
+          "name": "Mastery 7",
+          "unlocked": true
+        },
+        {
+          "id": "188",
+          "name": "Mastery 8",
+          "unlocked": true
+        },
+        {
+          "id": "189",
+          "name": "Mastery 9",
+          "unlocked": true
+        },
+        {
+          "id": "190",
+          "name": "Mastery 10",
+          "unlocked": true
+        }
+      ]
+    },
+    {
+      "id": "whirl",
+      "name": "Whirl",
+      "description": "Spirals and loops.",
+      "section": "variety",
+      "unlocked": true,
+      "puzzles": [
+        {
+          "id": "401",
+          "name": "Whirl 1",
+          "unlocked": true
+        },
+        {
+          "id": "402",
+          "name": "Whirl 2",
+          "unlocked": true
+        },
+        {
+          "id": "403",
+          "name": "Whirl 3",
+          "unlocked": true
+        },
+        {
+          "id": "404",
+          "name": "Whirl 4",
+          "unlocked": true
+        },
+        {
+          "id": "405",
+          "name": "Whirl 5",
+          "unlocked": true
+        },
+        {
+          "id": "406",
+          "name": "Whirl 6",
+          "unlocked": true
+        },
+        {
+          "id": "407",
+          "name": "Whirl 7",
+          "unlocked": true
+        },
+        {
+          "id": "408",
+          "name": "Whirl 8",
+          "unlocked": true
+        },
+        {
+          "id": "409",
+          "name": "Whirl 9",
+          "unlocked": true
+        },
+        {
+          "id": "410",
+          "name": "Whirl 10",
+          "unlocked": true
+        }
+      ]
+    },
+    {
+      "id": "portals",
+      "name": "Portals",
+      "description": "Linked tiles that project across portals.",
+      "section": "variety",
+      "unlocked": true,
+      "puzzles": [
+        {
+          "id": "411",
+          "name": "First Portal",
+          "unlocked": true
+        },
+        {
+          "id": "412",
+          "name": "Crossword",
+          "unlocked": true
+        },
+        {
+          "id": "413",
+          "name": "Travel",
+          "unlocked": true
+        },
+        {
+          "id": "414",
+          "name": "Final Exam",
+          "unlocked": true
+        },
+        {
+          "id": "415",
+          "name": "Portals 5",
+          "unlocked": true
+        },
+        {
+          "id": "416",
+          "name": "Portals 6",
+          "unlocked": true
+        },
+        {
+          "id": "417",
+          "name": "Portals 7",
+          "unlocked": true
+        },
+        {
+          "id": "418",
+          "name": "Portals 8",
+          "unlocked": true
+        },
+        {
+          "id": "419",
+          "name": "Portals 9",
+          "unlocked": true
+        },
+        {
+          "id": "420",
+          "name": "Portals 10",
+          "unlocked": true
+        }
+      ]
+    },
+    {
+      "id": "mosaic",
+      "name": "Mosaic",
+      "description": "Patterned block layouts.",
+      "section": "variety",
+      "unlocked": true,
+      "puzzles": [
+        {
+          "id": "421",
+          "name": "Mosaic 1",
+          "unlocked": true
+        },
+        {
+          "id": "422",
+          "name": "Mosaic 2",
+          "unlocked": true
+        },
+        {
+          "id": "423",
+          "name": "Mosaic 3",
+          "unlocked": true
+        },
+        {
+          "id": "424",
+          "name": "Mosaic 4",
+          "unlocked": true
+        },
+        {
+          "id": "425",
+          "name": "Mosaic 5",
+          "unlocked": true
+        },
+        {
+          "id": "426",
+          "name": "Mosaic 6",
+          "unlocked": true
+        },
+        {
+          "id": "427",
+          "name": "Mosaic 7",
+          "unlocked": true
+        },
+        {
+          "id": "428",
+          "name": "Mosaic 8",
+          "unlocked": true
+        },
+        {
+          "id": "429",
+          "name": "Mosaic 9",
+          "unlocked": true
+        },
+        {
+          "id": "430",
+          "name": "Mosaic 10",
+          "unlocked": true
+        }
+      ]
+    },
     {
       "id": "singles",
       "name": "Singles",
       "description": "Ten quick puzzles using single-letter tiles.",
       "section": "constraints",
+      "unlocked": true,
       "puzzles": [
-        { "id": "301", "name": "CAT Walk",      "unlocked": true },
-        { "id": "302", "name": "DOG Days",      "unlocked": true },
-        { "id": "303", "name": "SUN Up",        "unlocked": true },
-        { "id": "304", "name": "HAT Trick",     "unlocked": true },
-        { "id": "305", "name": "ZIP Line",      "unlocked": true },
-        { "id": "306", "name": "BOX Seat",      "unlocked": true },
-        { "id": "307", "name": "JAM Session",    "unlocked": true },
-        { "id": "308", "name": "RUN Along",     "unlocked": true },
-        { "id": "309", "name": "FOX Trot",      "unlocked": true },
-        { "id": "310", "name": "ZEN Garden",    "unlocked": true }
+        {
+          "id": "301",
+          "name": "CAT Walk",
+          "unlocked": true
+        },
+        {
+          "id": "302",
+          "name": "DOG Days",
+          "unlocked": true
+        },
+        {
+          "id": "303",
+          "name": "SUN Up",
+          "unlocked": true
+        },
+        {
+          "id": "304",
+          "name": "HAT Trick",
+          "unlocked": true
+        },
+        {
+          "id": "305",
+          "name": "ZIP Line",
+          "unlocked": true
+        },
+        {
+          "id": "306",
+          "name": "BOX Seat",
+          "unlocked": true
+        },
+        {
+          "id": "307",
+          "name": "JAM Session",
+          "unlocked": true
+        },
+        {
+          "id": "308",
+          "name": "RUN Along",
+          "unlocked": true
+        },
+        {
+          "id": "309",
+          "name": "FOX Trot",
+          "unlocked": true
+        },
+        {
+          "id": "310",
+          "name": "ZEN Garden",
+          "unlocked": true
+        }
       ]
     },
-    { "id": "doubles", "name": "Doubles", "description": "Two-letter tiles only.", "section": "constraints", "puzzles": [] },
-    { "id": "triples", "name": "Triples", "description": "Three-letter tiles only.", "section": "constraints", "puzzles": [] },
-    { "id": "palindrome", "name": "Palindrome", "description": "Mirrored plays and symmetry.", "section": "constraints", "puzzles": [] },
-    { "id": "alliteration", "name": "Alliteration", "description": "Shared starting sounds.", "section": "constraints", "puzzles": [] },
-    { "id": "minimalist", "name": "Minimalist", "description": "Tiny decks, exact routes.", "section": "constraints", "puzzles": [] },
-    { "id": "crossroads", "name": "Crossroads", "description": "All about intersections.", "section": "archetypes", "puzzles": [] },
-    { "id": "keyholes", "name": "Keyholes", "description": "Tight fits.", "section": "archetypes", "puzzles": [] },
-    { "id": "labyrinths", "name": "Labyrinths", "description": "Long mazes.", "section": "archetypes", "puzzles": [] }
+    {
+      "id": "doubles",
+      "name": "Doubles",
+      "description": "Two-letter tiles only.",
+      "section": "constraints",
+      "unlocked": true,
+      "puzzles": [
+        {
+          "id": "311",
+          "name": "Doubles 1",
+          "unlocked": true
+        },
+        {
+          "id": "312",
+          "name": "Doubles 2",
+          "unlocked": true
+        },
+        {
+          "id": "313",
+          "name": "Doubles 3",
+          "unlocked": true
+        },
+        {
+          "id": "314",
+          "name": "Doubles 4",
+          "unlocked": true
+        },
+        {
+          "id": "315",
+          "name": "Doubles 5",
+          "unlocked": true
+        },
+        {
+          "id": "316",
+          "name": "Doubles 6",
+          "unlocked": true
+        },
+        {
+          "id": "317",
+          "name": "Doubles 7",
+          "unlocked": true
+        },
+        {
+          "id": "318",
+          "name": "Doubles 8",
+          "unlocked": true
+        },
+        {
+          "id": "319",
+          "name": "Doubles 9",
+          "unlocked": true
+        },
+        {
+          "id": "320",
+          "name": "Doubles 10",
+          "unlocked": true
+        }
+      ]
+    },
+    {
+      "id": "triples",
+      "name": "Triples",
+      "description": "Three-letter tiles only.",
+      "section": "constraints",
+      "unlocked": true,
+      "puzzles": [
+        {
+          "id": "321",
+          "name": "Triples 1",
+          "unlocked": true
+        },
+        {
+          "id": "322",
+          "name": "Triples 2",
+          "unlocked": true
+        },
+        {
+          "id": "323",
+          "name": "Triples 3",
+          "unlocked": true
+        },
+        {
+          "id": "324",
+          "name": "Triples 4",
+          "unlocked": true
+        },
+        {
+          "id": "325",
+          "name": "Triples 5",
+          "unlocked": true
+        },
+        {
+          "id": "326",
+          "name": "Triples 6",
+          "unlocked": true
+        },
+        {
+          "id": "327",
+          "name": "Triples 7",
+          "unlocked": true
+        },
+        {
+          "id": "328",
+          "name": "Triples 8",
+          "unlocked": true
+        },
+        {
+          "id": "329",
+          "name": "Triples 9",
+          "unlocked": true
+        },
+        {
+          "id": "330",
+          "name": "Triples 10",
+          "unlocked": true
+        }
+      ]
+    },
+    {
+      "id": "palindrome",
+      "name": "Palindrome",
+      "description": "Mirrored plays and symmetry.",
+      "section": "constraints",
+      "unlocked": true,
+      "puzzles": [
+        {
+          "id": "331",
+          "name": "Palindrome 1",
+          "unlocked": true
+        },
+        {
+          "id": "332",
+          "name": "Palindrome 2",
+          "unlocked": true
+        },
+        {
+          "id": "333",
+          "name": "Palindrome 3",
+          "unlocked": true
+        },
+        {
+          "id": "334",
+          "name": "Palindrome 4",
+          "unlocked": true
+        },
+        {
+          "id": "335",
+          "name": "Palindrome 5",
+          "unlocked": true
+        },
+        {
+          "id": "336",
+          "name": "Palindrome 6",
+          "unlocked": true
+        },
+        {
+          "id": "337",
+          "name": "Palindrome 7",
+          "unlocked": true
+        },
+        {
+          "id": "338",
+          "name": "Palindrome 8",
+          "unlocked": true
+        },
+        {
+          "id": "339",
+          "name": "Palindrome 9",
+          "unlocked": true
+        },
+        {
+          "id": "340",
+          "name": "Palindrome 10",
+          "unlocked": true
+        }
+      ]
+    },
+    {
+      "id": "alliteration",
+      "name": "Alliteration",
+      "description": "Shared starting sounds.",
+      "section": "constraints",
+      "unlocked": true,
+      "puzzles": [
+        {
+          "id": "341",
+          "name": "Alliteration 1",
+          "unlocked": true
+        },
+        {
+          "id": "342",
+          "name": "Alliteration 2",
+          "unlocked": true
+        },
+        {
+          "id": "343",
+          "name": "Alliteration 3",
+          "unlocked": true
+        },
+        {
+          "id": "344",
+          "name": "Alliteration 4",
+          "unlocked": true
+        },
+        {
+          "id": "345",
+          "name": "Alliteration 5",
+          "unlocked": true
+        },
+        {
+          "id": "346",
+          "name": "Alliteration 6",
+          "unlocked": true
+        },
+        {
+          "id": "347",
+          "name": "Alliteration 7",
+          "unlocked": true
+        },
+        {
+          "id": "348",
+          "name": "Alliteration 8",
+          "unlocked": true
+        },
+        {
+          "id": "349",
+          "name": "Alliteration 9",
+          "unlocked": true
+        },
+        {
+          "id": "350",
+          "name": "Alliteration 10",
+          "unlocked": true
+        }
+      ]
+    },
+    {
+      "id": "minimalist",
+      "name": "Minimalist",
+      "description": "Tiny decks, exact routes.",
+      "section": "constraints",
+      "unlocked": true,
+      "puzzles": [
+        {
+          "id": "351",
+          "name": "Minimalist 1",
+          "unlocked": true
+        },
+        {
+          "id": "352",
+          "name": "Minimalist 2",
+          "unlocked": true
+        },
+        {
+          "id": "353",
+          "name": "Minimalist 3",
+          "unlocked": true
+        },
+        {
+          "id": "354",
+          "name": "Minimalist 4",
+          "unlocked": true
+        },
+        {
+          "id": "355",
+          "name": "Minimalist 5",
+          "unlocked": true
+        },
+        {
+          "id": "356",
+          "name": "Minimalist 6",
+          "unlocked": true
+        },
+        {
+          "id": "357",
+          "name": "Minimalist 7",
+          "unlocked": true
+        },
+        {
+          "id": "358",
+          "name": "Minimalist 8",
+          "unlocked": true
+        },
+        {
+          "id": "359",
+          "name": "Minimalist 9",
+          "unlocked": true
+        },
+        {
+          "id": "360",
+          "name": "Minimalist 10",
+          "unlocked": true
+        }
+      ]
+    },
+    {
+      "id": "crossroads",
+      "name": "Crossroads",
+      "description": "All about intersections.",
+      "section": "archetypes",
+      "unlocked": true,
+      "puzzles": [
+        {
+          "id": "201",
+          "name": "Crossroads 1",
+          "unlocked": true
+        },
+        {
+          "id": "202",
+          "name": "Crossroads 2",
+          "unlocked": true
+        },
+        {
+          "id": "203",
+          "name": "Crossroads 3",
+          "unlocked": true
+        },
+        {
+          "id": "204",
+          "name": "Crossroads 4",
+          "unlocked": true
+        },
+        {
+          "id": "205",
+          "name": "Crossroads 5",
+          "unlocked": true
+        },
+        {
+          "id": "206",
+          "name": "Crossroads 6",
+          "unlocked": true
+        },
+        {
+          "id": "207",
+          "name": "Crossroads 7",
+          "unlocked": true
+        },
+        {
+          "id": "208",
+          "name": "Crossroads 8",
+          "unlocked": true
+        },
+        {
+          "id": "209",
+          "name": "Crossroads 9",
+          "unlocked": true
+        },
+        {
+          "id": "210",
+          "name": "Crossroads 10",
+          "unlocked": true
+        }
+      ]
+    },
+    {
+      "id": "keyholes",
+      "name": "Keyholes",
+      "description": "Tight fits.",
+      "section": "archetypes",
+      "unlocked": true,
+      "puzzles": [
+        {
+          "id": "211",
+          "name": "Keyholes 1",
+          "unlocked": true
+        },
+        {
+          "id": "212",
+          "name": "Keyholes 2",
+          "unlocked": true
+        },
+        {
+          "id": "213",
+          "name": "Keyholes 3",
+          "unlocked": true
+        },
+        {
+          "id": "214",
+          "name": "Keyholes 4",
+          "unlocked": true
+        },
+        {
+          "id": "215",
+          "name": "Keyholes 5",
+          "unlocked": true
+        },
+        {
+          "id": "216",
+          "name": "Keyholes 6",
+          "unlocked": true
+        },
+        {
+          "id": "217",
+          "name": "Keyholes 7",
+          "unlocked": true
+        },
+        {
+          "id": "218",
+          "name": "Keyholes 8",
+          "unlocked": true
+        },
+        {
+          "id": "219",
+          "name": "Keyholes 9",
+          "unlocked": true
+        },
+        {
+          "id": "220",
+          "name": "Keyholes 10",
+          "unlocked": true
+        }
+      ]
+    },
+    {
+      "id": "labyrinths",
+      "name": "Labyrinths",
+      "description": "Long mazes.",
+      "section": "archetypes",
+      "unlocked": true,
+      "puzzles": [
+        {
+          "id": "221",
+          "name": "Labyrinths 1",
+          "unlocked": true
+        },
+        {
+          "id": "222",
+          "name": "Labyrinths 2",
+          "unlocked": true
+        },
+        {
+          "id": "223",
+          "name": "Labyrinths 3",
+          "unlocked": true
+        },
+        {
+          "id": "224",
+          "name": "Labyrinths 4",
+          "unlocked": true
+        },
+        {
+          "id": "225",
+          "name": "Labyrinths 5",
+          "unlocked": true
+        },
+        {
+          "id": "226",
+          "name": "Labyrinths 6",
+          "unlocked": true
+        },
+        {
+          "id": "227",
+          "name": "Labyrinths 7",
+          "unlocked": true
+        },
+        {
+          "id": "228",
+          "name": "Labyrinths 8",
+          "unlocked": true
+        },
+        {
+          "id": "229",
+          "name": "Labyrinths 9",
+          "unlocked": true
+        },
+        {
+          "id": "230",
+          "name": "Labyrinths 10",
+          "unlocked": true
+        }
+      ]
+    }
   ]
 }

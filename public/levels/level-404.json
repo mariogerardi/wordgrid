@@ -1,28 +1,24 @@
 {
   "meta": {
     "id": "404",
-    "name": "Final Exam",
-    "par": 7,
-    "intro": "It looks like a crossword puzzle, but don't let that intimidate you."
+    "name": "Whirl 4",
+    "par": 0,
+    "intro": ""
   },
   "board": {
-    "size": [4, 4],
-    "goal": [3, 3],
-    "seeds": [ { "text": "c", "r": 0, "c": 0, "dir": "H" } ],
-    "specials": [
-      { "r": 0, "c": 3, "type": "portal", "group": "A" },
-      { "r": 3, "c": 0, "type": "portal", "group": "A" },
-      { "r": 1, "c": 2, "type": "blocked" },
-      { "r": 2, "c": 1, "type": "blocked" }
-    ]
+    "size": [
+      1,
+      1
+    ],
+    "goal": [
+      0,
+      0
+    ],
+    "seeds": [],
+    "specials": []
   },
-  "deck": [
-    "tiv","rea","ct","e","pabl","a","lain","vil","xp","xc","e","wh","ay","ed"
-  ],
+  "deck": [],
   "startingHand": [],
-  "allowedWords": [
-    "creative","capable","react","act","area","evil","explain","explained","exceed","vile","villain"
-  ],
-  "notes": "Moved from tutorial 110 to portals series (id 404)."
+  "allowedWords": [],
+  "notes": ""
 }
-
