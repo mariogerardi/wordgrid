@@ -1,8 +1,94 @@
 {
-  "meta": { "id": "127", "name": "Building Blocks 7", "par": 1, "intro": "Placeholder level." },
-  "board": { "size": 3, "goal": [2, 0], "seeds": [ { "text": "G", "r": 0, "c": 0, "dir": "V" } ], "specials": [] },
-  "deck": ["O"],
-  "startingHand": ["O"],
-  "allowedWords": ["g", "go"],
-  "notes": "Placeholder puzzle for Building Blocks."
+  "meta": {
+    "id": "127",
+    "name": "Loop",
+    "par": 7,
+    "intro": "Do we really have to go around?"
+  },
+  "board": {
+    "size": [
+      4,
+      3
+    ],
+    "goal": [
+      0,
+      0
+    ],
+    "seeds": [
+      {
+        "text": "ro",
+        "r": 0,
+        "c": 1,
+        "dir": "H"
+      }
+    ],
+    "specials": [
+      {
+        "r": 1,
+        "c": 1,
+        "type": "blocked"
+      },
+      {
+        "r": 2,
+        "c": 1,
+        "type": "blocked"
+      },
+      {
+        "r": 3,
+        "c": 2,
+        "type": "portal",
+        "group": "A"
+      },
+      {
+        "r": 0,
+        "c": 2,
+        "type": "portal",
+        "group": "A"
+      },
+      {
+        "r": 1,
+        "c": 2,
+        "type": "portal",
+        "group": "B"
+      },
+      {
+        "r": 3,
+        "c": 1,
+        "type": "portal",
+        "group": "B"
+      },
+      {
+        "r": 3,
+        "c": 0,
+        "type": "portal",
+        "group": "C"
+      },
+      {
+        "r": 1,
+        "c": 0,
+        "type": "portal",
+        "group": "C"
+      }
+    ]
+  },
+  "deck": [
+    "und",
+    "er",
+    "gro",
+    "g",
+    "o",
+    "a"
+  ],
+  "startingHand": [],
+  "allowedWords": [
+    "round",
+    "ground",
+    "around",
+    "underground",
+    "gerund",
+    "under",
+    "agog",
+    "grog"
+  ],
+  "notes": ""
 }
