@@ -14,6 +14,9 @@ import {
   commitPlayTurn,
   rollbackTurn
 } from './rules.js';
+import { getPortalOverlayText } from './state.js';
+import { HAND_SLOTS, RESERVE_SLOTS } from './shared/constants.js';
+import { toA1 } from './shared/geometry.js';
 
 let _el = null;
 let _state = null;
@@ -24,9 +27,6 @@ let _dragImageEl = null; // temporary ghost element for nicer cursor image
 let _selectedBoard = null; // { r, c, tileId, kind: 'staged'|'committed'|'seed' }
 let _boardEl = null;       // persistent grid element to avoid re-creating cells
 let _cellRefs = [];        // 2D array of cell elements [r][c]
-
-const HAND_SLOTS = 4;
-const RESERVE_SLOTS = 2;
 
 export function initUI(state, level, { onWin } = {}) {
   _state = state;
@@ -401,7 +401,7 @@ function renderBoard() {
       cellEl.ondragend = null;
 
       // Text content or projection
-      const overlayText = (!cur.text && _state.portalAt?.[r]?.[c]) ? getPortalOverlayTextLocal(_state, r, c) : '';
+      const overlayText = getPortalOverlayText(_state, r, c);
       if (cur.text || overlayText) {
         const span = document.createElement('span');
         span.className = 'cell__text';
@@ -549,24 +549,7 @@ function getTileText(id) {
   return inRes ? inRes.text.toUpperCase() : '';
 }
 
-function getPortalOverlayTextLocal(state, r, c) {
-  const gid = state.portalAt?.[r]?.[c];
-  if (!gid) return '';
-  if (state.grid[r][c]?.text) return '';
-  const cells = state.portalGroups?.get?.(gid) || [];
-  for (const pos of cells) {
-    const t = state.grid[pos.r][pos.c]?.text;
-    if (t) return String(t);
-  }
-  return '';
-}
-
-// Convert r,c (0-based) → A1-style label (columns A–Z, rows 1..)
-function toA1(r, c){
-  // Supports up to 26 columns; product currently ≤10
-  const col = String.fromCharCode(65 + c);
-  return `${col}${r + 1}`;
-}
+// Portal overlays delegated to state.getPortalOverlayText for canonical logic.
 // DnD helpers
 function setDragData(ev, data) {
   _dragPayload = data;

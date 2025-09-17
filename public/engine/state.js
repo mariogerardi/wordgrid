@@ -3,14 +3,19 @@
    Word runs are formed by concatenating cell.text across contiguous cells.
 */
 
+import { DEFAULT_BOARD_SIZE, DEFAULT_PAR, HAND_SLOTS } from './shared/constants.js';
+import { toA1 as toA1Label } from './shared/geometry.js';
+
+export const toA1 = toA1Label;
+
 export function initState(level) {
-  const rows = Number.isFinite(level.rows) ? level.rows : Number(level.size || 7);
-  const cols = Number.isFinite(level.cols) ? level.cols : Number(level.size || 7);
+  const rows = Number.isFinite(level.rows) ? level.rows : Number(level.size || DEFAULT_BOARD_SIZE);
+  const cols = Number.isFinite(level.cols) ? level.cols : Number(level.size || DEFAULT_BOARD_SIZE);
   return {
     // level meta
     rows,
     cols,
-    par: level.par ?? 7,
+    par: level.par ?? DEFAULT_PAR,
     goal: { r: level.goal.r, c: level.goal.c },
 
     // turn + mode
@@ -74,10 +79,10 @@ export function startLevel(state, level) {
     }
   }
 
-  dealToHand(state, 4);
+  dealToHand(state, HAND_SLOTS);
 }
 
-export function dealToHand(state, target = 4) {
+export function dealToHand(state, target = HAND_SLOTS) {
   while (state.hand.length < target && state.deck.length) {
     state.hand.push(state.deck.shift());
   }
@@ -300,17 +305,6 @@ export function boardInvalidReason(state) {
 /* ---------- A1 utilities (exported for messaging) ---------- */
 
 // Convert r,c (0-based) → A1 (A..Z, AA..ZZ, then AAA..)
-export function toA1(r, c) {
-  let n = c + 1;
-  let col = '';
-  while (n > 0) {
-    const rem = (n - 1) % 26;
-    col = String.fromCharCode(65 + rem) + col;
-    n = Math.floor((n - 1) / 26);
-  }
-  return `${col}${r + 1}`;
-}
-
 export function runCellsA1(run) {
   const arr = [];
   if (run.dir === 'H') {

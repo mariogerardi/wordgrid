@@ -9,6 +9,7 @@ import {
   dealToHand, coversGoal, getPortalOverlayText, boardInvalidReason,
   runCellsA1, formatCellsList, toA1, groupCells
 } from './state.js';
+import { HAND_SLOTS, RESERVE_SLOTS } from './shared/constants.js';
 
 export function toggleDir(state) { state.dir = state.dir === 'H' ? 'V' : 'H'; return state.dir; }
 export function setMode(state, mode) { if (state.mode !== mode) rollbackTurn(state); state.mode = mode; }
@@ -191,7 +192,7 @@ export function commitPlayTurn(state) {
 
   state.turnPlacements = [];
   state.turn += 1;
-  dealToHand(state, 4);
+  dealToHand(state, HAND_SLOTS);
   return ok({ win: coversGoal(state) });
 }
 
@@ -202,7 +203,7 @@ export function commitRecallTurn(state) {
   if (recalls.length > 0 && placements.length > 0) return fail('You can place or recall in a single submit, not both.');
 
   // Enforce reserve cap at commit: current reserve + staged recalls ≤ 2
-  if (state.reserve.length + recalls.length > 2) return fail('Reserve is full (max 2).');
+  if (state.reserve.length + recalls.length > RESERVE_SLOTS) return fail(`Reserve is full (max ${RESERVE_SLOTS}).`);
 
   const reason = boardInvalidReason(state);
   if (reason) {

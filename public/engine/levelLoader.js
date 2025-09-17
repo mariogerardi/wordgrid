@@ -23,6 +23,9 @@
      }
 */
 
+import { BOARD_MIN, BOARD_MAX, DEFAULT_BOARD_SIZE, DEFAULT_PAR } from './shared/constants.js';
+import { countBy } from './shared/utils.js';
+
 export async function loadLevel(levelId, opts = {}) {
   const basePath = opts.basePath ?? './levels';
   const url = `${basePath}/level-${levelId}.json`;
@@ -58,7 +61,7 @@ export function normalizeLevel(raw, fallbackId = 'unknown') {
   // ---- meta ----
   const id = (raw?.meta?.id ?? fallbackId) + '';
   const name = (raw?.meta?.name ?? `Level ${id}`) + '';
-  const par = toInt(raw?.meta?.par, 7, 'meta.par', errors);
+  const par = toInt(raw?.meta?.par, DEFAULT_PAR, 'meta.par', errors);
   const intro = (raw?.meta?.intro ?? raw?.intro ?? '') + '';
 
   // ---- board ----
@@ -66,21 +69,21 @@ export function normalizeLevel(raw, fallbackId = 'unknown') {
   // Accept board.size as number (NxN), [rows,cols] tuple, or explicit board.rows/board.cols
   let rows = 0, cols = 0;
   if (Array.isArray(board.size) && board.size.length === 2) {
-    rows = toInt(board.size[0], 7, 'board.size[0]', errors);
-    cols = toInt(board.size[1], 7, 'board.size[1]', errors);
+    rows = toInt(board.size[0], DEFAULT_BOARD_SIZE, 'board.size[0]', errors);
+    cols = toInt(board.size[1], DEFAULT_BOARD_SIZE, 'board.size[1]', errors);
   } else if (typeof board.size === 'number') {
-    const n = toInt(board.size, 7, 'board.size', errors);
+    const n = toInt(board.size, DEFAULT_BOARD_SIZE, 'board.size', errors);
     rows = n; cols = n;
   } else if (typeof board.rows === 'number' && typeof board.cols === 'number') {
-    rows = toInt(board.rows, 7, 'board.rows', errors);
-    cols = toInt(board.cols, 7, 'board.cols', errors);
+    rows = toInt(board.rows, DEFAULT_BOARD_SIZE, 'board.rows', errors);
+    cols = toInt(board.cols, DEFAULT_BOARD_SIZE, 'board.cols', errors);
   } else {
-    // fallback to 7x7
-    rows = 7; cols = 7;
+    // fallback to default square board
+    rows = DEFAULT_BOARD_SIZE; cols = DEFAULT_BOARD_SIZE;
   }
   // Clamp/validate bounds per product requirements (allow 1 in either dimension)
-  if (rows < 1 || cols < 1 || rows > 10 || cols > 10) {
-    errors.push('board size must be between 1 and 10 in each dimension.');
+  if (rows < BOARD_MIN || cols < BOARD_MIN || rows > BOARD_MAX || cols > BOARD_MAX) {
+    errors.push(`board size must be between ${BOARD_MIN} and ${BOARD_MAX} in each dimension.`);
   }
 
   const goalArr = Array.isArray(board.goal) ? board.goal : null;
@@ -189,24 +192,6 @@ function toStringArray(v, label, errors) {
     out.push(s);
   }
   return out;
-}
-
-function normalizeDir(dir, label, errors) {
-  const d = String(dir || '').toUpperCase();
-  if (d === 'H' || d === 'V') return d;
-  errors.push(`${label} must be "H" or "V".`);
-  return 'H';
-}
-
-function fitsRowsCols(rows, cols, r, c, dir, len) {
-  if (dir === 'H') return r >= 0 && r < rows && c >= 0 && c + len - 1 < cols;
-  return c >= 0 && c < cols && r >= 0 && r + len - 1 < rows;
-}
-
-function countBy(arr) {
-  const m = Object.create(null);
-  for (const x of arr) m[x] = (m[x] || 0) + 1;
-  return m;
 }
 
 function w(x) { return x || x === 0; }
