@@ -860,6 +860,7 @@ function route() {
 // Prime progress/theme state before routing to avoid flashes when loading stored themes.
 loadProgress();
 
+window.addEventListener('hashchange', () => closeHeaderMenu({ returnFocus: false }));
 window.addEventListener('hashchange', route);
 window.addEventListener('load', route);
 
@@ -870,39 +871,238 @@ const app = () => document.getElementById('app');
 
 function HomeView() { renderDailyGame(); }
 
+const headerMenuState = {
+  open: false,
+  button: null,
+  panel: null,
+  items: [],
+  activeIndex: -1
+};
+
+function setHeaderMenuActiveIndex(index, { focus = true } = {}) {
+  const items = headerMenuState.items;
+  if (!items.length) return;
+  const total = items.length;
+  const wrapped = ((index % total) + total) % total;
+  headerMenuState.activeIndex = wrapped;
+  items.forEach((item, idx) => {
+    item.setAttribute('tabindex', idx === wrapped ? '0' : '-1');
+  });
+  if (focus) {
+    items[wrapped].focus();
+  }
+}
+
+function openHeaderMenu() {
+  const { button, panel, items, open } = headerMenuState;
+  if (!button || !panel || !items.length || open) return;
+  headerMenuState.open = true;
+  headerMenuState.activeIndex = 0;
+  panel.classList.add('header-actions--open');
+  panel.setAttribute('aria-hidden', 'false');
+  button.setAttribute('aria-expanded', 'true');
+  setHeaderMenuActiveIndex(0, { focus: false });
+  document.addEventListener('pointerdown', handleDocumentPointerDown);
+  document.addEventListener('keydown', handleDocumentKeyDown);
+  requestAnimationFrame(() => setHeaderMenuActiveIndex(0));
+}
+
+function closeHeaderMenu({ returnFocus = true } = {}) {
+  const { button, panel, items } = headerMenuState;
+  if (panel) {
+    panel.classList.remove('header-actions--open');
+    panel.setAttribute('aria-hidden', 'true');
+  }
+  if (button) {
+    button.setAttribute('aria-expanded', 'false');
+  }
+  if (items.length) {
+    items.forEach((item) => item.setAttribute('tabindex', '-1'));
+  }
+  headerMenuState.open = false;
+  headerMenuState.activeIndex = -1;
+  document.removeEventListener('pointerdown', handleDocumentPointerDown);
+  document.removeEventListener('keydown', handleDocumentKeyDown);
+  if (returnFocus && button && button.isConnected) {
+    button.focus();
+  }
+}
+
+function toggleHeaderMenu() {
+  if (headerMenuState.open) closeHeaderMenu(); else openHeaderMenu();
+}
+
+function handleDocumentPointerDown(event) {
+  const { panel, button } = headerMenuState;
+  if (!panel || !button) return;
+  if (panel.contains(event.target) || button.contains(event.target)) return;
+  closeHeaderMenu();
+}
+
+function handleDocumentKeyDown(event) {
+  if (!headerMenuState.open) return;
+  if (event.key === 'Escape') {
+    event.preventDefault();
+    closeHeaderMenu();
+  }
+}
+
+function handlePanelKeyDown(event) {
+  if (!headerMenuState.open) return;
+  const items = headerMenuState.items;
+  if (!items.length) return;
+  const currentIndex = items.indexOf(document.activeElement);
+  const baseIndex = currentIndex >= 0 ? currentIndex : headerMenuState.activeIndex;
+  switch (event.key) {
+    case 'ArrowDown':
+      event.preventDefault();
+      setHeaderMenuActiveIndex(baseIndex + 1);
+      break;
+    case 'ArrowUp':
+      event.preventDefault();
+      setHeaderMenuActiveIndex(baseIndex - 1);
+      break;
+    case 'Tab':
+      event.preventDefault();
+      setHeaderMenuActiveIndex(baseIndex + (event.shiftKey ? -1 : 1));
+      break;
+    case 'Home':
+      event.preventDefault();
+      setHeaderMenuActiveIndex(0);
+      break;
+    case 'End':
+      event.preventDefault();
+      setHeaderMenuActiveIndex(items.length - 1);
+      break;
+    case 'Escape':
+      event.preventDefault();
+      closeHeaderMenu();
+      break;
+    case ' ': // Space
+    case 'Spacebar':
+      event.preventDefault();
+      if (document.activeElement && typeof document.activeElement.click === 'function') {
+        document.activeElement.click();
+      }
+      break;
+    case 'Enter':
+      event.preventDefault();
+      if (document.activeElement && typeof document.activeElement.click === 'function') {
+        document.activeElement.click();
+      }
+      break;
+    default:
+      break;
+  }
+}
+
+function handlePanelClick(event) {
+  if (!headerMenuState.open) return;
+  const target = event.target.closest('a');
+  if (!target || !headerMenuState.panel?.contains(target)) return;
+  closeHeaderMenu();
+}
+
+function handlePanelFocusIn(event) {
+  if (!headerMenuState.open) return;
+  const idx = headerMenuState.items.indexOf(event.target);
+  if (idx >= 0) {
+    setHeaderMenuActiveIndex(idx, { focus: false });
+  }
+}
+
+function handleButtonKeyDown(event) {
+  if (event.key === 'ArrowDown') {
+    event.preventDefault();
+    if (!headerMenuState.open) {
+      openHeaderMenu();
+    } else {
+      setHeaderMenuActiveIndex(0);
+    }
+  } else if (event.key === 'ArrowUp') {
+    event.preventDefault();
+    if (!headerMenuState.open) {
+      openHeaderMenu();
+      if (headerMenuState.items.length) {
+        requestAnimationFrame(() => setHeaderMenuActiveIndex(headerMenuState.items.length - 1));
+      }
+    } else if (headerMenuState.items.length) {
+      setHeaderMenuActiveIndex(headerMenuState.items.length - 1);
+    }
+  } else if (event.key === 'Escape' && headerMenuState.open) {
+    event.preventDefault();
+    closeHeaderMenu();
+  }
+}
+
+function teardownHeaderMenu() {
+  if (headerMenuState.button) {
+    headerMenuState.button.removeEventListener('click', toggleHeaderMenu);
+    headerMenuState.button.removeEventListener('keydown', handleButtonKeyDown);
+  }
+  if (headerMenuState.panel) {
+    headerMenuState.panel.removeEventListener('keydown', handlePanelKeyDown);
+    headerMenuState.panel.removeEventListener('click', handlePanelClick);
+    headerMenuState.panel.removeEventListener('focusin', handlePanelFocusIn);
+  }
+}
+
+function setupHeaderMenu(button, panel) {
+  teardownHeaderMenu();
+  headerMenuState.button = button;
+  headerMenuState.panel = panel;
+  headerMenuState.items = panel ? Array.from(panel.querySelectorAll('a')) : [];
+  headerMenuState.activeIndex = -1;
+  if (!button || !panel) return;
+  button.setAttribute('aria-haspopup', 'menu');
+  button.setAttribute('aria-controls', panel.id);
+  button.setAttribute('aria-expanded', 'false');
+  panel.setAttribute('role', 'menu');
+  panel.setAttribute('aria-hidden', 'true');
+  panel.setAttribute('aria-labelledby', button.id);
+  headerMenuState.items.forEach((item) => {
+    item.setAttribute('role', 'menuitem');
+    item.setAttribute('tabindex', '-1');
+  });
+  panel.classList.remove('header-actions--open');
+  button.addEventListener('click', toggleHeaderMenu);
+  button.addEventListener('keydown', handleButtonKeyDown);
+  panel.addEventListener('keydown', handlePanelKeyDown);
+  panel.addEventListener('click', handlePanelClick);
+  panel.addEventListener('focusin', handlePanelFocusIn);
+}
+
 function renderHeaderNav(){
   const hdr = document.querySelector('header');
   if (!hdr) return;
+  closeHeaderMenu({ returnFocus: false });
   hdr.innerHTML = `
     <div class="header-inner">
       <h1><a href="#/" style="color:inherit; text-decoration:none;">gridl</a></h1>
-      <nav class="header-actions" id="headerActions">
-        <a class="btn btn--daily" href="#/">Daily</a>
-        <a class="btn" href="#/play">Packs</a>
-        <a class="btn" href="#/how">How&nbsp;to&nbsp;Play</a>
-        <a class="btn" href="#/themes">Themes</a>
-        <a class="btn" href="#/achievements">Achievements</a>
-        <a class="btn" href="#/editor">Editor</a>
-        <a class="btn" href="#/settings">Settings</a>
-      </nav>
-      <button class="header-menu" id="btnHeaderMenu" aria-label="Menu" title="Menu" style="padding:0">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="3" y="3" width="7" height="7" rx="1"/>
-          <rect x="14" y="3" width="7" height="7" rx="1"/>
-          <rect x="3" y="14" width="7" height="7" rx="1"/>
-          <rect x="14" y="14" width="7" height="7" rx="1"/>
-        </svg>
-      </button>
+      <div class="header-menu-container">
+        <button class="header-menu" id="btnHeaderMenu" aria-label="Menu" title="Menu" style="padding:0">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="7" height="7" rx="1"/>
+            <rect x="14" y="3" width="7" height="7" rx="1"/>
+            <rect x="3" y="14" width="7" height="7" rx="1"/>
+            <rect x="14" y="14" width="7" height="7" rx="1"/>
+          </svg>
+        </button>
+        <nav class="header-actions" id="headerActions" aria-hidden="true">
+          <a class="btn btn--daily" href="#/">Daily</a>
+          <a class="btn" href="#/play">Packs</a>
+          <a class="btn" href="#/how">How&nbsp;to&nbsp;Play</a>
+          <a class="btn" href="#/themes">Themes</a>
+          <a class="btn" href="#/achievements">Achievements</a>
+          <a class="btn" href="#/editor">Editor</a>
+          <a class="btn" href="#/settings">Settings</a>
+        </nav>
+      </div>
     </div>`;
 
-  // Restore open state and wire up toggle
-  const open = localStorage.getItem('hdr_open') === '1';
-  if (open) hdr.classList.add('header--open'); else hdr.classList.remove('header--open');
-  const btn = document.getElementById('btnHeaderMenu');
-  if (btn) btn.addEventListener('click', () => {
-    hdr.classList.toggle('header--open');
-    localStorage.setItem('hdr_open', hdr.classList.contains('header--open') ? '1' : '0');
-  });
+  const button = document.getElementById('btnHeaderMenu');
+  const panel = document.getElementById('headerActions');
+  setupHeaderMenu(button, panel);
 }
 
 function getAllLevelIds(packs){
