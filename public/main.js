@@ -27,10 +27,355 @@ const DEV_FORCE_UNLOCK_ALL = false;
 
 console.info('[gridl/main] bootstrap • routing + layout modules active');
 
+/* ---------------- Theme system ---------------- */
+
+const THEME_UNLOCK_TYPES = {
+  ALWAYS: 'always',
+  LEVEL: 'level',
+  ACHIEVEMENT: 'achievement'
+};
+
+const THEMES = [
+  {
+    id: 'light',
+    name: 'Light',
+    description: 'Bright, friendly default look with airy blues and crisp edges.',
+    preview: {
+      background: 'linear-gradient(135deg, #f8fbff 0%, #cfe5ff 55%, #9dc5ff 100%)',
+      foreground: '#1b335f'
+    },
+    colorScheme: 'light',
+    unlock: {
+      type: THEME_UNLOCK_TYPES.ALWAYS,
+      tag: 'Always available',
+      description: 'Default theme for every player.'
+    }
+  },
+  {
+    id: 'dark',
+    name: 'Dark',
+    description: 'Deep midnight hues with luminous text for night sessions.',
+    preview: {
+      background: 'linear-gradient(135deg, #0b1224 0%, #1a2a4a 60%, #3b82f6 100%)',
+      foreground: '#e0f2ff'
+    },
+    colorScheme: 'dark',
+    unlock: {
+      type: THEME_UNLOCK_TYPES.ALWAYS,
+      tag: 'Always available',
+      description: 'Ideal for low-light play.'
+    }
+  },
+  {
+    id: 'contrast',
+    name: 'Contrast',
+    description: 'High-contrast palette that emphasizes clarity and legibility.',
+    preview: {
+      background: 'linear-gradient(135deg, #000000 0%, #202020 55%, #00d5ff 100%)',
+      foreground: '#ffffff'
+    },
+    colorScheme: 'dark',
+    unlock: {
+      type: THEME_UNLOCK_TYPES.ALWAYS,
+      tag: 'Always available',
+      description: 'Designed for maximum readability.'
+    }
+  },
+  {
+    id: 'fruitger-aero',
+    name: 'Fruitger Aero',
+    description: 'Placeholder for glossy gradients and floating glass vibes.',
+    preview: {
+      background: 'linear-gradient(135deg, #00e4ff 0%, #0b5dff 55%, #ff9de2 100%)',
+      foreground: '#ffffff'
+    },
+    colorScheme: 'light',
+    unlock: {
+      type: THEME_UNLOCK_TYPES.ACHIEVEMENT,
+      tag: 'Achievement unlock',
+      description: 'Unlock by completing a future achievement (coming soon).',
+      available: false,
+      achievementIds: []
+    }
+  },
+  {
+    id: 'vaporwave',
+    name: 'Vaporwave',
+    description: 'A neon nostalgia palette inspired by outrun sunsets.',
+    preview: {
+      background: 'linear-gradient(135deg, #ff71c1 0%, #6c5ce7 100%)',
+      foreground: '#ffffff'
+    },
+    colorScheme: 'light',
+    unlock: {
+      type: THEME_UNLOCK_TYPES.ACHIEVEMENT,
+      tag: 'Achievement unlock',
+      description: 'Earn a future collection achievement to unlock (coming soon).',
+      available: false,
+      achievementIds: []
+    }
+  },
+  {
+    id: 'solarpunk',
+    name: 'Solarpunk',
+    description: 'Sunlit greens and optimistic copper accents.',
+    preview: {
+      background: 'linear-gradient(135deg, #87f985 0%, #3ddad7 100%)',
+      foreground: '#0f2d2d'
+    },
+    colorScheme: 'light',
+    unlock: {
+      type: THEME_UNLOCK_TYPES.LEVEL,
+      tag: 'Level unlock',
+      description: 'Complete an upcoming Solarpunk milestone (coming soon).',
+      available: false,
+      levelIds: []
+    }
+  },
+  {
+    id: 'cottagecore',
+    name: 'Cottagecore',
+    description: 'Warm sunlight, soft florals, and cozy parchment textures.',
+    preview: {
+      background: 'linear-gradient(135deg, #f2d7b3 0%, #c5e6a0 100%)',
+      foreground: '#5b3a24'
+    },
+    colorScheme: 'light',
+    unlock: {
+      type: THEME_UNLOCK_TYPES.LEVEL,
+      tag: 'Level unlock',
+      description: 'Reach a future story checkpoint to unlock (coming soon).',
+      available: false,
+      levelIds: []
+    }
+  },
+  {
+    id: 'liminal',
+    name: 'Liminal',
+    description: 'Dreamy gradients inspired by empty hallways and in-between spaces.',
+    preview: {
+      background: 'linear-gradient(135deg, #5a5ce0 0%, #cbbcff 100%)',
+      foreground: '#ffffff'
+    },
+    colorScheme: 'dark',
+    unlock: {
+      type: THEME_UNLOCK_TYPES.ACHIEVEMENT,
+      tag: 'Achievement unlock',
+      description: 'Unlock through a future exploration achievement (coming soon).',
+      available: false,
+      achievementIds: []
+    }
+  },
+  {
+    id: 'y2k',
+    name: 'Y2K',
+    description: 'Chromed gradients and iridescent highlights straight from 2001.',
+    preview: {
+      background: 'linear-gradient(135deg, #f7f3ff 0%, #ff9ff3 50%, #1dd1a1 100%)',
+      foreground: '#1a1a1a'
+    },
+    colorScheme: 'light',
+    unlock: {
+      type: THEME_UNLOCK_TYPES.ACHIEVEMENT,
+      tag: 'Achievement unlock',
+      description: 'Collect a retro achievement in a future update (coming soon).',
+      available: false,
+      achievementIds: []
+    }
+  },
+  {
+    id: 'brutalism',
+    name: 'Brutalism',
+    description: 'Bold blocks, heavy lines, and unapologetic contrast.',
+    preview: {
+      background: 'linear-gradient(135deg, #2d2d2d 0%, #ffdd33 100%)',
+      foreground: '#0f0f0f'
+    },
+    colorScheme: 'dark',
+    unlock: {
+      type: THEME_UNLOCK_TYPES.LEVEL,
+      tag: 'Level unlock',
+      description: 'Clear a future precision challenge to unlock (coming soon).',
+      available: false,
+      levelIds: []
+    }
+  },
+  {
+    id: 'pastel',
+    name: 'Pastel',
+    description: 'Delicate sherbets and airy candy tones.',
+    preview: {
+      background: 'linear-gradient(135deg, #fcd5ce 0%, #f8edeb 50%, #ffe5ec 100%)',
+      foreground: '#563a3d'
+    },
+    colorScheme: 'light',
+    unlock: {
+      type: THEME_UNLOCK_TYPES.LEVEL,
+      tag: 'Level unlock',
+      description: 'Complete a future puzzle gauntlet to unlock (coming soon).',
+      available: false,
+      levelIds: []
+    }
+  },
+  {
+    id: 'monochrome',
+    name: 'Monochrome',
+    description: 'A stark black and white presentation for a minimalist feel.',
+    preview: {
+      background: 'linear-gradient(135deg, #111111 0%, #ffffff 100%)',
+      foreground: '#000000'
+    },
+    colorScheme: 'dark',
+    unlock: {
+      type: THEME_UNLOCK_TYPES.LEVEL,
+      tag: 'Level unlock',
+      description: 'Beat an upcoming endurance route to unlock (coming soon).',
+      available: false,
+      levelIds: []
+    }
+  },
+  {
+    id: 'surrealist',
+    name: 'Surrealist',
+    description: 'A vibrant collision of impossible colors.',
+    preview: {
+      background: 'linear-gradient(135deg, #8a2387 0%, #e94057 50%, #f27121 100%)',
+      foreground: '#ffffff'
+    },
+    colorScheme: 'dark',
+    unlock: {
+      type: THEME_UNLOCK_TYPES.ACHIEVEMENT,
+      tag: 'Achievement unlock',
+      description: 'Unlock through a future creativity achievement (coming soon).',
+      available: false,
+      achievementIds: []
+    }
+  },
+  {
+    id: 'parallax',
+    name: 'Parallax',
+    description: 'Layered blues and violets with floating depth.',
+    preview: {
+      background: 'linear-gradient(135deg, #3b82f6 0%, #9333ea 100%)',
+      foreground: '#f1f5ff'
+    },
+    colorScheme: 'dark',
+    unlock: {
+      type: THEME_UNLOCK_TYPES.ACHIEVEMENT,
+      tag: 'Achievement unlock',
+      description: 'Earn a future mastery achievement to unlock (coming soon).',
+      available: false,
+      achievementIds: []
+    }
+  },
+  {
+    id: 'retrofuture',
+    name: 'Retrofuture',
+    description: 'Bright synth tones with holo-flecked gradients.',
+    preview: {
+      background: 'linear-gradient(135deg, #0ea5e9 0%, #f472b6 100%)',
+      foreground: '#101828'
+    },
+    colorScheme: 'light',
+    unlock: {
+      type: THEME_UNLOCK_TYPES.LEVEL,
+      tag: 'Level unlock',
+      description: 'Finish a future time-trial challenge to unlock (coming soon).',
+      available: false,
+      levelIds: []
+    }
+  },
+  {
+    id: 'hypnagogic',
+    name: 'Hypnagogic',
+    description: 'A twilight gradient between waking and dreaming.',
+    preview: {
+      background: 'linear-gradient(135deg, #1f005c 0%, #5b0060 55%, #870160 100%)',
+      foreground: '#f6e1ff'
+    },
+    colorScheme: 'dark',
+    unlock: {
+      type: THEME_UNLOCK_TYPES.ACHIEVEMENT,
+      tag: 'Achievement unlock',
+      description: 'Unlock via a future nightly achievement (coming soon).',
+      available: false,
+      achievementIds: []
+    }
+  },
+  {
+    id: 'biomorphic',
+    name: 'Biomorphic',
+    description: 'Flowing greens inspired by living architecture.',
+    preview: {
+      background: 'linear-gradient(135deg, #a3e635 0%, #22c55e 100%)',
+      foreground: '#0f3f20'
+    },
+    colorScheme: 'light',
+    unlock: {
+      type: THEME_UNLOCK_TYPES.LEVEL,
+      tag: 'Level unlock',
+      description: 'Defeat a future organic labyrinth to unlock (coming soon).',
+      available: false,
+      levelIds: []
+    }
+  },
+  {
+    id: 'infrared',
+    name: 'Infrared',
+    description: 'A heat-map palette with molten reds and magenta.',
+    preview: {
+      background: 'linear-gradient(135deg, #ff512f 0%, #dd2476 100%)',
+      foreground: '#ffffff'
+    },
+    colorScheme: 'dark',
+    unlock: {
+      type: THEME_UNLOCK_TYPES.LEVEL,
+      tag: 'Level unlock',
+      description: 'Master a future expert route to unlock (coming soon).',
+      available: false,
+      levelIds: []
+    }
+  },
+  {
+    id: 'ultraviolet',
+    name: 'Ultraviolet',
+    description: 'Glowing purples and electric indigo lines.',
+    preview: {
+      background: 'linear-gradient(135deg, #5b21b6 0%, #9f7aea 100%)',
+      foreground: '#fdf4ff'
+    },
+    colorScheme: 'dark',
+    unlock: {
+      type: THEME_UNLOCK_TYPES.ACHIEVEMENT,
+      tag: 'Achievement unlock',
+      description: 'Unlock through a future spectrum achievement (coming soon).',
+      available: false,
+      achievementIds: []
+    }
+  }
+];
+
+const THEMES_BY_ID = new Map(THEMES.map((theme) => [theme.id, theme]));
+const DEFAULT_THEME_ID = 'light';
+const ALWAYS_AVAILABLE_THEME_IDS = THEMES
+  .filter((theme) => (theme.unlock?.type === THEME_UNLOCK_TYPES.ALWAYS))
+  .map((theme) => theme.id);
+
+function getThemeById(id) {
+  return THEMES_BY_ID.get(String(id));
+}
+
+function createDefaultThemeState() {
+  return {
+    active: DEFAULT_THEME_ID,
+    unlocked: new Set(ALWAYS_AVAILABLE_THEME_IDS)
+  };
+}
+
 /* ---------------- Packs data (fetched with fallback) ---------------- */
 
 let PACKS_DB = null;
-let PROGRESS = null; // { completed: Set<string>, unlockedPacks: Set<string>, unlockedLevels: Set<string>, bestScores: Record<string, number> }
+let PROGRESS = null; // { completed: Set<string>, unlockedPacks: Set<string>, unlockedLevels: Set<string>, bestScores: Record<string, number>, achievements: Set<string>, themes: { active: string, unlocked: Set<string> } }
 let progressSaveWarned = false;
 
 /* ---------------- Progress (localStorage) ---------------- */
@@ -43,7 +388,9 @@ function createDefaultProgress() {
     completed: new Set(),
     unlockedPacks: new Set(INITIAL_UNLOCKED_PACKS),
     unlockedLevels: new Set(INITIAL_UNLOCKED_LEVELS),
-    bestScores: Object.create(null)
+    bestScores: Object.create(null),
+    achievements: new Set(),
+    themes: createDefaultThemeState()
   };
 }
 
@@ -53,6 +400,25 @@ function collectIds(value) {
   if (value instanceof Set) return [...value];
   if (typeof value === 'object') return Object.keys(value).filter((key) => Boolean(value[key]));
   return [];
+}
+
+function migrateThemeState(raw, baseState = createDefaultThemeState()) {
+  const fallback = baseState || createDefaultThemeState();
+  const unlocked = new Set([
+    ...fallback.unlocked,
+    ...collectIds(raw?.unlocked).map((id) => String(id))
+  ]);
+  let active = typeof raw?.active === 'string' ? raw.active : fallback.active;
+  if (!unlocked.has(active)) {
+    if (unlocked.has(DEFAULT_THEME_ID)) {
+      active = DEFAULT_THEME_ID;
+    } else {
+      const first = unlocked.values().next().value;
+      active = first ? String(first) : DEFAULT_THEME_ID;
+      unlocked.add(active);
+    }
+  }
+  return { active, unlocked };
 }
 
 function migrateProgress(raw) {
@@ -69,7 +435,157 @@ function migrateProgress(raw) {
       bestScores[String(key)] = turns;
     }
   }
-  return { completed, unlockedPacks, unlockedLevels, bestScores };
+  const achievements = new Set([...base.achievements, ...collectIds(raw.achievements).map(String)]);
+  const themes = migrateThemeState(raw.themes, base.themes);
+  return { completed, unlockedPacks, unlockedLevels, bestScores, achievements, themes };
+}
+
+function ensureThemeState(progress = PROGRESS) {
+  if (!progress) return createDefaultThemeState();
+  if (!progress.themes || typeof progress.themes !== 'object') {
+    progress.themes = createDefaultThemeState();
+    return progress.themes;
+  }
+  const state = progress.themes;
+  if (!(state.unlocked instanceof Set)) {
+    state.unlocked = new Set(collectIds(state.unlocked).map((id) => String(id)));
+  }
+  ALWAYS_AVAILABLE_THEME_IDS.forEach((id) => state.unlocked.add(id));
+  if (typeof state.active !== 'string') {
+    state.active = DEFAULT_THEME_ID;
+  }
+  if (!state.unlocked.has(state.active)) {
+    if (state.unlocked.has(DEFAULT_THEME_ID)) {
+      state.active = DEFAULT_THEME_ID;
+    } else {
+      const first = state.unlocked.values().next().value;
+      if (first) {
+        state.active = String(first);
+      } else {
+        state.unlocked.add(DEFAULT_THEME_ID);
+        state.active = DEFAULT_THEME_ID;
+      }
+    }
+  }
+  return state;
+}
+
+function getThemeState(progress = PROGRESS) {
+  const state = ensureThemeState(progress);
+  return {
+    active: state.active,
+    unlocked: new Set(state.unlocked)
+  };
+}
+
+function applyThemeById(themeId) {
+  const theme = getThemeById(themeId) || getThemeById(DEFAULT_THEME_ID);
+  if (!theme) return;
+  const root = document.documentElement;
+  root.dataset.theme = theme.id;
+  if (theme.colorScheme) {
+    root.style.setProperty('color-scheme', theme.colorScheme);
+  } else {
+    root.style.removeProperty('color-scheme');
+  }
+}
+
+function syncThemeUnlocks(progress = PROGRESS) {
+  if (!progress) return [];
+  const state = ensureThemeState(progress);
+  const before = new Set(state.unlocked);
+  const completed = progress.completed instanceof Set
+    ? progress.completed
+    : new Set(collectIds(progress.completed).map(String));
+  const achievements = progress.achievements instanceof Set
+    ? progress.achievements
+    : new Set(collectIds(progress.achievements).map(String));
+
+  for (const theme of THEMES) {
+    const unlock = theme.unlock || {};
+    if (unlock.type === THEME_UNLOCK_TYPES.ALWAYS) {
+      state.unlocked.add(theme.id);
+      continue;
+    }
+    if (unlock.available === false) continue;
+    if (unlock.type === THEME_UNLOCK_TYPES.LEVEL) {
+      const ids = Array.isArray(unlock.levelIds) && unlock.levelIds.length
+        ? unlock.levelIds
+        : (unlock.levelId ? [unlock.levelId] : []);
+      if (!ids.length) continue;
+      const match = unlock.mode === 'any'
+        ? ids.some((id) => completed.has(String(id)))
+        : ids.every((id) => completed.has(String(id)));
+      if (match) state.unlocked.add(theme.id);
+    } else if (unlock.type === THEME_UNLOCK_TYPES.ACHIEVEMENT) {
+      const ids = Array.isArray(unlock.achievementIds) && unlock.achievementIds.length
+        ? unlock.achievementIds
+        : (unlock.achievementId ? [unlock.achievementId] : []);
+      if (!ids.length) continue;
+      const match = unlock.mode === 'any'
+        ? ids.some((id) => achievements.has(String(id)))
+        : ids.every((id) => achievements.has(String(id)));
+      if (match) state.unlocked.add(theme.id);
+    }
+  }
+
+  const unlockedNow = state.unlocked;
+  return [...unlockedNow].filter((id) => !before.has(id));
+}
+
+function ensureThemesInitialized(progress = PROGRESS) {
+  if (!progress) return { active: DEFAULT_THEME_ID, activeChanged: false, unlocked: [] };
+  const state = ensureThemeState(progress);
+  const newlyUnlocked = syncThemeUnlocks(progress);
+  const beforeActive = state.active;
+  if (!state.unlocked.has(state.active)) {
+    if (state.unlocked.has(DEFAULT_THEME_ID)) {
+      state.active = DEFAULT_THEME_ID;
+    } else {
+      const first = state.unlocked.values().next().value;
+      state.active = first ? String(first) : DEFAULT_THEME_ID;
+      state.unlocked.add(state.active);
+    }
+  }
+  applyThemeById(state.active);
+  return { active: state.active, activeChanged: state.active !== beforeActive, unlocked: newlyUnlocked };
+}
+
+function setActiveTheme(themeId, opts = {}) {
+  const progress = opts.progress || loadProgress();
+  const state = ensureThemeState(progress);
+  const before = state.active;
+  let target = String(themeId);
+  if (!state.unlocked.has(target)) {
+    if (opts.allowFallback === false) {
+      return { changed: false, active: before };
+    }
+    if (state.unlocked.has(before)) {
+      target = before;
+    } else if (state.unlocked.has(DEFAULT_THEME_ID)) {
+      target = DEFAULT_THEME_ID;
+    } else {
+      const first = state.unlocked.values().next().value;
+      target = first ? String(first) : DEFAULT_THEME_ID;
+      state.unlocked.add(target);
+    }
+  }
+  state.active = target;
+  applyThemeById(target);
+  const changed = target !== before;
+  if (!opts.skipSave && changed) saveProgress();
+  return { changed, active: target };
+}
+
+function formatThemeNames(ids) {
+  const names = ids.map((id) => {
+    const theme = getThemeById(id);
+    return theme ? theme.name : String(id);
+  });
+  if (names.length === 0) return '';
+  if (names.length === 1) return names[0];
+  const last = names.pop();
+  return `${names.join(', ')} and ${last}`;
 }
 
 function loadProgress() {
@@ -83,18 +599,28 @@ function loadProgress() {
   const migrated = migrateProgress(stored);
   PROGRESS = migrated ?? createDefaultProgress();
   const tutorialUnlocksChanged = applyTutorialUnlocks(PROGRESS);
-  if (!migrated || tutorialUnlocksChanged) saveProgress();
+  const themeInit = ensureThemesInitialized(PROGRESS);
+  if (!migrated || tutorialUnlocksChanged || themeInit.activeChanged || themeInit.unlocked.length) saveProgress();
   return PROGRESS;
 }
 
 function saveProgress() {
   if (!PROGRESS) return;
   try {
+    const achievements = PROGRESS.achievements instanceof Set
+      ? PROGRESS.achievements
+      : new Set(collectIds(PROGRESS.achievements).map(String));
+    const themeState = ensureThemeState(PROGRESS);
     const data = {
       completed: [...PROGRESS.completed],
       unlockedPacks: [...PROGRESS.unlockedPacks],
       unlockedLevels: [...PROGRESS.unlockedLevels],
-      bestScores: { ...PROGRESS.bestScores }
+      bestScores: { ...PROGRESS.bestScores },
+      achievements: [...achievements],
+      themes: {
+        active: themeState.active,
+        unlocked: [...themeState.unlocked]
+      }
     };
     localStorage.setItem(LS_KEY, JSON.stringify(data));
   } catch (err) {
@@ -331,6 +857,8 @@ function route() {
   location.hash = '#/';
 }
 
+// Prime progress/theme state before routing to avoid flashes when loading stored themes.
+loadProgress();
 
 window.addEventListener('hashchange', route);
 window.addEventListener('load', route);
@@ -646,6 +1174,7 @@ async function GameView(match, opts = {}) {
       recordBest(id, used);
       if (level.meta?.id) markCompleted(String(level.meta.id));
       applyTutorialUnlocks();
+      const newlyUnlockedThemes = syncThemeUnlocks(PROGRESS);
       saveProgress();
       syncPacksUnlockedFromProgress();
 
@@ -656,6 +1185,10 @@ async function GameView(match, opts = {}) {
       const diff = usedTurns - par;
       let perf = par ? (diff < 0 ? `Under par by ${Math.abs(diff)}!` : diff === 0 ? `Right at par.` : `Over par by ${diff}.`) : '';
       showUnlockToast(`🎉 Nice! You finished in ${usedTurns}. ${perf}`.trim());
+      if (newlyUnlockedThemes.length) {
+        const themeNames = formatThemeNames(newlyUnlockedThemes);
+        showUnlockToast(`🎨 Theme unlocked: ${themeNames}.`);
+      }
       if (typeof opts.onWin === 'function') opts.onWin({ state: finalState });
     }
   });
@@ -789,14 +1322,95 @@ function SettingsView(){
   `;
 }
 
+function renderThemeCard(theme, themeState) {
+  const unlocked = themeState.unlocked.has(theme.id);
+  const active = themeState.active === theme.id;
+  const comingSoon = theme.unlock?.available === false;
+  const classes = ['theme-card'];
+  if (active) classes.push('theme-card--active');
+  if (!unlocked) classes.push('theme-card--locked');
+  if (comingSoon) classes.push('theme-card--placeholder');
+  const previewVars = [];
+  if (theme.preview?.background) previewVars.push(`--theme-preview:${theme.preview.background}`);
+  if (theme.preview?.foreground) previewVars.push(`--theme-preview-text:${theme.preview.foreground}`);
+  const previewStyle = previewVars.length ? ` style="${previewVars.join('; ')}"` : '';
+  const unlockTag = theme.unlock?.tag || (theme.unlock?.type === THEME_UNLOCK_TYPES.ACHIEVEMENT
+    ? 'Achievement unlock'
+    : theme.unlock?.type === THEME_UNLOCK_TYPES.LEVEL
+      ? 'Level unlock'
+      : 'Unlock');
+  const unlockDescription = theme.unlock?.description || '';
+  let badgeHTML = '';
+  if (active) badgeHTML = '<span class="theme-card__badge theme-card__badge--active">Active</span>';
+  else if (!unlocked) badgeHTML = '<span class="theme-card__badge theme-card__badge--locked">Locked</span>';
+  let actionHTML = '';
+  if (unlocked) {
+    const buttonClasses = ['btn', 'theme-card__action'];
+    if (!active) buttonClasses.push('btn--primary');
+    const disabledAttrs = active ? ' disabled aria-disabled="true"' : '';
+    actionHTML = `<button class="${buttonClasses.join(' ')}" data-theme-id="${theme.id}"${disabledAttrs}>${active ? 'Active' : 'Use Theme'}</button>`;
+  } else {
+    const label = comingSoon ? 'Coming soon' : 'Locked';
+    actionHTML = `<button class="btn theme-card__action" disabled aria-disabled="true">${label}</button>`;
+  }
+  return `
+    <article class="${classes.join(' ')}"${previewStyle}>
+      <div class="theme-card__preview" aria-hidden="true">
+        <div class="theme-card__preview-grid">
+          <span class="theme-card__preview-text">Aa</span>
+        </div>
+      </div>
+      <div class="theme-card__body">
+        <div class="theme-card__header">
+          <h3 class="theme-card__name">${theme.name}</h3>
+          ${badgeHTML}
+        </div>
+        <p class="theme-card__desc">${theme.description}</p>
+        <div class="theme-card__unlock">
+          <span class="theme-card__tag">${unlockTag}</span>
+          <span class="theme-card__unlock-text">${unlockDescription}</span>
+        </div>
+      </div>
+      <div class="theme-card__footer">
+        ${actionHTML}
+      </div>
+    </article>
+  `;
+}
+
 function ThemesView(){
   document.documentElement.classList.remove('is-daily');
-  app().innerHTML = `
-    <section class="section view" style="max-width:640px; margin:auto; padding:20px;">
+  const mount = app();
+  if (!mount) return;
+  const progress = loadProgress();
+  const themeState = getThemeState(progress);
+  const activeTheme = getThemeById(themeState.active) || getThemeById(DEFAULT_THEME_ID);
+  const cardsHtml = THEMES.map((theme) => renderThemeCard(theme, themeState)).join('');
+  mount.innerHTML = `
+    <section class="section view theme-view" style="max-width:900px; margin:auto; padding:20px;">
       <h2>Themes</h2>
-      <p>Coming soon.</p>
+      <p class="lead">Choose a look for Wordgrid. Unlock additional themes by completing future levels and achievements.</p>
+      <div class="theme-current">Current theme: <span class="theme-current__name">${activeTheme ? activeTheme.name : themeState.active}</span></div>
+      <div class="theme-grid">
+        ${cardsHtml}
+      </div>
+      <div class="game-toolbar" style="margin: 24px 0 0;">
+        <a class="btn" href="#/">← Back</a>
+      </div>
     </section>
   `;
+
+  mount.querySelectorAll('.theme-card__action[data-theme-id]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const themeId = btn.getAttribute('data-theme-id');
+      const { changed, active } = setActiveTheme(themeId);
+      if (changed) {
+        const theme = getThemeById(active);
+        showUnlockToast(`Theme switched to ${theme ? theme.name : active}.`);
+        ThemesView();
+      }
+    });
+  });
 }
 
 function AchievementsView(){
