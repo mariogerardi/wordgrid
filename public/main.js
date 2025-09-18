@@ -82,9 +82,9 @@ const THEMES = [
     }
   },
   {
-    id: 'fruitger-aero',
-    name: 'Fruitger Aero',
-    description: 'Placeholder for glossy gradients and floating glass vibes.',
+    id: 'frutiger-aero',
+    name: 'Frutiger Aero',
+    description: 'Glossy gradients and floating glass vibes unlocked by your first win.',
     preview: {
       background: 'linear-gradient(135deg, #00e4ff 0%, #0b5dff 55%, #ff9de2 100%)',
       foreground: '#ffffff'
@@ -93,9 +93,9 @@ const THEMES = [
     unlock: {
       type: THEME_UNLOCK_TYPES.ACHIEVEMENT,
       tag: 'Achievement unlock',
-      description: 'Unlock by completing a future achievement (coming soon).',
-      available: false,
-      achievementIds: []
+      description: 'Unlock by earning the “First Puzzle” achievement.',
+      available: true,
+      achievementIds: ['first-puzzle']
     }
   },
   {
@@ -402,6 +402,11 @@ function collectIds(value) {
   return [];
 }
 
+function ensureStringSet(value) {
+  if (value instanceof Set) return value;
+  return new Set(collectIds(value).map((id) => String(id)));
+}
+
 function migrateThemeState(raw, baseState = createDefaultThemeState()) {
   const fallback = baseState || createDefaultThemeState();
   const unlocked = new Set([
@@ -588,6 +593,282 @@ function formatThemeNames(ids) {
   return `${names.join(', ')} and ${last}`;
 }
 
+/* ---------------- Achievements system ---------------- */
+
+const ACHIEVEMENT_CONDITION_TYPES = {
+  PUZZLE_COMPLETE: 'puzzleComplete',
+  PACK_COMPLETE: 'packComplete',
+  THEME_UNLOCKED: 'themeUnlocked',
+  CUSTOM: 'custom'
+};
+
+const ACHIEVEMENT_REWARD_TYPES = {
+  THEME: 'theme',
+  PACK: 'pack',
+  CUSTOM: 'custom',
+  NONE: 'none'
+};
+
+const ACHIEVEMENTS = [
+  {
+    id: 'first-puzzle',
+    name: 'First Puzzle',
+    description: 'You did the thing.',
+    unlock: { type: ACHIEVEMENT_CONDITION_TYPES.PUZZLE_COMPLETE, count: 1 },
+    reward: { type: ACHIEVEMENT_REWARD_TYPES.THEME, themeId: 'frutiger-aero', label: 'Unlocks a Theme' },
+    unlocked: false
+  },
+  {
+    id: 'pack-curator',
+    name: 'Pack Curator',
+    description: '???',
+    unlock: { type: ACHIEVEMENT_CONDITION_TYPES.PACK_COMPLETE, packId: 'basics' },
+    reward: { type: ACHIEVEMENT_REWARD_TYPES.PACK, label: 'Unlocks a Pack' },
+    unlocked: false
+  },
+  {
+    id: 'style-collector',
+    name: 'Style Collector',
+    description: '???',
+    unlock: { type: ACHIEVEMENT_CONDITION_TYPES.THEME_UNLOCKED, count: 5 },
+    reward: { type: ACHIEVEMENT_REWARD_TYPES.THEME, label: 'Unlocks a Theme' },
+    unlocked: false
+  },
+  {
+    id: 'daily-dedication',
+    name: 'Daily Dedication',
+    description: '???',
+    unlock: { type: ACHIEVEMENT_CONDITION_TYPES.CUSTOM, key: 'daily-streak' },
+    reward: { type: ACHIEVEMENT_REWARD_TYPES.CUSTOM, label: 'Unlocks a Surprise' },
+    unlocked: false
+  }
+];
+
+const ACHIEVEMENTS_BY_ID = new Map(ACHIEVEMENTS.map((achievement) => [achievement.id, achievement]));
+
+const CUSTOM_ACHIEVEMENT_CHECKERS = Object.create(null);
+
+function getAchievementById(id) {
+  return ACHIEVEMENTS_BY_ID.get(String(id));
+}
+
+function ensureAchievementState(progress = PROGRESS) {
+  if (!progress) return new Set();
+  progress.achievements = ensureStringSet(progress.achievements);
+  return progress.achievements;
+}
+
+function getCompletedPuzzleIds(progress = PROGRESS) {
+  const completed = ensureStringSet(progress?.completed);
+  if (!completed.size) return new Set();
+  let knownIds = null;
+  if (PACKS_DB?.list?.length) {
+    knownIds = new Set();
+    try {
+      for (const pack of PACKS_DB.list) {
+        for (const puzzle of pack.puzzles || []) {
+          if (puzzle?.id != null) knownIds.add(String(puzzle.id));
+        }
+      }
+    } catch {}
+  }
+  const result = new Set();
+  completed.forEach((value) => {
+    const id = String(value);
+    if (knownIds) {
+      if (knownIds.has(id)) result.add(id);
+    } else if (/^\d+$/.test(id)) {
+      result.add(id);
+    }
+  });
+  return result;
+}
+
+const ACHIEVEMENT_CHECKERS = {
+  [ACHIEVEMENT_CONDITION_TYPES.PUZZLE_COMPLETE]: ({ meta, progress }) => {
+    const completed = ensureStringSet(progress?.completed);
+    const completedPuzzleIds = getCompletedPuzzleIds(progress);
+    const ids = Array.isArray(meta?.puzzleIds) && meta.puzzleIds.length
+      ? meta.puzzleIds.map((id) => String(id))
+      : [];
+    if (ids.length) {
+      return meta?.mode === 'any'
+        ? ids.some((id) => completed.has(id))
+        : ids.every((id) => completed.has(id));
+    }
+
+    if (meta?.packId) {
+      const packId = String(meta.packId);
+      const pack = PACKS_DB?.byId?.[packId];
+      if (!pack) return false;
+      const puzzles = (pack.puzzles || []).map((pz) => String(pz.id)).filter(Boolean);
+      if (!puzzles.length) return false;
+      const requiredCount = Number(meta?.count) || puzzles.length;
+      const completedInPack = puzzles.filter((id) => completed.has(id) || completedPuzzleIds.has(id)).length;
+      return completedInPack >= requiredCount;
+    }
+
+    const required = Math.max(1, Number(meta?.count) || 1);
+    return completedPuzzleIds.size >= required;
+  },
+  [ACHIEVEMENT_CONDITION_TYPES.PACK_COMPLETE]: ({ meta, progress }) => {
+    const packIds = Array.isArray(meta?.packIds) && meta.packIds.length
+      ? meta.packIds.map((id) => String(id))
+      : meta?.packId ? [String(meta.packId)] : [];
+    if (!packIds.length) return false;
+    const completed = ensureStringSet(progress?.completed);
+    return packIds.every((packId) => {
+      const pack = PACKS_DB?.byId?.[packId];
+      if (!pack) return false;
+      const puzzles = (pack.puzzles || []).map((pz) => String(pz.id)).filter(Boolean);
+      if (!puzzles.length) return false;
+      return puzzles.every((id) => completed.has(id));
+    });
+  },
+  [ACHIEVEMENT_CONDITION_TYPES.THEME_UNLOCKED]: ({ meta, progress }) => {
+    const state = ensureThemeState(progress);
+    const ids = Array.isArray(meta?.themeIds) && meta.themeIds.length
+      ? meta.themeIds.map((id) => String(id))
+      : meta?.themeId ? [String(meta.themeId)] : [];
+    if (ids.length) {
+      return meta?.mode === 'any'
+        ? ids.some((id) => state.unlocked.has(id))
+        : ids.every((id) => state.unlocked.has(id));
+    }
+    const required = Math.max(1, Number(meta?.count) || 1);
+    return state.unlocked.size >= required;
+  },
+  [ACHIEVEMENT_CONDITION_TYPES.CUSTOM]: ({ achievement, meta, progress, event, context }) => {
+    if (typeof meta?.check === 'function') {
+      try {
+        return Boolean(meta.check({ achievement, progress, event, context }));
+      } catch (err) {
+        console.warn('[achievements] custom check failed', achievement?.id, err);
+        return false;
+      }
+    }
+    const key = meta?.key ? String(meta.key) : '';
+    const handler = key ? CUSTOM_ACHIEVEMENT_CHECKERS[key] : null;
+    if (typeof handler === 'function') {
+      try {
+        return Boolean(handler({ achievement, progress, event, context }));
+      } catch (err) {
+        console.warn('[achievements] custom handler failed', achievement?.id, err);
+      }
+    }
+    return false;
+  }
+};
+
+const ACHIEVEMENT_REWARD_HANDLERS = {
+  [ACHIEVEMENT_REWARD_TYPES.THEME]: ({ achievement, progress }) => {
+    const reward = achievement?.reward || {};
+    const ids = Array.isArray(reward.themeIds) && reward.themeIds.length
+      ? reward.themeIds.map((id) => String(id))
+      : reward.themeId ? [String(reward.themeId)] : [];
+    const state = ensureThemeState(progress);
+    const manualUnlocks = [];
+    for (const id of ids) {
+      if (!state.unlocked.has(id)) {
+        state.unlocked.add(id);
+        manualUnlocks.push(id);
+      }
+    }
+    const syncedUnlocks = syncThemeUnlocks(progress);
+    const merged = new Set([...manualUnlocks, ...syncedUnlocks]);
+    return { type: ACHIEVEMENT_REWARD_TYPES.THEME, themeIds: [...merged], manual: manualUnlocks, synced: syncedUnlocks };
+  },
+  [ACHIEVEMENT_REWARD_TYPES.PACK]: ({ achievement, progress }) => {
+    const reward = achievement?.reward || {};
+    const ids = Array.isArray(reward.packIds) && reward.packIds.length
+      ? reward.packIds.map((id) => String(id))
+      : reward.packId ? [String(reward.packId)] : [];
+    const unlocked = [];
+    for (const id of ids) {
+      unlockPack(id, progress);
+      unlocked.push(id);
+    }
+    return ids.length ? { type: ACHIEVEMENT_REWARD_TYPES.PACK, packIds: unlocked } : null;
+  },
+  [ACHIEVEMENT_REWARD_TYPES.CUSTOM]: ({ achievement, progress, event, context }) => {
+    const reward = achievement?.reward || {};
+    if (typeof reward.apply === 'function') {
+      return reward.apply({ achievement, progress, event, context }) || null;
+    }
+    return null;
+  },
+  [ACHIEVEMENT_REWARD_TYPES.NONE]: () => null
+};
+
+function applyAchievementReward(achievement, progress, { event, context }) {
+  const reward = achievement?.reward;
+  if (!reward) return null;
+  if (typeof reward === 'string') return null;
+  const type = reward.type || ACHIEVEMENT_REWARD_TYPES.NONE;
+  const handler = ACHIEVEMENT_REWARD_HANDLERS[type];
+  if (!handler) return null;
+  return handler({ achievement, progress, event, context });
+}
+
+function evaluateAchievements({ progress = PROGRESS, event = {}, context = {} } = {}) {
+  const unlocked = [];
+  const rewards = [];
+  const themeIds = new Set();
+  if (!progress) return { unlocked, rewards, themeIds: [] };
+  const achievementState = ensureAchievementState(progress);
+
+  for (const achievement of ACHIEVEMENTS) {
+    if (!achievement?.id) continue;
+    const id = String(achievement.id);
+    if (achievementState.has(id)) continue;
+    if (achievement.disabled) continue;
+    const meta = achievement.unlock || {};
+    const type = meta.type || ACHIEVEMENT_CONDITION_TYPES.CUSTOM;
+    const checker = ACHIEVEMENT_CHECKERS[type];
+    if (!checker) continue;
+    let satisfied = false;
+    try {
+      satisfied = Boolean(checker({ achievement, meta, progress, event, context }));
+    } catch (err) {
+      console.warn('[achievements] evaluation failed for', id, err);
+    }
+    if (!satisfied) continue;
+    achievementState.add(id);
+    unlocked.push(achievement);
+  }
+
+  if (unlocked.length) {
+    for (const achievement of unlocked) {
+      const rewardResult = applyAchievementReward(achievement, progress, { event, context });
+      if (rewardResult) {
+        rewards.push(rewardResult);
+        if (rewardResult.type === ACHIEVEMENT_REWARD_TYPES.THEME) {
+          (rewardResult.themeIds || []).forEach((themeId) => themeIds.add(String(themeId)));
+        }
+      }
+    }
+  }
+
+  return { unlocked, rewards, themeIds: [...themeIds] };
+}
+
+function formatAchievementRewardLabel(achievement) {
+  const reward = achievement?.reward;
+  if (!reward) return '';
+  if (typeof reward === 'string') return reward;
+  if (reward.label) return reward.label;
+  switch (reward.type) {
+    case ACHIEVEMENT_REWARD_TYPES.THEME:
+      return 'Unlocks a Theme';
+    case ACHIEVEMENT_REWARD_TYPES.PACK:
+      return 'Unlocks a Pack';
+    case ACHIEVEMENT_REWARD_TYPES.CUSTOM:
+      return 'Unlocks a Surprise';
+    default:
+      return '';
+  }
+}
+
 function loadProgress() {
   if (PROGRESS) return PROGRESS;
   let stored = null;
@@ -599,6 +880,7 @@ function loadProgress() {
   const migrated = migrateProgress(stored);
   PROGRESS = migrated ?? createDefaultProgress();
   const tutorialUnlocksChanged = applyTutorialUnlocks(PROGRESS);
+  ensureAchievementState(PROGRESS);
   const themeInit = ensureThemesInitialized(PROGRESS);
   if (!migrated || tutorialUnlocksChanged || themeInit.activeChanged || themeInit.unlocked.length) saveProgress();
   return PROGRESS;
@@ -653,9 +935,15 @@ function unlockPack(id, progress = PROGRESS) {
   if (!progress) return;
   progress.unlockedPacks.add(String(id));
 }
-function markCompleted(id, progress = PROGRESS) {
-  if (!progress) return;
-  progress.completed.add(String(id));
+function markCompleted(id, progress = PROGRESS, context = {}) {
+  if (!progress) return { unlocked: [], rewards: [], themeIds: [] };
+  const puzzleId = String(id);
+  progress.completed.add(puzzleId);
+  const baseEvent = (context && typeof context.event === 'object') ? { ...context.event } : {};
+  if (!baseEvent.type) baseEvent.type = ACHIEVEMENT_CONDITION_TYPES.PUZZLE_COMPLETE;
+  if (!baseEvent.puzzleId) baseEvent.puzzleId = puzzleId;
+  const evaluationContext = { ...context, puzzleId };
+  return evaluateAchievements({ progress, event: baseEvent, context: evaluationContext });
 }
 
 function recordBest(id, turns, progress = PROGRESS) {
@@ -1269,11 +1557,13 @@ async function GameView(match, opts = {}) {
 
   let backHref = opts.backHrefOverride || '#/play';
   let nextHref = opts.nextHrefOverride || '';
+  let packForLevel = null;
   if (!levelOverride && !opts.nextHrefOverride) {
     try {
       const packs = await loadPacks();
       const found = packs.list.find(pk => (pk.puzzles || []).some(pz => String(pz.id) === String(resolvedLevelId)));
       if (found) {
+        packForLevel = found;
         backHref = `#/play/${found.id}`;
         const ix = (found.puzzles || []).findIndex(pz => String(pz.id) === String(resolvedLevelId));
         const next = ix >= 0 ? (found.puzzles || [])[ix + 1] : null;
@@ -1368,12 +1658,22 @@ async function GameView(match, opts = {}) {
       const prevLevels = new Set(PROGRESS.unlockedLevels);
       const prevPacks = new Set(PROGRESS.unlockedPacks);
       const id = String(level.id || resolvedLevelId);
-      markCompleted(id);
+      const completionEvent = {
+        type: ACHIEVEMENT_CONDITION_TYPES.PUZZLE_COMPLETE,
+        puzzleId: id,
+        packId: packForLevel?.id || null
+      };
+      const completionResult = markCompleted(id, PROGRESS, { event: completionEvent, pack: packForLevel });
       const used = Math.max(1, (finalState?.turn || 1) - 1);
       recordBest(id, used);
-      if (level.meta?.id) markCompleted(String(level.meta.id));
+      if (level.meta?.id) {
+        const metaId = String(level.meta.id);
+        markCompleted(metaId, PROGRESS, { event: { type: 'metaComplete', metaId, puzzleId: id }, pack: packForLevel });
+      }
       applyTutorialUnlocks();
-      const newlyUnlockedThemes = syncThemeUnlocks(PROGRESS);
+      const achievementThemeUnlocks = new Set(completionResult?.themeIds || []);
+      const newlyUnlockedThemesFromProgress = syncThemeUnlocks(PROGRESS);
+      const newlyUnlockedThemes = [...new Set([...achievementThemeUnlocks, ...newlyUnlockedThemesFromProgress])];
       saveProgress();
       syncPacksUnlockedFromProgress();
 
@@ -1383,6 +1683,29 @@ async function GameView(match, opts = {}) {
       const par = Number(level.par || 0);
       const diff = usedTurns - par;
       let perf = par ? (diff < 0 ? `Under par by ${Math.abs(diff)}!` : diff === 0 ? `Right at par.` : `Over par by ${diff}.`) : '';
+      const achievementsUnlocked = completionResult?.unlocked || [];
+      const packRewards = (completionResult?.rewards || []).filter((reward) => reward?.type === ACHIEVEMENT_REWARD_TYPES.PACK);
+      const unlockedPackIdsFromRewards = new Set();
+      for (const reward of packRewards) {
+        for (const packId of reward.packIds || []) {
+          unlockedPackIdsFromRewards.add(String(packId));
+        }
+      }
+      achievementsUnlocked.forEach((achievement) => {
+        const detail = achievement.description ? ` — ${achievement.description}` : '';
+        showToast(`Achievement unlocked: ${achievement.name}${detail}`);
+      });
+      if (unlockedPackIdsFromRewards.size) {
+        const packNames = [...unlockedPackIdsFromRewards].map((packId) => {
+          const pack = PACKS_DB?.byId?.[packId];
+          return pack ? pack.name : String(packId);
+        });
+        const packLabel = packNames.length <= 1
+          ? (packNames[0] || '')
+          : `${packNames.slice(0, -1).join(', ')} and ${packNames[packNames.length - 1]}`;
+        const packMessage = packLabel ? `🧩 Pack unlocked: ${packLabel}.` : '🧩 New puzzle pack unlocked.';
+        showUnlockToast(packMessage);
+      }
       showUnlockToast(`🎉 Nice! You finished in ${usedTurns}. ${perf}`.trim());
       if (newlyUnlockedThemes.length) {
         const themeNames = formatThemeNames(newlyUnlockedThemes);
@@ -1612,12 +1935,54 @@ function ThemesView(){
   });
 }
 
+function renderAchievementCard(achievement, { unlocked } = {}) {
+  const classes = ['achievement-card'];
+  if (unlocked) {
+    classes.push('achievement-card--unlocked');
+  } else {
+    classes.push('achievement-card--locked');
+  }
+  const statusLabel = unlocked ? 'Unlocked' : 'Locked';
+  const description = unlocked ? (achievement.description || '') : '???';
+  const rewardLabel = formatAchievementRewardLabel(achievement) || '—';
+  return `
+    <article class="${classes.join(' ')}">
+      <header class="achievement-card__header">
+        <h3 class="achievement-card__name">${achievement.name}</h3>
+        <span class="achievement-card__status">${statusLabel}</span>
+      </header>
+      <p class="achievement-card__desc">${description}</p>
+      <div class="achievement-card__reward">Reward: <span class="achievement-card__reward-label">${rewardLabel}</span></div>
+    </article>
+  `;
+}
+
 function AchievementsView(){
   document.documentElement.classList.remove('is-daily');
-  app().innerHTML = `
-    <section class="section view" style="max-width:640px; margin:auto; padding:20px;">
+  const mount = app();
+  if (!mount) return;
+  const progress = loadProgress();
+  const unlockedSet = ensureAchievementState(progress);
+  const total = ACHIEVEMENTS.length;
+  const unlockedCount = ACHIEVEMENTS.reduce((count, achievement) => (
+    unlockedSet.has(String(achievement.id)) ? count + 1 : count
+  ), 0);
+  const cardsHtml = ACHIEVEMENTS.map((achievement) => {
+    const isUnlocked = unlockedSet.has(String(achievement.id));
+    return renderAchievementCard(achievement, { unlocked: isUnlocked });
+  }).join('');
+
+  mount.innerHTML = `
+    <section class="section view achievement-view" style="max-width:900px; margin:auto; padding:20px;">
       <h2>Achievements</h2>
-      <p>Coming soon.</p>
+      <p class="lead">Complete puzzles, explore packs, and unlock special rewards.</p>
+      <div class="achievement-summary">${unlockedCount} of ${total} unlocked</div>
+      <div class="achievement-grid">
+        ${cardsHtml}
+      </div>
+      <div class="game-toolbar" style="margin: 24px 0 0;">
+        <a class="btn" href="#/">← Back</a>
+      </div>
     </section>
   `;
 }
