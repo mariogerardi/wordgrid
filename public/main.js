@@ -1089,12 +1089,12 @@ function renderHeaderNav(){
           </svg>
         </button>
         <nav class="header-actions" id="headerActions" aria-hidden="true">
-          <a class="btn btn--daily" href="#/">Daily</a>
-          <a class="btn" href="#/play">Packs</a>
+          <a class="btn btn--daily" href="#/">Daily Puzzle</a>
+          <a class="btn" href="#/play">Puzzle Packs</a>
           <a class="btn" href="#/how">How&nbsp;to&nbsp;Play</a>
           <a class="btn" href="#/themes">Themes</a>
           <a class="btn" href="#/achievements">Achievements</a>
-          <a class="btn" href="#/editor">Editor</a>
+          <a class="btn" href="#/editor">Level Editor</a>
           <a class="btn" href="#/settings">Settings</a>
         </nav>
       </div>
@@ -1176,7 +1176,6 @@ async function PacksView() {
 
   app().innerHTML = `
     <section class="section view">
-      <h2 style="margin:0 0 8px;">Choose a pack</h2>
       ${sectionHTML}
       <div class="game-toolbar" style="margin: 12px 0 0;">
         <a class="btn" href="#/">← Back</a>

@@ -35,7 +35,7 @@
   :root {
     color-scheme: light;
     /* Layout & spacing */
-    --size-content-max: 840px;
+    --size-content-max: 800px;
     --content-max: var(--size-content-max); /* legacy alias */
     --cell: 56px; /* primary grid cell size */
     --cell-max: 75px; /* clamp cap shared by board/tiles */
@@ -1955,7 +1955,6 @@
 
   /* ----- Game toolbar ----- */
   .game-toolbar {
-    position: relative;
     z-index: 2;
   }
 }

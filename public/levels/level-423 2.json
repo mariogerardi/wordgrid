@@ -1,0 +1,24 @@
+{
+  "meta": {
+    "id": "423",
+    "name": "Mosaic 3",
+    "par": 0,
+    "intro": ""
+  },
+  "board": {
+    "size": [
+      1,
+      1
+    ],
+    "goal": [
+      0,
+      0
+    ],
+    "seeds": [],
+    "specials": []
+  },
+  "deck": [],
+  "startingHand": [],
+  "allowedWords": [],
+  "notes": ""
+}
