@@ -270,6 +270,73 @@
     --shadow-inset: 0 0 0 2px rgba(0,215,255,.45) inset;
   }
 
+  :root[data-theme="frutiger-aero"] {
+    color-scheme: light;
+    --color-bg: radial-gradient(circle at 10% 20%, #f9fdff 0%, #e3f6ff 35%, #dff2ff 55%, #f3f8ff 100%), linear-gradient(160deg, #f4fbff, #e8f0ff 45%, #f9f6ff 100%);
+    --color-surface: rgba(255,255,255,.82);
+    --color-surface-muted: rgba(255,255,255,.75);
+    --color-surface-alt: rgba(255,255,255,.78);
+    --color-surface-soft: rgba(255,255,255,.68);
+    --color-surface-tint: rgba(210,239,255,.58);
+    --color-ink: #0b235a;
+    --color-ink-strong: #041443;
+    --color-ink-muted: #2d4f92;
+    --color-ink-subtle: #3a63ad;
+    --color-ink-soft: #4a72b8;
+    --color-ink-hint: #5c82c3;
+    --color-line: rgba(46,116,200,.35);
+    --color-line-strong: rgba(24,92,185,.45);
+    --color-line-subtle: rgba(80,140,220,.28);
+    --color-line-soft: rgba(136,182,240,.25);
+    --color-line-muted: rgba(170,205,248,.28);
+    --color-accent: #14b8ff;
+    --color-accent-strong: #0087ff;
+    --color-accent-contrast: #0060f5;
+    --color-accent-muted: #92d6ff;
+    --color-accent-soft: rgba(20,184,255,.18);
+    --color-accent-disabled: rgba(165,211,255,.45);
+    --color-accent-2: #ff6ed4;
+    --color-success: #31e0b5;
+    --color-success-soft: rgba(203,255,236,.55);
+    --color-success-border: rgba(64,214,173,.55);
+    --color-danger: #ff6f95;
+    --color-danger-soft: rgba(255,225,236,.65);
+    --color-blocked: #112859;
+    --color-slot-ink: #5a6e9f;
+    --color-info: #2c5bcf;
+    --color-scroll-thumb: rgba(87,147,214,.55);
+    --color-pack-tag-border: rgba(81,156,248,.55);
+    --color-stripe-archetypes: #aa66ff;
+    --color-stripe-constraints: #32e0b8;
+    --color-stripe-variety: #ffb347;
+    --color-disabled-text: rgba(64,99,156,.7);
+    --color-disabled-border: rgba(151,186,232,.45);
+    --color-disabled-surface: rgba(239,246,255,.78);
+    --color-par-track-bg: rgba(255,255,255,.55);
+    --color-par-track-border: rgba(130,175,235,.4);
+    --color-par-square: rgba(255,255,255,.78);
+    --color-par-square-border: rgba(120,167,230,.52);
+    --color-par-square-best-border: #05a8ff;
+    --color-focus: #37d6ff;
+    --gradient-board: linear-gradient(140deg, rgba(255,255,255,.95) 0%, rgba(196,243,255,.72) 45%, rgba(255,214,255,.68) 100%);
+    --portal-rgb-default: 20, 184, 255;
+    --portal-rgb-a: 255, 110, 212;
+    --portal-rgb-b: 49, 224, 184;
+    --portal-rgb-c: 255, 179, 68;
+    --portal-rgb-d: 255, 105, 156;
+    --shadow-sm: 0 1px 2px rgba(9,36,90,.18), 0 0 0 1px rgba(255,255,255,.6) inset;
+    --shadow-md: 0 6px 14px rgba(8,47,122,.22), 0 0 0 1px rgba(255,255,255,.45) inset;
+    --shadow-lg: 0 14px 32px rgba(12,72,160,.25), 0 8px 24px rgba(255,255,255,.18) inset;
+    --shadow-hover-lg: 0 22px 38px rgba(0,120,255,.32), 0 0 22px rgba(20,184,255,.32);
+    --shadow-accent: 0 6px 22px rgba(20,184,255,.45);
+    --shadow-accent-strong: 0 8px 28px rgba(0,135,255,.52);
+    --shadow-pill: 0 8px 20px rgba(16,96,200,.28), 0 1px 0 rgba(255,255,255,.7) inset;
+    --shadow-inset: 0 1px 0 rgba(255,255,255,.75) inset, 0 0 0 2px rgba(20,184,255,.25) inset;
+    --transition-fast: .14s cubic-bezier(.33,.9,.33,1);
+    --transition-base: .2s cubic-bezier(.3,.7,.3,1);
+    --transition-slow: .36s cubic-bezier(.25,.7,.3,1);
+  }
+
   @media (max-width: 600px) {
     :root {
       --cell: 48px;
